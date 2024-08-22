@@ -11,4 +11,4 @@ tasks:
   test:
     desc: "Tests app"
     cmds: 
-    - go test -v ./internal/validators
+    - go test -v ./pkg/validators/grpc_exchange

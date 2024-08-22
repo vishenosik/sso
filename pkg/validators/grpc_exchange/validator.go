@@ -1,4 +1,4 @@
-package validators
+package validator
 
 import (
 	"github.com/go-playground/validator/v10"
@@ -10,13 +10,14 @@ var (
 	ErrNilRequest = errors.New("request is nil")
 )
 
-type Request interface {
-	ProtoReflect() protoreflect.Message
+type ProtoExchange interface {
 	ProtoMessage()
-	Descriptor() ([]byte, []int)
+	ProtoReflect() protoreflect.Message
+	Reset()
+	String() string
 }
 
-func ValidateRequest(x Request) error {
+func Validate(x ProtoExchange) error {
 
 	if x == nil {
 		return ErrNilRequest
