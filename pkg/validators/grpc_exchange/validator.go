@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrNilRequest = errors.New("request is nil")
+	ErrNilRequest = errors.New("proto exchange is nil")
 )
 
 type ProtoExchange interface {
