@@ -1,14 +1,18 @@
 version: "3"
 
+
 tasks:
-  generate:
+  generate-go:
     aliases:
-      - gen
+      - gen-go
     desc: "Generate golang code from proto files"
-    cmds:
-      - protoc -I proto proto/sso/sso.proto --go_out=./gen/go --go_opt=paths=source_relative --go-grpc_out=./gen/go --go-grpc_opt=paths=source_relative
+    cmds: 
+      - protoc -I proto $PROTOS_DIR/sso/sso.proto --go_out=$GO_GEN_DIR --go_opt=paths=source_relative --go-grpc_out=$GO_GEN_DIR --go-grpc_opt=paths=source_relative
+    env:
+      PROTOS_DIR: proto
+      GO_GEN_DIR: ./gen/go
 
   test:
     desc: "Tests app"
     cmds: 
-    - go test -v ./pkg/validators/grpc_exchange
+      - go test -v -cover ./pkg/validators/grpc_exchange
