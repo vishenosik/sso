@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "blacksmith.sso.v1;sso";
+option go_package = "github.com/blacksmith-vish/sso;sso";
 
 service Authentication {
     rpc Register (RegisterRequest) returns (RegisterResponse);
@@ -39,6 +39,7 @@ message IsAdminResponse {
 
 service Authorization {
     rpc Role (RoleRequest) returns (RoleResponse);
+    rpc Roles (RolesRequest) returns (RoleResponse);
 }
 
 message RoleRequest {
@@ -47,4 +48,11 @@ message RoleRequest {
 
 message RoleResponse {
     string role = 1;
+}
+
+message RolesRequest {}
+
+message RolesResponse {
+    uint32 total = 1;
+    repeated string roles = 2;
 }

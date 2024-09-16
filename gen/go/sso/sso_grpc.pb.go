@@ -197,7 +197,8 @@ var Authentication_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Authorization_Role_FullMethodName = "/auth.Authorization/Role"
+	Authorization_Role_FullMethodName  = "/auth.Authorization/Role"
+	Authorization_Roles_FullMethodName = "/auth.Authorization/Roles"
 )
 
 // AuthorizationClient is the client API for Authorization service.
@@ -205,6 +206,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationClient interface {
 	Role(ctx context.Context, in *RoleRequest, opts ...grpc.CallOption) (*RoleResponse, error)
+	Roles(ctx context.Context, in *RolesRequest, opts ...grpc.CallOption) (*RoleResponse, error)
 }
 
 type authorizationClient struct {
@@ -225,11 +227,22 @@ func (c *authorizationClient) Role(ctx context.Context, in *RoleRequest, opts ..
 	return out, nil
 }
 
+func (c *authorizationClient) Roles(ctx context.Context, in *RolesRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleResponse)
+	err := c.cc.Invoke(ctx, Authorization_Roles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthorizationServer is the server API for Authorization service.
 // All implementations must embed UnimplementedAuthorizationServer
 // for forward compatibility.
 type AuthorizationServer interface {
 	Role(context.Context, *RoleRequest) (*RoleResponse, error)
+	Roles(context.Context, *RolesRequest) (*RoleResponse, error)
 	mustEmbedUnimplementedAuthorizationServer()
 }
 
@@ -242,6 +255,9 @@ type UnimplementedAuthorizationServer struct{}
 
 func (UnimplementedAuthorizationServer) Role(context.Context, *RoleRequest) (*RoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Role not implemented")
+}
+func (UnimplementedAuthorizationServer) Roles(context.Context, *RolesRequest) (*RoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Roles not implemented")
 }
 func (UnimplementedAuthorizationServer) mustEmbedUnimplementedAuthorizationServer() {}
 func (UnimplementedAuthorizationServer) testEmbeddedByValue()                       {}
@@ -282,6 +298,24 @@ func _Authorization_Role_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Authorization_Roles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServer).Roles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Authorization_Roles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServer).Roles(ctx, req.(*RolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Authorization_ServiceDesc is the grpc.ServiceDesc for Authorization service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -292,6 +326,10 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Role",
 			Handler:    _Authorization_Role_Handler,
+		},
+		{
+			MethodName: "Roles",
+			Handler:    _Authorization_Roles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
