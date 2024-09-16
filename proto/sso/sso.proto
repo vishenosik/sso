@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "blacksmith.sso.v1;ssov1";
+option go_package = "blacksmith.sso.v1;sso";
 
 service Authentication {
     rpc Register (RegisterRequest) returns (RegisterResponse);
