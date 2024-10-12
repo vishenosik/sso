@@ -1,0 +1,1 @@
+dir to store protoc generated golang files

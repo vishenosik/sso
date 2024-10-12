@@ -7,11 +7,10 @@ tasks:
     aliases:
       - gen-go
     desc: "Generate golang code from proto files"
-    # deps: [make-dir]
-    cmds: 
-      - $CMD $PROTOS_DIR/authentication.proto $GO_OUT/authentication $GO_OPT_GRPC_OUT/authentication $GRPC_OPT
-      - $CMD $PROTOS_DIR/authorization.proto $GO_OUT/authorization $GO_OPT_GRPC_OUT/authorization $GRPC_OPT
+    cmd: sh $SCRIPTS_DIR/generate.sh
 
-  make-dir:
-    cmds:
-      - $SCRIPTS_DIR/prepare.sh
+  new-service:
+    aliases:
+      - new
+    desc: 'Pre-create new service files. Example: task new -- service_name'
+    cmd: sh $SCRIPTS_DIR/prepare.sh {{.CLI_ARGS}}
