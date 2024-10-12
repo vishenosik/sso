@@ -14,5 +14,4 @@ tasks:
 
   make-dir:
     cmds:
-      - 'mkdir ./gen/go/authentication'
-      - 'mkdir authorization'
+      - $SCRIPTS_DIR/prepare.sh
