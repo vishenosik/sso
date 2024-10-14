@@ -8,9 +8,3 @@ tasks:
       - gen-go
     desc: "Generate golang code from proto files"
     cmd: sh $SCRIPTS_DIR/generate.sh
-
-  new-service:
-    aliases:
-      - new
-    desc: 'Pre-create new service files. Example: task new -- service_name'
-    cmd: sh $SCRIPTS_DIR/prepare.sh {{.CLI_ARGS}}
