@@ -4,18 +4,28 @@ set -a
 source .env
 set +a
 
-for file in $PROTOS_DIR/*.proto; do
+for VersionDir in $PROTOS_DIR/*; do
 
-    service=$(basename "${file%.*}" .proto)
-    dir="$GOLANG_GEN_DIR/$service"
+    ApiVersion=$(basename "${VersionDir}")
 
-    if ! [[ -d $dir ]]; then
-        echo "Creating path: $dir"
-        mkdir $dir
-    fi
+    for file in $VersionDir/*.proto; do
 
-    echo "Generating service files: $service"
-    protoc -I $PROTOS_DIR "$PROTOS_DIR/$service.proto" --go_out=$dir --go_opt=paths=source_relative --go-grpc_out=$dir --go-grpc_opt=paths=source_relative
+        service=$(basename "${file%.*}" .proto)
+        dir="$GOLANG_GEN_DIR/$ApiVersion"
+
+        if ! [[ -d $dir ]]; then
+            mkdir $dir
+        fi
+
+        dir="$GOLANG_GEN_DIR/$ApiVersion/$service"
+        if ! [[ -d $dir ]]; then
+            mkdir $dir
+        fi
+
+        echo "Generating service files: $service"
+        protoc -I $PROTOS_DIR/$ApiVersion "$PROTOS_DIR/$ApiVersion/$service.proto" --go_out=$dir --go_opt=paths=source_relative --go-grpc_out=$dir --go-grpc_opt=paths=source_relative
+
+    done
 
 done
 

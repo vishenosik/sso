@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package authentication;
+package authentication.v1;
 
-option go_package = "github.com/blacksmith-vish/sso;authentication";
+option go_package = "github.com/blacksmith-vish/sso;authentication_v1";
 
 service Authentication {
     rpc Register (RegisterRequest) returns (RegisterResponse);
