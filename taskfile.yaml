@@ -6,17 +6,17 @@ tasks:
   generate-go:
     aliases:
       - gen-go
-    desc: "Generate golang code from proto files"
+    desc: Generate golang code from proto files
     cmd: sh $SCRIPTS_DIR/generate.sh
 
   test:
-    desc: "Test all packages"
+    desc: Test all packages
     cmd: go test -v -cover -coverprofile=$COVERAGE_FILE ./...
   
   test-coverage:
     aliases:
       - cover
-    desc: "Generates coverage html after testing"
+    desc: Generates coverage html after testing
     deps:
       - test
     cmd: go tool cover -html=$COVERAGE_FILE

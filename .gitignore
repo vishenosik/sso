@@ -18,9 +18,6 @@
 go.work
 go.work.sum
 
-# cover profile output files
-*.cover
-
 # ide settings
 .vs
 .vscode
