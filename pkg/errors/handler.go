@@ -10,21 +10,33 @@ import (
 type ErrorsCodes map[error]int
 
 type handler struct {
-	message string
-	codes   ErrorsCodes
+	log            *slog.Logger
+	responseWriter http.ResponseWriter
+	message        string
+	codes          ErrorsCodes
 }
 
 // Сигнатура функции для задания параметров
 type optsFunc func(*handler)
 
 // Задает опции по умолчанию
-func defaultOpts() *handler {
-	return &handler{}
+func defaultOpts(
+	log *slog.Logger,
+	w http.ResponseWriter,
+) *handler {
+	return &handler{
+		log:            log,
+		responseWriter: w,
+	}
 }
 
-func NewHandler(opts ...optsFunc) *handler {
+func NewHandler(
+	log *slog.Logger,
+	w http.ResponseWriter,
+	opts ...optsFunc,
+) *handler {
 
-	hlr := defaultOpts()
+	hlr := defaultOpts(log, w)
 
 	for _, opt := range opts {
 		if opt == nil {
@@ -36,29 +48,28 @@ func NewHandler(opts ...optsFunc) *handler {
 	return hlr
 }
 
-func (hlr *handler) Handle(err error) httpError {
+func (hlr *handler) Handle(err error) {
+
+	var code int = http.StatusInternalServerError
 
 	if err == nil {
-		return httpError{}
-	}
-
-	Error := httpError{
-		err: errors.Wrap(err, hlr.message),
-		slogAttrs: []slog.Attr{
-			slog.String("err", err.Error()),
-		},
+		return
 	}
 
 	for Err, Code := range hlr.codes {
-
 		if errors.Is(err, Err) {
-			Error.code = Code
-			return Error
+			code = Code
+			break
 		}
 	}
 
-	Error.code = http.StatusInternalServerError
-	return Error
+	hlr.log.Error(hlr.message, slog.String("err", err.Error()))
+
+	http.Error(
+		hlr.responseWriter,
+		errors.Wrap(err, hlr.message).Error(),
+		code,
+	)
 }
 
 func WithCodes(codes ErrorsCodes) optsFunc {

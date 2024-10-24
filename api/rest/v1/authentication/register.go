@@ -41,37 +41,31 @@ func (srv server) register() http.HandlerFunc {
 		ErrUserExists: http.StatusNotAcceptable,
 	}
 
-	handler := errs.NewHandler(
-		errs.WithMessage("registration failed"),
-		errs.WithCodes(errList),
-	)
-
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		request := new(RegisterRequest)
+		var request RegisterRequest
 
-		err := json.NewDecoder(r.Body).Decode(request)
+		err := json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
 			log.Error(err.Error())
 		}
 
-		serviceRequest := RegisterRequest{
-			Nickname: r.Form.Get("nickname"),
-			Email:    r.Form.Get("email"),
-			Password: r.Form.Get("pswd"),
-		}
+		errHandler := errs.NewHandler(
+			log,
+			w,
+			errs.WithMessage(errorMessage),
+			errs.WithCodes(errList),
+		)
 
 		_, err = srv.auth.Register(
 			context.Background(),
-			serviceRequest,
+			request,
 		)
 		if err != nil {
-			Err := handler.Handle(err)
-			log.Error(errorMessage, Err.SlogAttrs()...)
-			http.Error(w, Err.Error(), Err.Code())
+			errHandler.Handle(err)
 			return
 		}
 
-		w.Write([]byte("Hello BITCH!"))
+		// w.Write([]byte(response))
 	}
 }

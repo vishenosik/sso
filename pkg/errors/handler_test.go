@@ -1,7 +1,10 @@
 package errors
 
 import (
+	"io"
+	"log/slog"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,16 +26,31 @@ var (
 	}
 )
 
-func newHandlerSuite(t *testing.T) *handler {
+type handlerSuite struct {
+	hlr     *handler
+	recoder *httptest.ResponseRecorder
+	log     *slog.Logger
+}
+
+func newHandlerSuite(t *testing.T) handlerSuite {
 
 	t.Helper()
 	t.Parallel()
 
-	return NewHandler(
-		WithMessage(message),
-		WithCodes(errList),
-	)
+	recoder := httptest.NewRecorder()
 
+	return handlerSuite{
+		hlr: NewHandler(
+			slog.Default(),
+			recoder,
+			WithMessage(message),
+			WithCodes(errList),
+		),
+		recoder: recoder,
+		log: slog.New(
+			slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		),
+	}
 }
 
 func Test_defaultOpts(t *testing.T) {
@@ -40,68 +58,67 @@ func Test_defaultOpts(t *testing.T) {
 	t.Helper()
 	t.Parallel()
 
-	hlr := defaultOpts()
-	expect := &handler{}
+	recoder := httptest.NewRecorder()
+	log := slog.New(
+		slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}),
+	)
+
+	expect := &handler{
+		responseWriter: recoder,
+		log:            log,
+	}
+
+	hlr := defaultOpts(log, recoder)
 
 	assert.Equal(t, expect, hlr)
 
 }
 
 func Test_NewHandler(t *testing.T) {
-	hlr := newHandlerSuite(t)
-	assert.Equal(t, message, hlr.message)
+	suite := newHandlerSuite(t)
+	assert.Equal(t, message, suite.hlr.message)
 
-	hlr = NewHandler()
-	assert.Empty(t, hlr.codes)
-	assert.Empty(t, hlr.message)
+	suite.hlr = NewHandler(
+		suite.log,
+		suite.recoder,
+		nil,
+		WithMessage(""),
+	)
+	assert.Empty(t, suite.hlr.codes)
+	assert.Empty(t, suite.hlr.message)
 }
 
 func Test_Handle(t *testing.T) {
 
-	hlr := newHandlerSuite(t)
-	err := hlr.Handle(currentError)
+	suite := newHandlerSuite(t)
+	suite.hlr.Handle(currentError)
 
-	assert.Equal(t, code, err.Code())
-	assert.Equal(t, expectedMessage, err.Error())
+	assert.Equal(t, code, suite.recoder.Code)
 
-	for _, attr := range err.slogAttrs {
+	suite.hlr.Handle(errors.New("new err"))
+	assert.Equal(t, code, suite.recoder.Code)
 
-		switch attr.Key {
-
-		case "err":
-			assert.Equal(t, "err", attr.Key)
-			assert.Equal(t, currentMessage, attr.Value.String())
-
-		default:
-			t.Error("no needed args provided")
-		}
-
-	}
-
-	err = hlr.Handle(errors.New("new err"))
-	assert.Equal(t, http.StatusInternalServerError, err.Code())
-
-	err = hlr.Handle(nil)
-	assert.Empty(t, err)
+	suite.hlr.Handle(nil)
+	assert.Equal(t, code, suite.recoder.Code)
 }
 
 func Test_WithCodes(t *testing.T) {
 
-	hlr := newHandlerSuite(t)
+	suite := newHandlerSuite(t)
 
 	var codes ErrorsCodes = map[error]int{
 		currentError: http.StatusBadRequest,
 	}
 
-	WithCodes(codes)(hlr)
-	assert.Equal(t, hlr.codes, codes)
+	WithCodes(codes)(suite.hlr)
+	assert.Equal(t, suite.hlr.codes, codes)
 }
 
 func Test_WithMessage(t *testing.T) {
 
-	hlr := newHandlerSuite(t)
+	suite := newHandlerSuite(t)
 	const msg = "msg"
 
-	WithMessage(msg)(hlr)
-	assert.Equal(t, hlr.message, msg)
+	WithMessage(msg)(suite.hlr)
+	assert.Equal(t, suite.hlr.message, msg)
 }
