@@ -4,7 +4,7 @@
 // - protoc             v5.28.1
 // source: authentication.proto
 
-package authentication
+package authentication_v1
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Authentication_Register_FullMethodName = "/authentication.Authentication/Register"
-	Authentication_Login_FullMethodName    = "/authentication.Authentication/Login"
-	Authentication_IsAdmin_FullMethodName  = "/authentication.Authentication/IsAdmin"
+	Authentication_Register_FullMethodName = "/authentication.v1.Authentication/Register"
+	Authentication_Login_FullMethodName    = "/authentication.v1.Authentication/Login"
+	Authentication_IsAdmin_FullMethodName  = "/authentication.v1.Authentication/IsAdmin"
 )
 
 // AuthenticationClient is the client API for Authentication service.
@@ -176,7 +176,7 @@ func _Authentication_IsAdmin_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Authentication_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "authentication.Authentication",
+	ServiceName: "authentication.v1.Authentication",
 	HandlerType: (*AuthenticationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -197,8 +197,8 @@ var Authentication_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Authorization_Role_FullMethodName  = "/authentication.Authorization/Role"
-	Authorization_Roles_FullMethodName = "/authentication.Authorization/Roles"
+	Authorization_Role_FullMethodName  = "/authentication.v1.Authorization/Role"
+	Authorization_Roles_FullMethodName = "/authentication.v1.Authorization/Roles"
 )
 
 // AuthorizationClient is the client API for Authorization service.
@@ -320,7 +320,7 @@ func _Authorization_Roles_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Authorization_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "authentication.Authorization",
+	ServiceName: "authentication.v1.Authorization",
 	HandlerType: (*AuthorizationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

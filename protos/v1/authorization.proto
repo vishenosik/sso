@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package authorization;
+package authorization.v1;
 
-option go_package = "github.com/blacksmith-vish/sso;authorization";
+option go_package = "github.com/blacksmith-vish/sso;authorization_v1";
 
 service Authorization {
     rpc Role (RoleRequest) returns (RoleResponse);

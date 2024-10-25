@@ -4,7 +4,7 @@
 // - protoc             v5.28.1
 // source: authorization.proto
 
-package authorization
+package authorization_v1
 
 import (
 	context "context"
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Authorization_Role_FullMethodName  = "/authorization.Authorization/Role"
-	Authorization_Roles_FullMethodName = "/authorization.Authorization/Roles"
+	Authorization_Role_FullMethodName  = "/authorization.v1.Authorization/Role"
+	Authorization_Roles_FullMethodName = "/authorization.v1.Authorization/Roles"
 )
 
 // AuthorizationClient is the client API for Authorization service.
@@ -142,7 +142,7 @@ func _Authorization_Roles_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Authorization_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "authorization.Authorization",
+	ServiceName: "authorization.v1.Authorization",
 	HandlerType: (*AuthorizationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
