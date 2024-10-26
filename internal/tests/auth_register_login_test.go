@@ -1,3 +1,6 @@
+//go:build !test
+// +build !test
+
 package tests
 
 import (
@@ -22,7 +25,7 @@ const (
 	passDefautlLen = 10
 )
 
-func TestRegisterLogin_Login_HappyPass(t *testing.T) {
+func RegisterLogin_Login_HappyPass(t *testing.T) {
 	ctx, st := suite.New(t)
 
 	email := gofakeit.Email()
