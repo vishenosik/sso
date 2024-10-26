@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package authorization.v1;
+
+option go_package = "github.com/blacksmith-vish/sso;authorization_v1";
+
+service Authorization {
+    rpc Role (RoleRequest) returns (RoleResponse);
+    rpc Roles (RolesRequest) returns (RoleResponse);
+}
+
+message RoleRequest {
+    string user_id = 1;
+}
+
+message RoleResponse {
+    string role = 1;
+}
+
+message RolesRequest {}
+
+message RolesResponse {
+    uint32 total = 1;
+    repeated string roles = 2;
+}

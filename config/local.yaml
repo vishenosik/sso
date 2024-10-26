@@ -1,0 +1,27 @@
+dotenv: ['../.env']
+
+env: "dev" # dev, prod
+store_path: ./storage/sso.db
+
+services:
+
+  authentication:
+    token_ttl: 1h
+
+# ports are meant to be in range (8000,65535)
+servers:
+
+  grpc:
+    server:
+      port: 44844
+      timeout: 5s
+
+  rest:
+    server:
+      port: 8080
+      timeout: 5s
+  
+  routes:
+    server:
+      port: 3000
+      timeout: 5s

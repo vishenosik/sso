@@ -1,0 +1,66 @@
+# COMMON
+###
+
+# binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin
+
+# test binary, built with `go test -c`
+*.test
+
+# output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# go workspace file
+go.work
+go.work.sum
+
+###
+
+# IDE SETTINGS
+###
+
+# Visual Studio
+.vs
+# Visual StudioCode
+.vscode
+# JetBrains
+.idea
+
+###
+
+# TASKFILE SETTINGS
+###
+
+# checksums
+/.task
+
+###
+
+# OBSIDIAN SETTINGS
+###
+
+# to exclude Obsidian's settings (including plugin and hotkey configurations)
+.obsidian/
+
+# to only exclude plugin configuration. Might be useful to prevent some plugin from exposing sensitive data
+.obsidian/plugins
+
+# OR only to exclude workspace cache
+.obsidian/workspace.json
+
+# to exclude workspace cache specific to mobile devices
+.obsidian/workspace-mobile.json
+
+# Add below lines to exclude OS settings and caches
+.trash/
+.DS_Store
+
+###
+
+# Sqlite storage directory
+/storage
