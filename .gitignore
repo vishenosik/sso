@@ -1,5 +1,6 @@
 # COMMON
-# 
+###
+
 # binaries for programs and plugins
 *.exe
 *.exe~
@@ -18,8 +19,11 @@
 go.work
 go.work.sum
 
+###
+
 # IDE SETTINGS
-# 
+###
+
 # Visual Studio
 .vs
 # Visual StudioCode
@@ -27,13 +31,19 @@ go.work.sum
 # JetBrains
 .idea
 
+###
+
 # TASKFILE SETTINGS
-# 
+###
+
 # checksums
 /.task
 
+###
+
 # OBSIDIAN SETTINGS
-# 
+###
+
 # to exclude Obsidian's settings (including plugin and hotkey configurations)
 .obsidian/
 
@@ -49,3 +59,8 @@ go.work.sum
 # Add below lines to exclude OS settings and caches
 .trash/
 .DS_Store
+
+###
+
+# Sqlite storage directory
+/storage

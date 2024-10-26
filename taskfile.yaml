@@ -2,21 +2,61 @@ version: "3"
 
 dotenv: ['.env']
 
+vars:
+  FLAG_CONFIG: --config=$CONFIG_PATH
+
 tasks:
-  generate-go:
-    aliases:
-      - gen-go
-    desc: Generate golang code from proto files
-    cmd: sh $SCRIPTS_DIR/generate.sh
+
+  # MAIN
+
+  run:
+    desc: Run main application
+    cmd: go run ./cmd/sso {{.FLAG_CONFIG}}
+
+  build:
+    desc: Builds application
+    deps: 
+      - lint
+    cmds:
+      - 'go build -o bin/ ./cmd/sso/main.go'
+    sources:
+      - ./*.go,
+      - ./**/*.go
+
+  # TESTING
 
   test:
     desc: Test all packages
     cmd: go test -v -cover -coverprofile=$COVERAGE_FILE ./...
   
   test-coverage:
+    desc: Generates coverage html after testing
     aliases:
       - cover
-    desc: Generates coverage html after testing
     deps:
       - test
     cmd: go tool cover -html=$COVERAGE_FILE
+
+  # TOOLS
+
+  dev:
+    desc: Build and start app with file listener (hot reload)
+    deps: 
+      - build
+    silent: true
+    watch: true
+    cmd: ./bin/main {{.FLAG_CONFIG}}
+    sources: 
+      - ./*.go,
+      - ./**/*.go
+
+  lint:
+    desc: Lint all files
+    cmd: fieldalignment -fix ./...
+    ignore_error: true
+
+  generate-grpc-api:
+    desc: Generate golang code from proto files
+    aliases:
+      - gen
+    cmd: sh $SCRIPTS_DIR/generate.sh
