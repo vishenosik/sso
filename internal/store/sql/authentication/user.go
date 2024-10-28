@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	// user not found
 	ErrUserNotFound = errors.New("user not found")
 )
 

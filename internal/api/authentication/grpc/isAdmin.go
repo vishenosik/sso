@@ -5,9 +5,8 @@ import (
 	"log/slog"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	auth_service "github.com/blacksmith-vish/sso/internal/services/authentication"
 	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,34 +17,33 @@ func (srv *server) IsAdmin(
 	request *authentication_v1.IsAdminRequest,
 ) (*authentication_v1.IsAdminResponse, error) {
 
+	const message = "login failed"
+
 	log := srv.log.With(
 		slog.String("op", authentication_v1.Authentication_IsAdmin_FullMethodName),
 		slog.String("userID", request.GetUserId()),
 	)
 
-	serviceRequest := models.IsAdminRequest{
-		UserID: request.GetUserId(),
-	}
-
-	if err := validator.New().Struct(serviceRequest); err != nil {
-		log.Error("validation failed", "err", err.Error())
-		return nil, status.Error(codes.InvalidArgument, "login failed")
-	}
-
-	serviceResponse, err := srv.auth.IsAdmin(
+	isAdmin, err := srv.auth.IsAdmin(
 		ctx,
-		serviceRequest,
+		request.GetUserId(),
 	)
 
 	if err != nil {
-		if errors.Is(err, auth_store.ErrUserNotFound) {
-			return nil, status.Error(codes.AlreadyExists, "login failed")
+
+		log.Error(message, slog.String("err", err.Error()))
+
+		if errors.Is(err, auth_service.ErrInvalidUserID) {
+			return nil, status.Error(codes.InvalidArgument, message)
 		}
-		return nil, status.Error(codes.Internal, "login failed")
+		if errors.Is(err, auth_store.ErrUserNotFound) {
+			return nil, status.Error(codes.AlreadyExists, message)
+		}
+		return nil, status.Error(codes.Internal, message)
 	}
 
 	response := &authentication_v1.IsAdminResponse{
-		IsAdmin: serviceResponse.IsAdmin,
+		IsAdmin: isAdmin,
 	}
 
 	return response, nil

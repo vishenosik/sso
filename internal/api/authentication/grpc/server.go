@@ -22,8 +22,8 @@ type Authentication interface {
 
 	IsAdmin(
 		ctx context.Context,
-		request models.IsAdminRequest,
-	) (response models.IsAdminResponse, err error)
+		userID string,
+	) (isAdmin bool, err error)
 }
 
 type authenticationAPI struct {

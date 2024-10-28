@@ -27,7 +27,7 @@ tasks:
 
   test:
     desc: Test all packages
-    cmd: go test -v -cover -coverprofile=$COVERAGE_FILE ./...
+    cmd: go test -v -cover -coverprofile=$COVERAGE_FILE ./internal/...
   
   test-coverage:
     desc: Generates coverage html after testing
@@ -36,6 +36,10 @@ tasks:
     deps:
       - test
     cmd: go tool cover -html=$COVERAGE_FILE
+
+  mock:
+    desc: Generates all mocks
+    cmd: go generate ./...
 
   # TOOLS
 

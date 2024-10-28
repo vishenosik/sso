@@ -38,10 +38,10 @@ type AppProvider interface {
 
 type Authentication struct {
 	log          *slog.Logger
+	tokenTTL     time.Duration
 	userSaver    UserSaver
 	userProvider UserProvider
 	appProvider  AppProvider
-	tokenTTL     time.Duration
 }
 
 // New returns a new instance of Auth
@@ -54,9 +54,9 @@ func NewService(
 ) *Authentication {
 	return &Authentication{
 		log:          log,
+		tokenTTL:     conf.TokenTTL,
 		userSaver:    userSaver,
 		userProvider: userProvider,
 		appProvider:  appProvider,
-		tokenTTL:     conf.TokenTTL,
 	}
 }
