@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/tests/suite"
+	"github.com/blacksmith-vish/sso/tests/suite"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
 	"github.com/brianvoe/gofakeit/v6"
