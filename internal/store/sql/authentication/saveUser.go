@@ -8,10 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	ErrUserExists = errors.New("user exists already")
-)
-
 // SaveUser saves user to db.
 func (store *Store) SaveUser(ctx context.Context, nickname, email string, passHash []byte) (string, error) {
 	const op = "Store.sqlite.SaveUser"

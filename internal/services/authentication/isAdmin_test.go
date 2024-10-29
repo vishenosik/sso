@@ -2,12 +2,8 @@ package authentication
 
 import (
 	"context"
-	"io"
-	"log/slog"
 	"testing"
-	"time"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/mocks"
 	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
 	"github.com/google/uuid"
@@ -16,23 +12,17 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func NewConfigTest() config.AuthenticationService {
-	return config.AuthenticationService{
-		TokenTTL: time.Minute,
-	}
-}
-
 func Test_IsAdmin(t *testing.T) {
-
-	type expectedResult struct {
-		isAdmin bool
-		err     error
-	}
 
 	ID1 := uuid.New().String()
 	ID2 := uuid.New().String()
 	ID3 := uuid.New().String()
 	ID4 := "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
+
+	type expectedResult struct {
+		isAdmin bool
+		err     error
+	}
 
 	TestingTable := []struct {
 		name string
@@ -75,25 +65,14 @@ func Test_IsAdmin(t *testing.T) {
 		},
 	}
 
-	// userSaver := mocks.NewUserSaver(t)
 	userProvider := mocks.NewUserProvider(t)
-	// appProvider := mocks.NewAppProvider(t)
 
 	userProvider.
-		On("IsAdmin", mock.Anything, ID1).
-		Return(false, nil).
-		On("IsAdmin", mock.Anything, ID2).
-		Return(true, nil).
-		On("IsAdmin", mock.Anything, ID3).
-		Return(false, auth_store.ErrUserNotFound)
+		On(userProvider_IsAdmin, mock.Anything, ID1).Return(false, nil).
+		On(userProvider_IsAdmin, mock.Anything, ID2).Return(true, nil).
+		On(userProvider_IsAdmin, mock.Anything, ID3).Return(false, auth_store.ErrUserNotFound)
 
-	service := NewService(
-		slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo})),
-		NewConfigTest(),
-		nil,
-		userProvider,
-		nil,
-	)
+	service := suite_NewService(nil, userProvider, nil)
 
 	for _, tt := range TestingTable {
 		t.Run(tt.name, func(t *testing.T) {

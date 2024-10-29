@@ -9,10 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	ErrAppNotFound = errors.New("app not found")
-)
-
 // App returns app by id.
 func (store *Store) App(ctx context.Context, id string) (models.App, error) {
 	const op = "Store.sqlite.App"

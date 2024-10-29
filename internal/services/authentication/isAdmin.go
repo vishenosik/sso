@@ -8,16 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	ErrInvalidUserID = errors.New("user_id is not valid")
-)
-
 func (a *Authentication) IsAdmin(
 	ctx context.Context,
 	userID string,
 ) (bool, error) {
 
-	const op = "Authentication.IsAdmin"
+	op := op("IsAdmin")
 
 	log := a.log.With(
 		slog.String("op", op),

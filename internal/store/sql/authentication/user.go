@@ -9,11 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	// user not found
-	ErrUserNotFound = errors.New("user not found")
-)
-
 // User returns user by email.
 func (store *Store) User(ctx context.Context, email string) (models.User, error) {
 	const op = "Store.sqlite.User"

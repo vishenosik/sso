@@ -13,7 +13,8 @@ type Authentication interface {
 	Login(
 		ctx context.Context,
 		request models.LoginRequest,
-	) (response models.LoginResponse, err error)
+		appID string,
+	) (token string, err error)
 
 	RegisterNewUser(
 		ctx context.Context,

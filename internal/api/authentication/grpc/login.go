@@ -26,7 +26,6 @@ func (srv *server) Login(
 	serviceRequest := models.LoginRequest{
 		Email:    request.GetEmail(),
 		Password: request.GetPassword(),
-		AppID:    request.GetAppId(),
 	}
 
 	if err := validator.New().Struct(serviceRequest); err != nil {
@@ -34,9 +33,10 @@ func (srv *server) Login(
 		return nil, status.Error(codes.InvalidArgument, "login failed")
 	}
 
-	serviceResponse, err := srv.auth.Login(
+	token, err := srv.auth.Login(
 		ctx,
 		serviceRequest,
+		request.GetAppId(),
 	)
 	if err != nil {
 
@@ -48,7 +48,7 @@ func (srv *server) Login(
 	}
 
 	response := &authentication_v1.LoginResponse{
-		Token: serviceResponse.Token,
+		Token: token,
 	}
 
 	return response, nil
