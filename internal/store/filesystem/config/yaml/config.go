@@ -16,7 +16,7 @@ type Config struct {
 	Servers   Servers  `yaml:"servers"`
 }
 
-func (conf Config) Convert() *config.Config {
+func (conf Config) FetchConfig() *config.Config {
 	return &config.Config{
 		Env:                   conf.Env,
 		StorePath:             conf.StorePath,

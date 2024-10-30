@@ -20,14 +20,14 @@ type Config struct {
 }
 
 type ConfigProvider interface {
-	Convert() *Config
+	FetchConfig() *Config
 }
 
 func NewConfig(
 	config ConfigProvider,
 ) *Config {
 
-	conf := config.Convert()
+	conf := config.FetchConfig()
 
 	if err := conf.validate(); err != nil {
 		panic(err)
