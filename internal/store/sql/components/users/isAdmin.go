@@ -1,4 +1,4 @@
-package authentication
+package users
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (store *Store) IsAdmin(ctx context.Context, userID string) (bool, error) {
+func (store *store) IsAdmin(ctx context.Context, userID string) (bool, error) {
 	const op = "Store.sqlite.IsAdmin"
 
 	stmt, err := store.db.Prepare("SELECT is_admin FROM users WHERE id = ?")

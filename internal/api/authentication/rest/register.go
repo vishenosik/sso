@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 
 	"github.com/go-playground/validator/v10"
 
@@ -43,7 +43,7 @@ func (srv server) register() http.HandlerFunc {
 		)
 
 		if err != nil {
-			if errors.Is(err, auth_store.ErrUserExists) {
+			if errors.Is(err, users.ErrUserExists) {
 
 				log.Error("registration failed", slog.String("err", err.Error()))
 

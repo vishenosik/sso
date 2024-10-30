@@ -1,4 +1,4 @@
-package authentication
+package users
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 )
 
 // User returns user by email.
-func (store *Store) User(ctx context.Context, email string) (models.User, error) {
+func (store *store) User(ctx context.Context, email string) (models.User, error) {
 	const op = "Store.sqlite.User"
 
 	stmt, err := store.db.Prepare("SELECT id, email, pass_hash FROM users WHERE email = ?")

@@ -3,12 +3,14 @@ package sqlstore
 import (
 	"database/sql"
 
-	"github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 )
 
 type Store struct {
-	db                  *sql.DB
-	authenticationStore *authentication.AuthenticationStore
+	db    *sql.DB
+	apps  *apps.Apps
+	users *users.Users
 }
 
 type StoreProvider interface {
@@ -22,8 +24,9 @@ func NewStore(
 	db := store.DB()
 
 	return &Store{
-		db:                  db,
-		authenticationStore: authentication.NewAuthenticationStore(db),
+		db:    db,
+		apps:  apps.NewAppsStore(db),
+		users: users.NewUsersStore(db),
 	}
 }
 
@@ -31,6 +34,10 @@ func (store *Store) Stop() error {
 	return store.db.Close()
 }
 
-func (store *Store) AuthenticationStore() *authentication.AuthenticationStore {
-	return store.authenticationStore
+func (store *Store) Apps() *apps.Apps {
+	return store.apps
+}
+
+func (store *Store) Users() *users.Users {
+	return store.users
 }

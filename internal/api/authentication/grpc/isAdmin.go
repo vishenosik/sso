@@ -6,7 +6,7 @@ import (
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
 	auth_service "github.com/blacksmith-vish/sso/internal/services/authentication"
-	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,7 +36,7 @@ func (srv *server) IsAdmin(
 		if errors.Is(err, auth_service.ErrInvalidUserID) {
 			return nil, status.Error(codes.InvalidArgument, message)
 		}
-		if errors.Is(err, auth_store.ErrUserNotFound) {
+		if errors.Is(err, users.ErrUserNotFound) {
 			return nil, status.Error(codes.AlreadyExists, message)
 		}
 		return nil, status.Error(codes.Internal, message)

@@ -10,7 +10,7 @@ import (
 	"github.com/blacksmith-vish/sso/internal/lib/migrate"
 	authService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
-	"github.com/blacksmith-vish/sso/internal/store/sql/sqlite"
+	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 )
 
 type App struct {
@@ -33,9 +33,9 @@ func NewApp(
 	authService := authService.NewService(
 		log,
 		conf.AuthenticationService,
-		store.AuthenticationStore(),
-		store.AuthenticationStore(),
-		store.AuthenticationStore(),
+		store.Users(),
+		store.Users(),
+		store.Apps(),
 	)
 
 	grpcapp := grpcApp.NewGrpcApp(log, conf.GrpcConfig, authService)

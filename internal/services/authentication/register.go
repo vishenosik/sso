@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 
 	"github.com/pkg/errors"
 
@@ -36,9 +36,9 @@ func (a *Authentication) RegisterNewUser(
 	ID, err := a.userSaver.SaveUser(ctx, request.Nickname, request.Email, passHash)
 	if err != nil {
 
-		if errors.Is(err, auth_store.ErrUserExists) {
+		if errors.Is(err, users.ErrUserExists) {
 			log.Warn("user exists", slog.String("", err.Error()))
-			return models.RegisterResponse{}, errors.Wrap(auth_store.ErrUserExists, op)
+			return models.RegisterResponse{}, errors.Wrap(users.ErrUserExists, op)
 		}
 
 		log.Error("failed to save user", slog.String("", err.Error()))

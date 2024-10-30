@@ -8,7 +8,8 @@ import (
 	"github.com/blacksmith-vish/sso/internal/lib/logger"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 
@@ -76,7 +77,7 @@ func (a *Authentication) app(
 	app, err := a.appProvider.App(ctx, appID)
 	if err != nil {
 
-		if errors.Is(err, auth_store.ErrAppNotFound) {
+		if errors.Is(err, apps.ErrAppNotFound) {
 			log.Error("app not found", logger.Error(err))
 			return noApp, errors.Wrap(ErrInvalidAppID, op)
 		}
@@ -103,7 +104,7 @@ func (a *Authentication) user(
 	user, err := a.userProvider.User(ctx, request.Email)
 	if err != nil {
 
-		if errors.Is(err, auth_store.ErrUserNotFound) {
+		if errors.Is(err, users.ErrUserNotFound) {
 			log.Error("user not found", logger.Error(err))
 
 			return noUser, errors.Wrap(ErrInvalidCredentials, op)

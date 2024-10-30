@@ -1,4 +1,4 @@
-package authentication
+package users
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 // SaveUser saves user to db.
-func (store *Store) SaveUser(ctx context.Context, nickname, email string, passHash []byte) (string, error) {
+func (store *store) SaveUser(ctx context.Context, nickname, email string, passHash []byte) (string, error) {
 	const op = "Store.sqlite.SaveUser"
 
 	stmt, err := store.db.Prepare("INSERT INTO users(id, nickname, email, pass_hash) VALUES(?, ?, ?, ?)")

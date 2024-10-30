@@ -1,4 +1,4 @@
-package authentication
+package apps
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 )
 
 // App returns app by id.
-func (store *Store) App(ctx context.Context, id string) (models.App, error) {
+func (store *store) App(ctx context.Context, id string) (models.App, error) {
 	const op = "Store.sqlite.App"
 
 	stmt, err := store.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	auth_store "github.com/blacksmith-vish/sso/internal/store/sql/authentication"
+	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
@@ -40,7 +40,7 @@ func (srv *server) Register(
 		serviceRequest,
 	)
 	if err != nil {
-		if errors.Is(err, auth_store.ErrUserExists) {
+		if errors.Is(err, users.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "login failed")
 		}
 		return nil, status.Error(codes.Internal, "login failed")
