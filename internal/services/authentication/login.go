@@ -69,6 +69,7 @@ func (a *Authentication) app(
 	op := op("app")
 
 	if err := validator.New().Var(appID, "required,uuid4"); err != nil {
+		log.Error("appID validation failed", logger.Error(err))
 		return noApp, ErrInvalidAppID
 	}
 

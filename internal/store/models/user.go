@@ -11,5 +11,5 @@ func (user User) GetID() string {
 }
 
 func (user User) GetEmail() string {
-	return user.ID
+	return user.Email
 }
