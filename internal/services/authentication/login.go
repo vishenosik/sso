@@ -45,15 +45,11 @@ func (a *Authentication) Login(
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(request.Password)); err != nil {
-		log.Error("invalid password", slog.String("err", err.Error()))
+		log.Error("invalid password", slog.String("err", err.Error()), slog.String("user_id", user.ID))
 		return noToken, errors.Wrap(ErrInvalidCredentials, op)
 	}
 
-	token, err := jwt.NewToken(user, app, a.tokenTTL)
-	if err != nil {
-		log.Error("failed to get token", logger.Error(err))
-		return noToken, errors.Wrap(err, op)
-	}
+	token := jwt.NewToken(user, app, a.tokenTTL)
 
 	log.Info("user logged in succesfully", slog.String("user_id", user.ID))
 

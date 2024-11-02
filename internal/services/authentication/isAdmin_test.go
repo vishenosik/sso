@@ -17,7 +17,7 @@ func Test_IsAdmin(t *testing.T) {
 	ID1 := uuid.New().String()
 	ID2 := uuid.New().String()
 	ID3 := uuid.New().String()
-	ID4 := "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
+	ID4 := WrongID
 
 	type expectedResult struct {
 		isAdmin bool
