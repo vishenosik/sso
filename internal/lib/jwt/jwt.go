@@ -20,7 +20,7 @@ func NewToken(
 	user UserProvider,
 	app AppProvider,
 	expiration time.Duration,
-) (string, error) {
+) string {
 
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -31,10 +31,8 @@ func NewToken(
 			"appID":  app.GetID(),
 		})
 
-	tokeString, err := token.SignedString(app.GetSecret())
-	if err != nil {
-		return "", err
-	}
+	// No need to handle error - it returns only if @param key is not []byte which app.GetSecret() guarantees
+	tokeString, _ := token.SignedString(app.GetSecret())
 
-	return tokeString, nil
+	return tokeString
 }
