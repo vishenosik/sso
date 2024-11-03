@@ -10,7 +10,7 @@ import (
 )
 
 // User returns user by email.
-func (store *store) User(ctx context.Context, email string) (models.User, error) {
+func (store *store) UserByEmail(ctx context.Context, email string) (models.User, error) {
 	const op = "Store.sqlite.User"
 
 	stmt, err := store.db.Prepare("SELECT id, email, pass_hash FROM users WHERE email = ?")
@@ -24,7 +24,7 @@ func (store *store) User(ctx context.Context, email string) (models.User, error)
 	err = row.Scan(&user.ID, &user.Email, &user.PasswordHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.User{}, errors.Wrap(ErrUserNotFound, op)
+			return models.User{}, errors.Wrap(models.ErrNotFound, op)
 		}
 
 		return models.User{}, errors.Wrap(err, op)

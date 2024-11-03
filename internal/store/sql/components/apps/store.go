@@ -2,12 +2,6 @@ package apps
 
 import (
 	"database/sql"
-
-	"github.com/pkg/errors"
-)
-
-var (
-	ErrAppNotFound = errors.New("app not found")
 )
 
 type Apps struct {

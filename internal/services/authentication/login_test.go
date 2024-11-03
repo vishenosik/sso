@@ -18,8 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 )
 
 const (
@@ -53,7 +51,7 @@ func Test_Login_Success_TokenValid_NoErr(t *testing.T) {
 	}
 
 	userProvider := mocks.NewUserProvider(t)
-	userProvider.On(userProvider_User, mock.Anything, email).Return(storeUser, nil)
+	userProvider.On(userProvider_UserByEmail, mock.Anything, email).Return(storeUser, nil)
 	appProvider := mocks.NewAppProvider(t)
 	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
 
@@ -107,7 +105,7 @@ func Test_Login_Fail_InvalidPassword(t *testing.T) {
 	}
 
 	userProvider := mocks.NewUserProvider(t)
-	userProvider.On(userProvider_User, mock.Anything, email).Return(storeUser, nil)
+	userProvider.On(userProvider_UserByEmail, mock.Anything, email).Return(storeUser, nil)
 	appProvider := mocks.NewAppProvider(t)
 	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
 
@@ -115,44 +113,45 @@ func Test_Login_Fail_InvalidPassword(t *testing.T) {
 
 	token, err := service.Login(context.TODO(), request, appID)
 
-	require.ErrorIs(t, err, ErrInvalidCredentials)
+	require.ErrorIs(t, err, models.ErrInvalidCredentials)
 	require.Empty(t, token)
 }
 
 func Test_Login_Fail_App(t *testing.T) {
 
 	noApp := store_models.App{}
-	noRequest := models.LoginRequest{}
 
-	TestingErr := errors.New("test error")
+	request := models.LoginRequest{
+		Email:    gofakeit.Email(),
+		Password: randomPassword(),
+	}
 
 	appID1 := uuid.New().String()
 	appID2 := uuid.New().String()
 
 	appProvider := mocks.NewAppProvider(t)
-	appProvider.On(appProvider_App, mock.Anything, appID1).Return(noApp, apps.ErrAppNotFound)
-	appProvider.On(appProvider_App, mock.Anything, appID2).Return(noApp, TestingErr)
+	appProvider.On(appProvider_App, mock.Anything, appID1).Return(noApp, store_models.ErrNotFound)
+	appProvider.On(appProvider_App, mock.Anything, appID2).Return(noApp, errors.New("test error"))
 
 	service := suite_NewService(nil, nil, appProvider)
 
 	t.Run("invalid app ID", func(t *testing.T) {
 		token, err := service.Login(context.TODO(), models.LoginRequest{}, WrongID)
-		require.ErrorIs(t, err, ErrInvalidAppID)
+		require.ErrorIs(t, err, models.ErrInvalidAppID)
 		require.Empty(t, token)
 	})
 
 	t.Run("app not found / store returned apps.ErrAppNotFound", func(t *testing.T) {
-		token, err := service.Login(context.TODO(), noRequest, appID1)
-		require.ErrorIs(t, err, ErrInvalidAppID)
+		token, err := service.Login(context.TODO(), request, appID1)
+		require.ErrorIs(t, err, models.ErrAppNotFound)
 		require.Empty(t, token)
 	})
 
 	t.Run("app not found / other errors", func(t *testing.T) {
-		token, err := service.Login(context.TODO(), noRequest, appID2)
-		require.ErrorIs(t, err, TestingErr)
+		token, err := service.Login(context.TODO(), request, appID2)
+		require.ErrorIs(t, err, models.ErrAppsStore)
 		require.Empty(t, token)
 	})
-
 }
 
 func Test_Login_Fail_User(t *testing.T) {
@@ -181,8 +180,8 @@ func Test_Login_Fail_User(t *testing.T) {
 	}
 
 	userProvider := mocks.NewUserProvider(t)
-	userProvider.On(userProvider_User, mock.Anything, email1).Return(noUser, users.ErrUserNotFound)
-	userProvider.On(userProvider_User, mock.Anything, email2).Return(noUser, TestingErr)
+	userProvider.On(userProvider_UserByEmail, mock.Anything, email1).Return(noUser, store_models.ErrNotFound)
+	userProvider.On(userProvider_UserByEmail, mock.Anything, email2).Return(noUser, TestingErr)
 
 	appProvider := mocks.NewAppProvider(t)
 	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
@@ -190,7 +189,7 @@ func Test_Login_Fail_User(t *testing.T) {
 	service := suite_NewService(nil, userProvider, appProvider)
 
 	token, err := service.Login(context.TODO(), request1, appID)
-	require.ErrorIs(t, err, ErrInvalidCredentials)
+	require.ErrorIs(t, err, models.ErrInvalidCredentials)
 	require.Empty(t, token)
 
 	token, err = service.Login(context.TODO(), request2, appID)
@@ -251,7 +250,7 @@ func Test_Login_Fail_InvalidUserData(t *testing.T) {
 				appID,
 			)
 
-			require.ErrorIs(t, err, ErrInvalidCredentials)
+			require.ErrorIs(t, err, models.ErrInvalidCredentials)
 			require.Empty(t, token)
 		})
 	}

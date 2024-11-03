@@ -5,50 +5,77 @@ import (
 
 	"log/slog"
 
+	"github.com/blacksmith-vish/sso/internal/lib/logger"
+	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
-
+	store_models "github.com/blacksmith-vish/sso/internal/store/models"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (a *Authentication) RegisterNewUser(
+// RegisterNewUser registers new user
+//
+//	@param ctx
+//	@param request - user data passed from registration
+//
+// Returned errors:
+//
+//	ErrInvalidRequest - one or more `@request` fields are not valid
+//	ErrPasswordTooLong - password is longer than 72 bytes
+//	ErrGenerateHash - failed to generate pass hash
+//	ErrUserExists - user already exists
+//	ErrUsersStore - other users store errors
+func (auth *Authentication) RegisterNewUser(
 	ctx context.Context,
 	request models.RegisterRequest,
-) (models.RegisterResponse, error) {
+) (string, error) {
 
-	const op = "auth.RegisterNewUser"
+	const noUserID = ""
 
-	log := a.log.With(
-		slog.String("op", op),
-		slog.String("email", request.Email), // TODO email лучше не логировать
+	var (
+		op  = op("Login")
+		ret = operation.ReturnFailWithError(noUserID, op)
+		log = auth.log.With(
+			slog.String("op", op),
+		)
 	)
+
+	if err := validator.New().Struct(request); err != nil {
+		log.Error("failed to validate request body", logger.Error(err))
+		return ret(models.ErrInvalidRequest)
+	}
 
 	log.Info("registering user")
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Error("failed to generate pass hash", slog.String("", err.Error()))
-		return models.RegisterResponse{}, errors.Wrap(err, op)
-	}
 
-	ID, err := a.userSaver.SaveUser(ctx, request.Nickname, request.Email, passHash)
-	if err != nil {
+		log.Error("failed to generate pass hash", logger.Error(err))
 
-		if errors.Is(err, users.ErrUserExists) {
-			log.Warn("user exists", slog.String("", err.Error()))
-			return models.RegisterResponse{}, errors.Wrap(users.ErrUserExists, op)
+		if errors.Is(err, bcrypt.ErrPasswordTooLong) {
+			return ret(models.ErrPasswordTooLong)
 		}
-
-		log.Error("failed to save user", slog.String("", err.Error()))
-		return models.RegisterResponse{}, errors.Wrap(err, op)
+		return ret(models.ErrGenerateHash)
 	}
 
-	log.Info("user registered")
+	log.Debug("generated password hash")
 
-	return models.RegisterResponse{
-		UserID: ID,
-	}, nil
+	userID := uuid.New().String()
 
+	if err := auth.userSaver.SaveUser(ctx, userID, request.Nickname, request.Email, passHash); err != nil {
+
+		log.Error("failed to save user", logger.Error(err))
+
+		if errors.Is(err, store_models.ErrAlreadyExists) {
+			return ret(models.ErrUserExists)
+		}
+		return ret(models.ErrUsersStore)
+	}
+
+	log.Info("user registered successfuly")
+
+	return userID, nil
 }

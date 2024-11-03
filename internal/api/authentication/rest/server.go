@@ -17,7 +17,7 @@ type Authentication interface {
 	RegisterNewUser(
 		ctx context.Context,
 		request models.RegisterRequest,
-	) (response models.RegisterResponse, err error)
+	) (userID string, err error)
 }
 
 type authenticationAPI struct {

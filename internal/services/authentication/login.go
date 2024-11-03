@@ -4,20 +4,34 @@ import (
 	"context"
 	"log/slog"
 
+	"errors"
+
 	"github.com/blacksmith-vish/sso/internal/lib/jwt"
 	"github.com/blacksmith-vish/sso/internal/lib/logger"
+	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Login checks if user's credentials exists
-func (a *Authentication) Login(
+// Login checks if user's credentials exists and appID is valid
+//
+//	@param ctx
+//	@param request - user data passed from login
+//	@param appID - uuid v4 ID
+//
+// Returned errors:
+//
+//	ErrInvalidRequest - one or more `@request` fields are not valid
+//	ErrInvalidAppID - appID is invalid (basically not uuid4)
+//	ErrAppNotFound - app not found
+//	ErrAppsStore - other apps store errors
+//	ErrUserNotFound - user not found
+//	ErrUsersStore - other users store errors
+//	ErrInvalidCredentials - invalid password passed
+func (auth *Authentication) Login(
 	ctx context.Context,
 	request models.LoginRequest,
 	appID string,
@@ -25,89 +39,64 @@ func (a *Authentication) Login(
 
 	const noToken = ""
 
-	op := op("Login")
-
-	log := a.log.With(
-		slog.String("op", op),
-		slog.String("app_id", appID),
+	var (
+		op    = op("Login")
+		ret   = operation.ReturnFailWithError(noToken, op)
+		valid = validator.New()
+		log   = auth.log.With(
+			slog.String("op", op),
+			slog.String("app_id", appID),
+		)
 	)
 
-	app, err := a.app(ctx, log, appID)
+	if err := valid.Var(appID, "required,uuid4"); err != nil {
+		log.Error("appID validation failed", logger.Error(err))
+		return ret(models.ErrInvalidAppID)
+	}
+
+	if err := valid.Struct(request); err != nil {
+		log.Error("failed to validate request body", logger.Error(err))
+		return ret(models.ErrInvalidRequest)
+	}
+
+	log.Debug("attempting to get app")
+
+	app, err := auth.appProvider.App(ctx, appID)
 	if err != nil {
-		return noToken, err
+
+		log.Error("failed to get app", logger.Error(err))
+
+		if errors.Is(err, store_models.ErrNotFound) {
+			return ret(models.ErrAppNotFound)
+		}
+
+		return ret(models.ErrAppsStore)
 	}
 
 	log.Info("attempting to login user")
 
-	user, err := a.user(ctx, log, request)
+	user, err := auth.userProvider.UserByEmail(ctx, request.Email)
 	if err != nil {
-		return noToken, err
+		log.Error("failed to get user", logger.Error(err))
+
+		if errors.Is(err, store_models.ErrNotFound) {
+			return ret(models.ErrUserNotFound)
+		}
+		return ret(models.ErrUsersStore)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(request.Password)); err != nil {
-		log.Error("invalid password", slog.String("err", err.Error()), slog.String("user_id", user.ID))
-		return noToken, errors.Wrap(ErrInvalidCredentials, op)
+		log.Error(
+			"invalid password",
+			slog.String("err", err.Error()),
+			slog.String("user_id", user.ID),
+		)
+		return ret(models.ErrInvalidCredentials)
 	}
 
-	token := jwt.NewToken(user, app, a.tokenTTL)
+	token := jwt.NewToken(user, app, auth.tokenTTL)
 
 	log.Info("user logged in succesfully", slog.String("user_id", user.ID))
 
 	return token, nil
-}
-
-func (a *Authentication) app(
-	ctx context.Context,
-	log *slog.Logger,
-	appID string,
-) (store_models.App, error) {
-
-	var noApp store_models.App
-	op := op("app")
-
-	if err := validator.New().Var(appID, "required,uuid4"); err != nil {
-		log.Error("appID validation failed", logger.Error(err))
-		return noApp, ErrInvalidAppID
-	}
-
-	app, err := a.appProvider.App(ctx, appID)
-	if err != nil {
-
-		if errors.Is(err, apps.ErrAppNotFound) {
-			log.Error("app not found", logger.Error(err))
-			return noApp, errors.Wrap(ErrInvalidAppID, op)
-		}
-
-		log.Error("failed to get app", logger.Error(err))
-		return noApp, errors.Wrap(err, op)
-	}
-	return app, nil
-}
-
-func (a *Authentication) user(
-	ctx context.Context,
-	log *slog.Logger,
-	request models.LoginRequest,
-) (store_models.User, error) {
-
-	var noUser store_models.User
-	op := op("app")
-
-	if err := validator.New().Struct(request); err != nil {
-		return noUser, ErrInvalidCredentials
-	}
-
-	user, err := a.userProvider.User(ctx, request.Email)
-	if err != nil {
-
-		if errors.Is(err, users.ErrUserNotFound) {
-			log.Error("user not found", logger.Error(err))
-
-			return noUser, errors.Wrap(ErrInvalidCredentials, op)
-		}
-
-		log.Error("failed to get user", logger.Error(err))
-		return noUser, errors.Wrap(err, op)
-	}
-	return user, nil
 }

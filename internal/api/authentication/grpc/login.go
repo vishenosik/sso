@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	"github.com/pkg/errors"
 
@@ -40,7 +39,7 @@ func (srv *server) Login(
 	)
 	if err != nil {
 
-		if errors.Is(err, authentication.ErrInvalidCredentials) {
+		if errors.Is(err, models.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "login failed")
 		}
 

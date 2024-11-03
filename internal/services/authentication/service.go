@@ -5,19 +5,12 @@ package authentication
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"time"
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/store/models"
-)
-
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidAppID       = errors.New("invalid app_id")
-	ErrInvalidUserID      = errors.New("invalid user_id")
 )
 
 const (
@@ -27,20 +20,27 @@ const (
 type UserSaver interface {
 	SaveUser(
 		ctx context.Context,
+		id string,
 		nickname string,
 		email string,
 		passwordHash []byte,
-	) (userID string, err error)
+	) (err error)
 }
 
 const (
-	userProvider_User    = "User"
-	userProvider_IsAdmin = "IsAdmin"
+	userProvider_UserByEmail = "UserByEmail"
+	userProvider_IsAdmin     = "IsAdmin"
 )
 
 type UserProvider interface {
-	User(ctx context.Context, email string) (user models.User, err error)
-	IsAdmin(ctx context.Context, userID string) (isAdmin bool, err error)
+	UserByEmail(
+		ctx context.Context,
+		email string,
+	) (user models.User, err error)
+	IsAdmin(
+		ctx context.Context,
+		userID string,
+	) (isAdmin bool, err error)
 }
 
 const (
@@ -48,7 +48,10 @@ const (
 )
 
 type AppProvider interface {
-	App(ctx context.Context, appID string) (app models.App, err error)
+	App(
+		ctx context.Context,
+		appID string,
+	) (app models.App, err error)
 }
 
 type Authentication struct {

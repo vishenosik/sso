@@ -4,8 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
-
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 
@@ -35,19 +33,19 @@ func (srv *server) Register(
 		return nil, status.Error(codes.InvalidArgument, "login failed")
 	}
 
-	serviceResponse, err := srv.auth.RegisterNewUser(
+	UserID, err := srv.auth.RegisterNewUser(
 		ctx,
 		serviceRequest,
 	)
 	if err != nil {
-		if errors.Is(err, users.ErrUserExists) {
+		if errors.Is(err, models.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "login failed")
 		}
 		return nil, status.Error(codes.Internal, "login failed")
 	}
 
 	response := &authentication_v1.RegisterResponse{
-		UserId: serviceResponse.UserID,
+		UserId: UserID,
 	}
 
 	return response, nil

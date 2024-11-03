@@ -42,12 +42,12 @@ func (_m *UserProvider) IsAdmin(ctx context.Context, userID string) (bool, error
 	return r0, r1
 }
 
-// User provides a mock function with given fields: ctx, email
-func (_m *UserProvider) User(ctx context.Context, email string) (models.User, error) {
+// UserByEmail provides a mock function with given fields: ctx, email
+func (_m *UserProvider) UserByEmail(ctx context.Context, email string) (models.User, error) {
 	ret := _m.Called(ctx, email)
 
 	if len(ret) == 0 {
-		panic("no return value specified for User")
+		panic("no return value specified for UserByEmail")
 	}
 
 	var r0 models.User

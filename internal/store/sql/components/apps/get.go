@@ -24,7 +24,7 @@ func (store *store) App(ctx context.Context, id string) (models.App, error) {
 	err = row.Scan(&app.ID, &app.Name, &app.Secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.App{}, errors.Wrap(ErrAppNotFound, op)
+			return models.App{}, errors.Wrap(models.ErrNotFound, op)
 		}
 
 		return models.App{}, errors.Wrap(err, op)

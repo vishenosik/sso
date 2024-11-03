@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	"github.com/blacksmith-vish/sso/internal/services/authentication/mocks"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
+	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/google/uuid"
 
 	"github.com/stretchr/testify/assert"
@@ -52,7 +53,7 @@ func Test_IsAdmin(t *testing.T) {
 			userID: ID3,
 			expected: expectedResult{
 				isAdmin: false,
-				err:     users.ErrUserNotFound,
+				err:     models.ErrUserNotFound,
 			},
 		},
 		{
@@ -60,7 +61,7 @@ func Test_IsAdmin(t *testing.T) {
 			userID: ID4,
 			expected: expectedResult{
 				isAdmin: false,
-				err:     ErrInvalidUserID,
+				err:     models.ErrInvalidUserID,
 			},
 		},
 	}
@@ -70,7 +71,7 @@ func Test_IsAdmin(t *testing.T) {
 	userProvider.
 		On(userProvider_IsAdmin, mock.Anything, ID1).Return(false, nil).
 		On(userProvider_IsAdmin, mock.Anything, ID2).Return(true, nil).
-		On(userProvider_IsAdmin, mock.Anything, ID3).Return(false, users.ErrUserNotFound)
+		On(userProvider_IsAdmin, mock.Anything, ID3).Return(false, store_models.ErrNotFound)
 
 	service := suite_NewService(nil, userProvider, nil)
 
