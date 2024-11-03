@@ -158,13 +158,20 @@ func Test_Login_Fail_App(t *testing.T) {
 func Test_Login_Fail_User(t *testing.T) {
 
 	noUser := store_models.User{}
+	TestingErr := errors.New("test error")
 
 	appID := uuid.New().String()
-	email := gofakeit.Email()
+	email1 := gofakeit.Email()
+	email2 := gofakeit.Email()
 	password := randomPassword()
 
-	request := models.LoginRequest{
-		Email:    email,
+	request1 := models.LoginRequest{
+		Email:    email1,
+		Password: password,
+	}
+
+	request2 := models.LoginRequest{
+		Email:    email2,
 		Password: password,
 	}
 
@@ -174,15 +181,20 @@ func Test_Login_Fail_User(t *testing.T) {
 	}
 
 	userProvider := mocks.NewUserProvider(t)
-	userProvider.On(userProvider_User, mock.Anything, email).Return(noUser, users.ErrUserNotFound)
+	userProvider.On(userProvider_User, mock.Anything, email1).Return(noUser, users.ErrUserNotFound)
+	userProvider.On(userProvider_User, mock.Anything, email2).Return(noUser, TestingErr)
+
 	appProvider := mocks.NewAppProvider(t)
 	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
 
 	service := suite_NewService(nil, userProvider, appProvider)
 
-	token, err := service.Login(context.TODO(), request, appID)
-
+	token, err := service.Login(context.TODO(), request1, appID)
 	require.ErrorIs(t, err, ErrInvalidCredentials)
+	require.Empty(t, token)
+
+	token, err = service.Login(context.TODO(), request2, appID)
+	require.ErrorIs(t, err, TestingErr)
 	require.Empty(t, token)
 
 }
