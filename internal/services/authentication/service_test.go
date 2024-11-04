@@ -6,6 +6,13 @@ import (
 	"time"
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/brianvoe/gofakeit/v6"
+)
+
+const (
+	appSecret      = "secret"
+	passDefautlLen = 10
+	WrongID        = "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
 )
 
 func suite_newConfig() config.AuthenticationService {
@@ -26,4 +33,8 @@ func suite_NewService(
 		userProvider,
 		appProvider,
 	)
+}
+
+func randomPassword() string {
+	return gofakeit.Password(true, true, true, true, false, passDefautlLen)
 }

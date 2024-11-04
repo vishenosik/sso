@@ -20,13 +20,7 @@ import (
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 )
 
-const (
-	appSecret      = "secret"
-	passDefautlLen = 10
-	WrongID        = "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
-)
-
-func Test_Login_Success_TokenValid_NoErr(t *testing.T) {
+func Test_Login_Success(t *testing.T) {
 
 	userID := uuid.New().String()
 	appID := uuid.New().String()
@@ -233,8 +227,4 @@ func Test_Login_Fail_InvalidUserData(t *testing.T) {
 			require.Empty(t, token)
 		})
 	}
-}
-
-func randomPassword() string {
-	return gofakeit.Password(true, true, true, true, false, passDefautlLen)
 }
