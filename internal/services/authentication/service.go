@@ -80,5 +80,5 @@ func NewService(
 }
 
 func op(method string) string {
-	return operation.ServicesOperation("Authentication", method)
+	return operation.ServicesOperation("authentication", method)
 }

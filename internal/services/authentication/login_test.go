@@ -22,6 +22,9 @@ import (
 
 func Test_Login_Success(t *testing.T) {
 
+	t.Helper()
+	t.Parallel()
+
 	userID := uuid.New().String()
 	appID := uuid.New().String()
 	email := gofakeit.Email()
@@ -76,6 +79,9 @@ func Test_Login_Success(t *testing.T) {
 
 func Test_Login_Fail_InvalidPassword(t *testing.T) {
 
+	t.Helper()
+	t.Parallel()
+
 	userID := uuid.New().String()
 	appID := uuid.New().String()
 	email := gofakeit.Email()
@@ -113,6 +119,9 @@ func Test_Login_Fail_InvalidPassword(t *testing.T) {
 
 func Test_Login_Fail_App(t *testing.T) {
 
+	t.Helper()
+	t.Parallel()
+
 	noApp := store_models.App{}
 
 	request := models.LoginRequest{
@@ -149,6 +158,9 @@ func Test_Login_Fail_App(t *testing.T) {
 }
 
 func Test_Login_Fail_User(t *testing.T) {
+
+	t.Helper()
+	t.Parallel()
 
 	noUser := store_models.User{}
 
@@ -192,6 +204,9 @@ func Test_Login_Fail_User(t *testing.T) {
 }
 
 func Test_Login_Fail_InvalidUserData(t *testing.T) {
+
+	t.Helper()
+	t.Parallel()
 
 	appID := uuid.New().String()
 	email := gofakeit.Email()

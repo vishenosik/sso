@@ -16,6 +16,9 @@ import (
 
 func Test_IsAdmin(t *testing.T) {
 
+	t.Helper()
+	t.Parallel()
+
 	ID1 := uuid.New().String()
 	ID2 := uuid.New().String()
 	ID3 := uuid.New().String()

@@ -3,9 +3,7 @@ package authentication
 import (
 	"context"
 
-	"log/slog"
-
-	"github.com/blacksmith-vish/sso/internal/lib/logger"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
@@ -33,19 +31,12 @@ func (auth *Authentication) RegisterNewUser(
 	request models.RegisterRequest,
 ) (string, error) {
 
-	const noUserID = ""
-
-	var (
-		op  = op("Login")
-		ret = operation.ReturnFailWithError(noUserID, op)
-		log = auth.log.With(
-			slog.String("op", op),
-		)
-	)
+	fail, attr := operation.FailResultWithAttr("", op("Login"))
+	log := auth.log.With(attr)
 
 	if err := validator.New().Struct(request); err != nil {
-		log.Error("failed to validate request body", logger.Error(err))
-		return ret(models.ErrInvalidRequest)
+		log.Error("failed to validate request body", attrs.Error(err))
+		return fail(models.ErrInvalidRequest)
 	}
 
 	log.Info("registering user")
@@ -53,12 +44,12 @@ func (auth *Authentication) RegisterNewUser(
 	passHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 
-		log.Error("failed to generate pass hash", logger.Error(err))
+		log.Error("failed to generate pass hash", attrs.Error(err))
 
 		if errors.Is(err, bcrypt.ErrPasswordTooLong) {
-			return ret(models.ErrPasswordTooLong)
+			return fail(models.ErrPasswordTooLong)
 		}
-		return ret(models.ErrGenerateHash)
+		return fail(models.ErrGenerateHash)
 	}
 
 	log.Debug("generated password hash")
@@ -67,12 +58,12 @@ func (auth *Authentication) RegisterNewUser(
 
 	if err := auth.userSaver.SaveUser(ctx, userID, request.Nickname, request.Email, passHash); err != nil {
 
-		log.Error("failed to save user", logger.Error(err))
+		log.Error("failed to save user", attrs.Error(err))
 
 		if errors.Is(err, store_models.ErrAlreadyExists) {
-			return ret(models.ErrUserExists)
+			return fail(models.ErrUserExists)
 		}
-		return ret(models.ErrUsersStore)
+		return fail(models.ErrUsersStore)
 	}
 
 	log.Info("user registered successfuly")

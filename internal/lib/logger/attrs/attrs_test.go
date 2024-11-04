@@ -1,4 +1,4 @@
-package logger
+package attrs
 
 import (
 	"testing"
@@ -7,9 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Login(t *testing.T) {
+func Test_Error(t *testing.T) {
 	ErrTest := errors.New("test error")
 	result := Error(ErrTest)
 	assert.Equal(t, "err", result.Key)
 	assert.Equal(t, ErrTest.Error(), result.Value.String())
+}
+
+func Test_Operation(t *testing.T) {
+	op := "test"
+	result := Operation(op)
+	assert.Equal(t, "operation", result.Key)
+	assert.Equal(t, op, result.Value.String())
 }

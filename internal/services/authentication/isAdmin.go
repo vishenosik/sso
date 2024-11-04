@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/internal/lib/logger"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
@@ -22,36 +22,34 @@ import (
 //	ErrUserNotFound - user not found
 //	ErrUsersStore - other users store errors
 //	ErrInvalidUserID - userID is invalid (basically not uuid4)
-func (a *Authentication) IsAdmin(
+func (auth *Authentication) IsAdmin(
 	ctx context.Context,
 	userID string,
 ) (bool, error) {
 
-	var (
-		op  = op("IsAdmin")
-		ret = operation.ReturnFailWithError(false, op)
-		log = a.log.With(
-			slog.String("op", op),
-			slog.String("userID", userID),
-		)
+	fail, attr := operation.FailResultWithAttr(false, op("IsAdmin"))
+
+	log := auth.log.With(
+		attr,
+		slog.String("userID", userID),
 	)
 
 	log.Info("checking if user is admin")
 
 	if err := validator.New().Var(userID, "required,uuid4"); err != nil {
-		return ret(models.ErrInvalidUserID)
+		return fail(models.ErrInvalidUserID)
 	}
 
-	isAdmin, err := a.userProvider.IsAdmin(ctx, userID)
+	isAdmin, err := auth.userProvider.IsAdmin(ctx, userID)
 	if err != nil {
 
-		log.Error("error occured", logger.Error(err))
+		log.Error("error occured", attrs.Error(err))
 
 		if errors.Is(err, store_models.ErrNotFound) {
-			return ret(models.ErrUserNotFound)
+			return fail(models.ErrUserNotFound)
 		}
 
-		return ret(models.ErrUsersStore)
+		return fail(models.ErrUsersStore)
 	}
 
 	log.Info("checked if user is admin", slog.Bool("is_admin", isAdmin))

@@ -21,7 +21,7 @@ func Test_ServicesOperation(t *testing.T) {
 	t.Helper()
 	t.Parallel()
 
-	expect := "Services.service.method"
+	expect := "services.service.method"
 	result := ServicesOperation("service", "method")
 	assert.Equal(t, expect, result)
 }

@@ -16,11 +16,12 @@ import (
 
 func Test_Register_Success(t *testing.T) {
 
-	// userID := uuid.New().String()
+	t.Helper()
+	t.Parallel()
+
 	nickname := "nickname"
 	email := gofakeit.Email()
 	password := randomPassword()
-	// passHash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	request := models.RegisterRequest{
 		Nickname: nickname,
@@ -41,6 +42,9 @@ func Test_Register_Success(t *testing.T) {
 }
 
 func Test_Register_Fail_InvalidRequest(t *testing.T) {
+
+	t.Helper()
+	t.Parallel()
 
 	nickname := "nickname"
 	email := gofakeit.Email()
@@ -112,6 +116,9 @@ func Test_Register_Fail_InvalidRequest(t *testing.T) {
 }
 
 func Test_Register_Fail_Store(t *testing.T) {
+
+	t.Helper()
+	t.Parallel()
 
 	nickname1 := "nickname1"
 	nickname2 := "nickname2"

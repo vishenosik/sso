@@ -11,27 +11,11 @@ import (
 
 func SetupLogger(env string) *slog.Logger {
 
-	devHandler := dev.NewHandler(
-		os.Stdout,
-		&slog.HandlerOptions{Level: slog.LevelDebug},
-	)
-
-	switch env {
-
-	case config.EnvDev:
-		return slog.New(devHandler)
-
-	case config.EnvProd:
-		return slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-
-	case config.EnvTest:
-		return slog.New(
-			slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-
+	handlers := map[string]slog.Handler{
+		config.EnvDev:  dev.NewHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		config.EnvProd: slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		config.EnvTest: slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}),
 	}
 
-	return nil
+	return slog.New(handlers[env])
 }

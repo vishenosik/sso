@@ -10,6 +10,6 @@ func buildOperation(layer, service, method string) string {
 }
 
 func ServicesOperation(service, method string) string {
-	const layer = "Services"
+	const layer = "services"
 	return buildOperation(layer, service, method)
 }
