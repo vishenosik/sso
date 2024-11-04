@@ -1,15 +1,17 @@
 package operation
 
-import "strings"
+import (
+	"fmt"
+)
+
+const (
+	servicesLayer = "services"
+)
 
 func buildOperation(layer, service, method string) string {
-	return strings.Join(
-		[]string{layer, service, method},
-		".",
-	)
+	return fmt.Sprintf("%s.%s.%s", layer, service, method)
 }
 
 func ServicesOperation(service, method string) string {
-	const layer = "services"
-	return buildOperation(layer, service, method)
+	return buildOperation(servicesLayer, service, method)
 }

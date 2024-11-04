@@ -1,6 +1,7 @@
 package operation
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,7 @@ func Test_ServicesOperation(t *testing.T) {
 	t.Helper()
 	t.Parallel()
 
-	expect := "services.service.method"
+	expect := fmt.Sprintf("%s.service.method", servicesLayer)
 	result := ServicesOperation("service", "method")
 	assert.Equal(t, expect, result)
 }
