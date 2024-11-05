@@ -3,12 +3,11 @@ package app
 import (
 	"log/slog"
 
-	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/blacksmith-vish/sso/internal/lib/migrate"
-	authService "github.com/blacksmith-vish/sso/internal/services/authentication"
+	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 )
@@ -23,14 +22,14 @@ func NewApp(
 	conf *config.Config,
 ) *App {
 
-	// Инициализация хранилища
+	// Stores init
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
 	migrate.MustMigrate(sqliteStore)
 
 	store := sqlstore.NewStore(sqliteStore)
 
-	// Инициализация auth сервиса
-	authService := authService.NewService(
+	// Services init
+	authenticationService := authenticationService.NewService(
 		log,
 		conf.AuthenticationService,
 		store.Users(),
@@ -38,9 +37,9 @@ func NewApp(
 		store.Apps(),
 	)
 
-	grpcapp := grpcApp.NewGrpcApp(log, conf.GrpcConfig, authService)
+	grpcapp := grpcApp.NewGrpcApp(log, conf.GrpcConfig, authenticationService)
 
-	restapp := restApp.NewRestApp(log, conf.RestConfig, authentication.NewAuthenticationServer(log, authService))
+	restapp := restApp.NewRestApp(log, conf.RestConfig, authenticationService)
 
 	return &App{
 		GRPCServer: grpcapp,

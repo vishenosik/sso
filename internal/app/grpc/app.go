@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net"
 
-	authenticationGRPC "github.com/blacksmith-vish/sso/internal/api/authentication/grpc"
+	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/grpc"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/gen/v1/authentication"
@@ -22,7 +22,7 @@ type App struct {
 func NewGrpcApp(
 	log *slog.Logger,
 	conf config.GRPCConfig,
-	authService authenticationGRPC.Authentication,
+	authService authentication.Authentication,
 ) *App {
 
 	Log := log.WithGroup(
@@ -33,7 +33,7 @@ func NewGrpcApp(
 
 	authentication_v1.RegisterAuthenticationServer(
 		gRPCServer,
-		authenticationGRPC.NewAuthenticationServer(
+		authentication.NewAuthenticationServer(
 			Log,
 			authService,
 		),

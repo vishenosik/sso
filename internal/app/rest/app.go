@@ -9,8 +9,8 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 
+	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	middleW "github.com/blacksmith-vish/sso/internal/lib/middleware"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 )
@@ -28,17 +28,20 @@ type Service interface {
 func NewRestApp(
 	log *slog.Logger,
 	conf config.RESTConfig,
-	services ...Service,
+	authenticationService authentication.Authentication,
 ) *App {
+
+	authentication := authentication.NewAuthenticationServer(log, authenticationService)
 
 	router := chi.NewRouter()
 	router.Use(
 		middleW.RequestLogger(log),
 	)
 
-	for i := range services {
-		services[i].InitRouters(router)
-	}
+	setRouters(
+		router,
+		authentication,
+	)
 
 	return &App{
 		log: log,
@@ -47,6 +50,12 @@ func NewRestApp(
 			Handler: router,
 		},
 		port: conf.Port,
+	}
+}
+
+func setRouters(router *chi.Mux, services ...Service) {
+	for i := range services {
+		services[i].InitRouters(router)
 	}
 }
 
