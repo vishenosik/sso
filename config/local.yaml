@@ -1,7 +1,5 @@
-dotenv: ['../.env']
-
-env: "dev" # dev, prod
-store_path: ./storage/sso.db
+# env: "dev" # dev, prod
+# store_path: ./storage/sso.db
 
 services:
 

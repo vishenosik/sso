@@ -4,10 +4,19 @@ import (
 	"flag"
 	"os"
 
+	"log"
+
 	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/joho/godotenv"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
 type Config struct {
 	Env       string   `yaml:"env"`
@@ -18,8 +27,8 @@ type Config struct {
 
 func (conf Config) FetchConfig() *config.Config {
 	return &config.Config{
-		Env:                   conf.Env,
-		StorePath:             conf.StorePath,
+		Env:                   conf.env(),
+		StorePath:             conf.storePath(),
 		AuthenticationService: conf.Services.getAuthenticationService(),
 		GrpcConfig:            conf.Servers.getGrpcConfig(),
 		RestConfig:            conf.Servers.getRestConfig(),
@@ -64,4 +73,18 @@ func fetchConfigPath() string {
 	}
 
 	return res
+}
+
+func (conf Config) storePath() string {
+	if conf.StorePath == "" {
+		return os.Getenv("STORE_PATH")
+	}
+	return conf.StorePath
+}
+
+func (conf Config) env() string {
+	if conf.Env == "" {
+		return os.Getenv("ENV")
+	}
+	return conf.Env
 }

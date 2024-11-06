@@ -1,5 +1,11 @@
 version: "3"
 
+
+includes:
+  sdk:
+    taskfile: ./sdk/Taskfile.yaml
+    dir: ./sdk
+
 env:
 
   # APP_SETTINGS
@@ -8,15 +14,6 @@ env:
   CONFIG_PATH: ./config/local.yaml
   # path to sqlite storage
   STORE_PATH: ./storage/sso.db
-
-  # CODEGENERATION
-
-  # .proto files directory
-  PROTOS_DIR: ./protos
-  # generation directory
-  GOLANG_GEN_DIR: ./gen
-  # scripts directory
-  SCRIPTS_DIR: ./scripts
 
   # output of the go coverage tool
   COVERAGE_FILE: cover.out
@@ -77,9 +74,3 @@ tasks:
     desc: Lint all files
     cmd: fieldalignment -fix ./...
     ignore_error: true
-
-  generate-grpc-api:
-    desc: Generate golang code from proto files
-    aliases:
-      - gen
-    cmd: sh $SCRIPTS_DIR/generate.sh $GOLANG_GEN_DIR $PROTOS_DIR
