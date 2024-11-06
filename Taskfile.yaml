@@ -1,6 +1,25 @@
 version: "3"
 
-dotenv: ['.env']
+env:
+
+  # APP_SETTINGS
+
+  # path to active config file
+  CONFIG_PATH: ./config/local.yaml
+  # path to sqlite storage
+  STORE_PATH: ./storage/sso.db
+
+  # CODEGENERATION
+
+  # .proto files directory
+  PROTOS_DIR: ./protos
+  # generation directory
+  GOLANG_GEN_DIR: ./gen
+  # scripts directory
+  SCRIPTS_DIR: ./scripts
+
+  # output of the go coverage tool
+  COVERAGE_FILE: cover.out
 
 vars:
   FLAG_CONFIG: --config=$CONFIG_PATH
@@ -63,4 +82,4 @@ tasks:
     desc: Generate golang code from proto files
     aliases:
       - gen
-    cmd: sh $SCRIPTS_DIR/generate.sh
+    cmd: sh $SCRIPTS_DIR/generate.sh $GOLANG_GEN_DIR $PROTOS_DIR

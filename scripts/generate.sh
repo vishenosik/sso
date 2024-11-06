@@ -1,8 +1,7 @@
 #!/bin/bash
 
-set -a
-source .env
-set +a
+GOLANG_GEN_DIR=$1
+PROTOS_DIR=$2
 
 for VersionDir in $PROTOS_DIR/*; do
 
