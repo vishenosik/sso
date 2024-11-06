@@ -10,7 +10,7 @@ import (
 
 	config_yaml "github.com/blacksmith-vish/sso/internal/store/filesystem/config/yaml"
 
-	authentication_v1 "github.com/blacksmith-vish/sso/sdk/api/grpc/v1/authentication"
+	authentication_v1 "github.com/blacksmith-vish/sso/sso-sdk/api/grpc/v1/authentication"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

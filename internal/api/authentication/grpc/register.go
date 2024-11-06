@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	authentication_v1 "github.com/blacksmith-vish/sso/sdk/api/grpc/v1/authentication"
+	authentication_v1 "github.com/blacksmith-vish/sso/sso-sdk/api/grpc/v1/authentication"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"

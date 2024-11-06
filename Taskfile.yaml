@@ -3,7 +3,7 @@ version: "3"
 
 includes:
   sdk:
-    taskfile: ./sdk/Taskfile.yaml
+    taskfile: ./sso-sdk/Taskfile.yaml
     dir: ./sdk
 
 env:
