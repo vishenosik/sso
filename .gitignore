@@ -39,3 +39,4 @@ go.work.sum
 .DS_Store
 # Sqlite storage directory
 /storage
+/sdk/
