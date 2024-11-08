@@ -31,7 +31,7 @@ func NewToken(
 			"appID":  app.GetID(),
 		})
 
-	// No need to handle error - it returns only if @param key is not []byte which app.GetSecret() guarantees
+	// No need to handle error - it returns only if param key is not []byte which app.GetSecret() guarantees
 	tokeString, _ := token.SignedString(app.GetSecret())
 
 	return tokeString

@@ -42,6 +42,24 @@ func NewAuthenticationServer(
 func (srv server) InitRouters(router *chi.Mux) {
 
 	fs := http.FileServer(http.FS(embed.StaticFiles))
+	// swagger:route GET /profile
+	//
+	// Gets profile of user
+	//
+	//     Produces:
+	//     - application/json
+	//     - application/x-protobuf
+	//
+	//     Schemes: http, https, ws, wss
+	//
+	//     Security:
+	//       api_key:
+	//       oauth: read, write
+	//
+	//     Responses:
+	//       default: genericError
+	//       200: someResponse
+	//       422: validationError
 	router.Handle("/static/*", fs)
 
 	router.Post("/register", srv.register())

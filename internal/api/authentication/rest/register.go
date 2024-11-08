@@ -12,6 +12,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+// getArticleById godoc
+//
+//	@Summary 	Регистрация пользователя
+//	@Tags 		users
+//	@Router 	/register/us/article_id [post]
+//	@Accept 	json
+//	@Param 		article_id path string true "Идентификатор баннера" example(5bs8879f-1e45-4043-a8f6-a8f7b934f45a)
+//	@Param 		request body models.RegisterRequest true "Данные пользователя"
+//	@Success 	200
+//	@Failure 	406
+//	@Failure 	417
+//	@Failure 	500
 func (srv server) register() http.HandlerFunc {
 
 	log := srv.log.With(

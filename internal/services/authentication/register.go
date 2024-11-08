@@ -16,8 +16,8 @@ import (
 
 // RegisterNewUser registers new user
 //
-//	@param ctx
-//	@param request - user data passed from registration
+//	param ctx
+//	param request - user data passed from registration
 //
 // Returned errors:
 //

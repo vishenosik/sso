@@ -74,3 +74,8 @@ tasks:
     desc: Lint all files
     cmd: fieldalignment -fix ./...
     ignore_error: true
+    
+# DOCS
+# swag init -g ./cmd/sso/main.go -o ./docs
+# swagger generate client -f ./docs/swagger.yaml
+# swagger generate spec -o ./docs/swagger-v1.yaml

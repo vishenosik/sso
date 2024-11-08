@@ -18,9 +18,9 @@ import (
 
 // Login checks if user's credentials exists and appID is valid
 //
-//	@param ctx
-//	@param request - user data passed from login
-//	@param appID - uuid v4 ID
+//	param ctx
+//	param request - user data passed from login
+//	param appID - uuid v4 ID
 //
 // Returned errors:
 //

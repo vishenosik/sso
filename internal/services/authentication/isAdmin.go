@@ -14,8 +14,8 @@ import (
 
 // IsAdmin checks if user is admin
 //
-//	@param ctx
-//	@param userID - uuid v4 ID
+//	param ctx
+//	param userID - uuid v4 ID
 //
 // Returned errors:
 //
