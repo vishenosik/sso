@@ -25,16 +25,14 @@ func Test_IsAdmin(t *testing.T) {
 	ID4 := uuid.New().String()
 
 	type expectedResult struct {
-		isAdmin bool
 		err     error
+		isAdmin bool
 	}
 
 	TestingTable := []struct {
-		name string
-		// аргументы
-		userID string
-		// ожидаемый результат
 		expected expectedResult
+		name     string
+		userID   string
 	}{
 		{
 			name:   "not an admin, no err",

@@ -1,20 +1,18 @@
 version: "3"
 
-
 includes:
   sdk:
     taskfile: ./sso-sdk/Taskfile.yaml
-    dir: ./sdk
+    optional: true
+
+dotenv: ['.env']
 
 env:
 
   # APP_SETTINGS
-
-  # path to active config file
-  CONFIG_PATH: ./config/local.yaml
   # path to sqlite storage
   STORE_PATH: ./storage/sso.db
-
+ 
   # output of the go coverage tool
   COVERAGE_FILE: cover.out
 

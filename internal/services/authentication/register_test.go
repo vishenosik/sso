@@ -51,11 +51,9 @@ func Test_Register_Fail_InvalidRequest(t *testing.T) {
 	password := randomPassword()
 
 	TestingTable := []struct {
-		name string
-		// аргументы
-		request models.RegisterRequest
-		// ожидаемый результат
 		expectedErr error
+		request     models.RegisterRequest
+		name        string
 	}{
 		{
 			name: "empty nickname",

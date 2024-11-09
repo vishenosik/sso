@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	authentication_v1 "github.com/blacksmith-vish/sso/sso-sdk/api/grpc/v1/authentication"
+	authentication_v1 "github.com/blacksmith-vish/sso/gen/grpc/v1/authentication"
 
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 )

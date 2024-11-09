@@ -55,11 +55,11 @@ type AppProvider interface {
 }
 
 type Authentication struct {
-	log          *slog.Logger
-	tokenTTL     time.Duration
 	userSaver    UserSaver
 	userProvider UserProvider
 	appProvider  AppProvider
+	log          *slog.Logger
+	tokenTTL     time.Duration
 }
 
 // New returns a new instance of Auth

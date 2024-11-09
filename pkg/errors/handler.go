@@ -10,10 +10,10 @@ import (
 type ErrorsCodes map[error]int
 
 type handler struct {
-	log            *slog.Logger
 	responseWriter http.ResponseWriter
-	message        string
+	log            *slog.Logger
 	codes          ErrorsCodes
+	message        string
 }
 
 // Сигнатура функции для задания параметров
