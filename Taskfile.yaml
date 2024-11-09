@@ -73,7 +73,16 @@ tasks:
     cmd: fieldalignment -fix ./...
     ignore_error: true
     
-# DOCS
+  # DOCS
+
+  swagger:
+    desc: Generate swagger docs
+    cmds:
+      # make internal docs (go-based)
+      - swag init -g ./cmd/sso/main.go -o ./docs --ot go
+      # make sdk docs (json,yaml)
+      - swag init -g ./cmd/sso/main.go -o ./sso-sdk/docs --ot json,yaml
+
 # swag init -g ./cmd/sso/main.go -o ./docs
 # swagger generate client -f ./docs/swagger.yaml
 # swagger generate spec -o ./docs/swagger-v1.yaml
