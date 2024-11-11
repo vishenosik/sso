@@ -24,70 +24,93 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/register/us/article_id": {
-            "post": {
+        "/accounts/{id}": {
+            "get": {
+                "description": "get string by ID",
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "users"
+                "produces": [
+                    "application/json"
                 ],
-                "summary": "Регистрация пользователя",
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Show an account",
                 "parameters": [
                     {
-                        "type": "string",
-                        "example": "5bs8879f-1e45-4043-a8f6-a8f7b934f45a",
-                        "description": "Идентификатор баннера",
-                        "name": "article_id",
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Данные пользователя",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.RegisterRequest"
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/authentication.Account"
+                        }
                     },
-                    "406": {
-                        "description": "Not Acceptable"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/authentication.HTTPError"
+                        }
                     },
-                    "417": {
-                        "description": "Expectation Failed"
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/authentication.HTTPError"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/authentication.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ping": {
+            "get": {
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Регистрация пользователя",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "not ok",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.RegisterRequest": {
+        "authentication.Account": {
             "type": "object",
-            "required": [
-                "email",
-                "nickname",
-                "pswd"
-            ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "pswd": {
+                "id": {
                     "type": "string"
                 }
             }
+        },
+        "authentication.HTTPError": {
+            "type": "object"
         }
     },
     "securityDefinitions": {

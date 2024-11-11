@@ -7,12 +7,7 @@ includes:
 
 dotenv: ['.env']
 
-env:
-
-  # APP_SETTINGS
-  # path to sqlite storage
-  STORE_PATH: ./storage/sso.db
- 
+env: 
   # output of the go coverage tool
   COVERAGE_FILE: cover.out
 
@@ -86,3 +81,5 @@ tasks:
 # swag init -g ./cmd/sso/main.go -o ./docs
 # swagger generate client -f ./docs/swagger.yaml
 # swagger generate spec -o ./docs/swagger-v1.yaml
+
+# swagger generate client -f ./sso-sdk/docs/swagger.yaml -c sso/client -m sso/models

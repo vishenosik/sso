@@ -12,6 +12,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+type Account struct {
+	ID string
+}
+
+type HTTPError struct {
+	err string
+}
+
 // getArticleById godoc
 //
 //	@Summary 	Регистрация пользователя
@@ -24,6 +32,19 @@ import (
 //	@Failure 	406
 //	@Failure 	417
 //	@Failure 	500
+
+// ShowAccount godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Account ID"
+// @Success      200  {object}  Account
+// @Failure      400  {object}  HTTPError
+// @Failure      404  {object}  HTTPError
+// @Failure      500  {object}  HTTPError
+// @Router       /accounts/{id} [get]
 func (srv server) register() http.HandlerFunc {
 
 	log := srv.log.With(

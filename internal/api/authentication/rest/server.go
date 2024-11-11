@@ -10,6 +10,8 @@ import (
 	embed "github.com/blacksmith-vish/sso"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 
+	_ "github.com/blacksmith-vish/sso/docs"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -39,27 +41,18 @@ func NewAuthenticationServer(
 
 }
 
+// ping godoc
+//
+//	@Summary 	Регистрация пользователя
+//	@Tags 		system
+//	@Router 	/api/ping [get]
+//	@Produce 	html
+//	@Success 	200 {string}  string    "ok"
+//	@Failure 	406 {string}  string    "not ok"
 func (srv server) InitRouters(router *chi.Mux) {
 
 	fs := http.FileServer(http.FS(embed.StaticFiles))
-	// swagger:route GET /profile
-	//
-	// Gets profile of user
-	//
-	//     Produces:
-	//     - application/json
-	//     - application/x-protobuf
-	//
-	//     Schemes: http, https, ws, wss
-	//
-	//     Security:
-	//       api_key:
-	//       oauth: read, write
-	//
-	//     Responses:
-	//       default: genericError
-	//       200: someResponse
-	//       422: validationError
+
 	router.Handle("/static/*", fs)
 
 	router.Post("/register", srv.register())
@@ -82,7 +75,8 @@ func (srv server) InitRouters(router *chi.Mux) {
 	apiRouter := chi.NewRouter()
 
 	apiRouter.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World!"))
+		http.Error(w, "ping failed", http.StatusNotAcceptable)
+		// w.Write([]byte("PONG"))
 	})
 
 	// Mounting the new Sub Router on the main router

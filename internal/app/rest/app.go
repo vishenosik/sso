@@ -7,12 +7,13 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
-
+	_ "github.com/blacksmith-vish/sso/docs"
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
+	"github.com/blacksmith-vish/sso/internal/lib/config"
 	middleW "github.com/blacksmith-vish/sso/internal/lib/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type App struct {
@@ -37,6 +38,8 @@ func NewRestApp(
 	router.Use(
 		middleW.RequestLogger(log),
 	)
+
+	router.Get("/swagger/*", httpSwagger.Handler())
 
 	setRouters(
 		router,
