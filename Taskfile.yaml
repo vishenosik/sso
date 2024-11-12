@@ -37,8 +37,7 @@ tasks:
   
   test-coverage:
     desc: Generates coverage html after testing
-    aliases:
-      - cover
+    aliases: [cover]
     deps:
       - test
     cmd: go tool cover -html=$COVERAGE_FILE
