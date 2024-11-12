@@ -7,9 +7,15 @@ includes:
 
 dotenv: ['.env']
 
+env:
+  # TESTING
+  # output of the go coverage tool
+  COVERAGE_FILE: testing/cover.out
+  # internal folder
+  INTERNAL_WILDCARD: ./internal/...
+
 vars:
   FLAG_CONFIG: --config=$CONFIG_PATH
-  INTERNAL_WILDCARD: ./internal/...
 
 tasks:
 
@@ -33,7 +39,7 @@ tasks:
 
   test:
     desc: Test all packages
-    cmd: sh scripts/testing.sh $COVERAGE_FILE
+    cmd: sh testing/testing.sh $COVERAGE_FILE
   
   test-coverage:
     desc: Generates coverage html after testing
@@ -44,7 +50,7 @@ tasks:
 
   mock:
     desc: Generates all mocks
-    cmd: go generate {{.INTERNAL_WILDCARD}}
+    cmd: go generate $INTERNAL_WILDCARD
 
   # TOOLS
 
@@ -61,7 +67,7 @@ tasks:
 
   lint:
     desc: Lint all files
-    cmd: fieldalignment -fix {{.INTERNAL_WILDCARD}}
+    cmd: fieldalignment -fix $INTERNAL_WILDCARD
     ignore_error: true
     
   # DOCS
@@ -73,9 +79,3 @@ tasks:
       - swag init -g ./cmd/sso/main.go -o ./docs --ot go
       # make sdk docs (json,yaml)
       - swag init -g ./cmd/sso/main.go -o ./sso-sdk/docs --ot json,yaml
-
-# swag init -g ./cmd/sso/main.go -o ./docs
-# swagger generate client -f ./docs/swagger.yaml
-# swagger generate spec -o ./docs/swagger-v1.yaml
-
-# swagger generate client -f ./sso-sdk/docs/swagger.yaml -c sso/client -m sso/models
