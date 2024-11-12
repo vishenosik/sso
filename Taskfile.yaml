@@ -7,12 +7,9 @@ includes:
 
 dotenv: ['.env']
 
-env: 
-  # output of the go coverage tool
-  COVERAGE_FILE: cover.out
-
 vars:
   FLAG_CONFIG: --config=$CONFIG_PATH
+  INTERNAL_WILDCARD: ./internal/...
 
 tasks:
 
@@ -36,7 +33,7 @@ tasks:
 
   test:
     desc: Test all packages
-    cmd: go test -v -cover -coverprofile=$COVERAGE_FILE ./internal/...
+    cmd: sh scripts/testing.sh $COVERAGE_FILE
   
   test-coverage:
     desc: Generates coverage html after testing
@@ -48,7 +45,7 @@ tasks:
 
   mock:
     desc: Generates all mocks
-    cmd: go generate ./...
+    cmd: go generate {{.INTERNAL_WILDCARD}}
 
   # TOOLS
 
@@ -65,7 +62,7 @@ tasks:
 
   lint:
     desc: Lint all files
-    cmd: fieldalignment -fix ./...
+    cmd: fieldalignment -fix {{.INTERNAL_WILDCARD}}
     ignore_error: true
     
   # DOCS

@@ -16,6 +16,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.22.1
 	github.com/stretchr/testify v1.9.0
+	github.com/swaggo/http-swagger/v2 v2.0.2
+	github.com/swaggo/swag v1.16.4
 	golang.org/x/crypto v0.28.0
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.34.2
@@ -44,8 +46,6 @@ require (
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
-	github.com/swaggo/http-swagger/v2 v2.0.2 // indirect
-	github.com/swaggo/swag v1.16.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
