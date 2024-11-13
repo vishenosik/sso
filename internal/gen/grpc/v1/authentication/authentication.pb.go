@@ -22,11 +22,10 @@ const (
 
 type RegisterRequest struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	Email         string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterRequest) Reset() {
@@ -77,10 +76,9 @@ func (x *RegisterRequest) GetPassword() string {
 
 type RegisterResponse struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
@@ -124,12 +122,11 @@ func (x *RegisterResponse) GetUserId() string {
 
 type LoginRequest struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	Email         string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	AppId         string `protobuf:"bytes,3,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	AppId    string `protobuf:"bytes,3,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
@@ -187,10 +184,9 @@ func (x *LoginRequest) GetAppId() string {
 
 type LoginResponse struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	Token         string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginResponse) Reset() {
@@ -234,10 +230,9 @@ func (x *LoginResponse) GetToken() string {
 
 type IsAdminRequest struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IsAdminRequest) Reset() {
@@ -281,10 +276,9 @@ func (x *IsAdminRequest) GetUserId() string {
 
 type IsAdminResponse struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
-
-	IsAdmin bool `protobuf:"varint,1,opt,name=is_admin,json=isAdmin,proto3" json:"is_admin,omitempty"`
+	sizeCache     protoimpl.SizeCache
+	IsAdmin       bool `protobuf:"varint,1,opt,name=is_admin,json=isAdmin,proto3" json:"is_admin,omitempty"`
 }
 
 func (x *IsAdminResponse) Reset() {
@@ -328,10 +322,9 @@ func (x *IsAdminResponse) GetIsAdmin() bool {
 
 type RoleRequest struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RoleRequest) Reset() {
@@ -375,10 +368,9 @@ func (x *RoleRequest) GetUserId() string {
 
 type RoleResponse struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
+	Role          string `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
-
-	Role string `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RoleResponse) Reset() {
@@ -422,8 +414,8 @@ func (x *RoleResponse) GetRole() string {
 
 type RolesRequest struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RolesRequest) Reset() {
@@ -460,11 +452,10 @@ func (*RolesRequest) Descriptor() ([]byte, []int) {
 
 type RolesResponse struct {
 	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
-
-	Total uint32   `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	Roles []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	Roles         []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	sizeCache     protoimpl.SizeCache
+	Total         uint32 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 }
 
 func (x *RolesResponse) Reset() {

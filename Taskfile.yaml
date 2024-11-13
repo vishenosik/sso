@@ -74,8 +74,10 @@ tasks:
 
   swagger:
     desc: Generate swagger docs
+    env:
+      SWAG: swag init -g ./cmd/sso/main.go
     cmds:
       # make internal docs (go-based)
-      - swag init -g ./cmd/sso/main.go -o ./docs --ot go
+      - $SWAG -o $GEN_DIR/docs --ot go
       # make sdk docs (json,yaml)
-      - swag init -g ./cmd/sso/main.go -o ./sso-sdk/docs --ot json,yaml
+      - $SWAG -o ./sso-sdk/docs --ot json,yaml

@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	_ "github.com/blacksmith-vish/sso/docs"
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
+	_ "github.com/blacksmith-vish/sso/internal/gen/docs"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 	middleW "github.com/blacksmith-vish/sso/internal/lib/middleware"
 	"github.com/go-chi/chi/v5"

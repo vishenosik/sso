@@ -9,7 +9,7 @@ import (
 
 	"github.com/blacksmith-vish/sso/tests/suite"
 
-	authentication_v1 "github.com/blacksmith-vish/sso/gen/grpc/v1/authentication"
+	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
