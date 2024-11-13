@@ -37,6 +37,9 @@ go.work.sum
 # Add below lines to exclude OS settings and caches
 .trash/
 .DS_Store
-# Sqlite storage directory
-/storage
+# sdk package
 /sso-sdk/
+# any data storage
+**/data
+**/files
+**/storage

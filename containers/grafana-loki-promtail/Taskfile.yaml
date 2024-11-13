@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+
+  run:
+    desc: "Run mssql docker server"
+    cmd: docker compose -f docker-compose.yaml up -d --build
+
+  stop:
+    desc: "Stop both nodes"
+    cmd: docker stop grafana loki promtail

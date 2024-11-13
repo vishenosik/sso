@@ -5,6 +5,10 @@ includes:
     taskfile: ./sso-sdk/Taskfile.yaml
     optional: true
 
+  redis:
+    taskfile: ./containers/redis/Taskfile.yaml
+    optional: true
+
 dotenv: ['.env']
 
 env:
