@@ -14,7 +14,7 @@ dotenv: ['.env']
 env:
   # TESTING
   # output of the go coverage tool
-  COVERAGE_FILE: testing/cover.out
+  COVERAGE_FILE: cover.out
   # internal folder
   INTERNAL_WILDCARD: ./internal/...
 
@@ -43,7 +43,7 @@ tasks:
 
   test:
     desc: Test all packages
-    cmd: sh testing/testing.sh $COVERAGE_FILE
+    cmd: sh scripts/testing.sh $COVERAGE_FILE
   
   test-coverage:
     desc: Generates coverage html after testing
