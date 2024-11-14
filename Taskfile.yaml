@@ -14,7 +14,7 @@ dotenv: ['.env']
 env:
   # TESTING
   # output of the go coverage tool
-  COVERAGE_FILE: cover.out
+  COVERAGE_FILE: tests/cover.out
   # internal folder
   INTERNAL_WILDCARD: ./internal/...
 
