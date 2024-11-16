@@ -20,6 +20,7 @@ go.work.sum
 .vs
 # Visual StudioCode
 .vscode
+!tools/debug/.vscode/
 # JetBrains
 .idea
 # TASKFILE SETTINGS

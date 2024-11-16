@@ -12,9 +12,6 @@ includes:
 dotenv: ['.env']
 
 env:
-  # TESTING
-  # output of the go coverage tool
-  COVERAGE_FILE: tests/cover.out
   # internal folder
   INTERNAL_WILDCARD: ./internal/...
 
@@ -31,8 +28,7 @@ tasks:
 
   build:
     desc: Builds application
-    deps: 
-      - lint
+    deps: [lint]
     cmds:
       - 'go build -o bin/ ./cmd/sso/main.go'
     sources:
@@ -60,8 +56,7 @@ tasks:
 
   dev:
     desc: Build and start app with file listener (hot reload)
-    deps: 
-      - build
+    deps: [build]
     silent: true
     watch: true
     cmd: ./bin/main {{.FLAG_CONFIG}}
