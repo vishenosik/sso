@@ -41,53 +41,53 @@ func colorizer(colorCode int, v string) string {
 }
 
 type Handler struct {
-	h                slog.Handler
+	handler          slog.Handler
 	r                func([]string, slog.Attr) slog.Attr
-	b                *bytes.Buffer
-	m                *sync.Mutex
+	buffer           *bytes.Buffer
+	mutex            *sync.Mutex
 	writer           io.Writer
 	colorize         bool
 	outputEmptyAttrs bool
 }
 
-func (h *Handler) Enabled(ctx context.Context, level slog.Level) bool {
-	return h.h.Enabled(ctx, level)
+func (handler *Handler) Enabled(ctx context.Context, level slog.Level) bool {
+	return handler.handler.Enabled(ctx, level)
 }
 
-func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &Handler{h: h.h.WithAttrs(attrs), b: h.b, r: h.r, m: h.m, writer: h.writer, colorize: h.colorize}
+func (handler *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &Handler{handler: handler.handler.WithAttrs(attrs), buffer: handler.buffer, r: handler.r, mutex: handler.mutex, writer: handler.writer, colorize: handler.colorize}
 }
 
-func (h *Handler) WithGroup(name string) slog.Handler {
-	return &Handler{h: h.h.WithGroup(name), b: h.b, r: h.r, m: h.m, writer: h.writer, colorize: h.colorize}
+func (handler *Handler) WithGroup(name string) slog.Handler {
+	return &Handler{handler: handler.handler.WithGroup(name), buffer: handler.buffer, r: handler.r, mutex: handler.mutex, writer: handler.writer, colorize: handler.colorize}
 }
 
-func (h *Handler) computeAttrs(
+func (handler *Handler) computeAttrs(
 	ctx context.Context,
 	r slog.Record,
 ) (map[string]any, error) {
-	h.m.Lock()
+	handler.mutex.Lock()
 	defer func() {
-		h.b.Reset()
-		h.m.Unlock()
+		handler.buffer.Reset()
+		handler.mutex.Unlock()
 	}()
-	if err := h.h.Handle(ctx, r); err != nil {
+	if err := handler.handler.Handle(ctx, r); err != nil {
 		return nil, fmt.Errorf("error when calling inner handler's Handle: %w", err)
 	}
 
 	var attrs map[string]any
-	err := json.Unmarshal(h.b.Bytes(), &attrs)
+	err := json.Unmarshal(handler.buffer.Bytes(), &attrs)
 	if err != nil {
 		return nil, fmt.Errorf("error when unmarshaling inner handler's Handle result: %w", err)
 	}
 	return attrs, nil
 }
 
-func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
+func (handler *Handler) Handle(ctx context.Context, r slog.Record) error {
 	colorize := func(code int, value string) string {
 		return value
 	}
-	if h.colorize {
+	if handler.colorize {
 		colorize = colorizer
 	}
 
@@ -96,8 +96,8 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 		Key:   slog.LevelKey,
 		Value: slog.AnyValue(r.Level),
 	}
-	if h.r != nil {
-		levelAttr = h.r([]string{}, levelAttr)
+	if handler.r != nil {
+		levelAttr = handler.r([]string{}, levelAttr)
 	}
 
 	if !levelAttr.Equal(slog.Attr{}) {
@@ -123,8 +123,8 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 		Key:   slog.TimeKey,
 		Value: slog.StringValue(r.Time.Format(timeFormat)),
 	}
-	if h.r != nil {
-		timeAttr = h.r([]string{}, timeAttr)
+	if handler.r != nil {
+		timeAttr = handler.r([]string{}, timeAttr)
 	}
 	if !timeAttr.Equal(slog.Attr{}) {
 		timestamp = colorize(lightGray, timeAttr.Value.String())
@@ -135,20 +135,20 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 		Key:   slog.MessageKey,
 		Value: slog.StringValue(r.Message),
 	}
-	if h.r != nil {
-		msgAttr = h.r([]string{}, msgAttr)
+	if handler.r != nil {
+		msgAttr = handler.r([]string{}, msgAttr)
 	}
 	if !msgAttr.Equal(slog.Attr{}) {
 		msg = colorize(white, msgAttr.Value.String())
 	}
 
-	attrs, err := h.computeAttrs(ctx, r)
+	attrs, err := handler.computeAttrs(ctx, r)
 	if err != nil {
 		return err
 	}
 
 	var attrsAsBytes []byte
-	if h.outputEmptyAttrs || len(attrs) > 0 {
+	if handler.outputEmptyAttrs || len(attrs) > 0 {
 		attrsAsBytes, err = json.MarshalIndent(attrs, "", "  ")
 		if err != nil {
 			return fmt.Errorf("error when marshaling attrs: %w", err)
@@ -172,7 +172,7 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 		out.WriteString(colorize(darkGray, string(attrsAsBytes)))
 	}
 
-	_, err = io.WriteString(h.writer, out.String()+"\n")
+	_, err = io.WriteString(handler.writer, out.String()+"\n")
 	if err != nil {
 		return err
 	}
@@ -203,14 +203,14 @@ func New(handlerOptions *slog.HandlerOptions, options ...Option) *Handler {
 
 	buf := &bytes.Buffer{}
 	handler := &Handler{
-		b: buf,
-		h: slog.NewJSONHandler(buf, &slog.HandlerOptions{
+		buffer: buf,
+		handler: slog.NewJSONHandler(buf, &slog.HandlerOptions{
 			Level:       handlerOptions.Level,
 			AddSource:   handlerOptions.AddSource,
 			ReplaceAttr: suppressDefaults(handlerOptions.ReplaceAttr),
 		}),
-		r: handlerOptions.ReplaceAttr,
-		m: &sync.Mutex{},
+		r:     handlerOptions.ReplaceAttr,
+		mutex: &sync.Mutex{},
 	}
 
 	for _, opt := range options {
@@ -224,22 +224,22 @@ func NewHandler(opts *slog.HandlerOptions) *Handler {
 	return New(opts, WithDestinationWriter(os.Stdout), WithColor(), WithOutputEmptyAttrs())
 }
 
-type Option func(h *Handler)
+type Option func(handler *Handler)
 
 func WithDestinationWriter(writer io.Writer) Option {
-	return func(h *Handler) {
-		h.writer = writer
+	return func(handler *Handler) {
+		handler.writer = writer
 	}
 }
 
 func WithColor() Option {
-	return func(h *Handler) {
-		h.colorize = true
+	return func(handler *Handler) {
+		handler.colorize = true
 	}
 }
 
 func WithOutputEmptyAttrs() Option {
-	return func(h *Handler) {
-		h.outputEmptyAttrs = true
+	return func(handler *Handler) {
+		handler.outputEmptyAttrs = true
 	}
 }
