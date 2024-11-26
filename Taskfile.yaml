@@ -28,7 +28,6 @@ tasks:
 
   build:
     desc: Builds application
-    deps: [lint]
     cmds:
       - 'go build -o bin/ ./cmd/sso/main.go'
     sources:
