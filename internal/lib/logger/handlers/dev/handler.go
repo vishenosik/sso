@@ -2,12 +2,13 @@ package dev
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	stdLog "log"
 	"log/slog"
+	"strings"
 
 	"github.com/fatih/color"
+	"gopkg.in/yaml.v2"
 )
 
 type DevHandler struct {
@@ -64,20 +65,29 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 	)
 
 	if len(fields) > 0 {
-		data, err = json.MarshalIndent(fields, "", "  ")
+		data, err = yaml.Marshal(fields)
+		// data, err = json.MarshalIndent(fields, "", "  ")
 		if err != nil {
 			return err
 		}
 	}
 
-	// timeStr := r.Time.Format("[15:05:05.000]")
+	timeStr := rec.Time.Format("[15:05:05.000]")
 	msg := color.CyanString(rec.Message)
 
 	handler.std.Println(
-		// timeStr,
+		timeStr,
 		level,
 		msg,
-		color.WhiteString(string(data)),
+	)
+
+	attrs := string(data)
+	key := "port"
+
+	attrs = strings.ReplaceAll(attrs, key, color.RedString(key))
+
+	handler.std.Println(
+		color.WhiteString(attrs),
 	)
 
 	return nil
