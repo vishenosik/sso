@@ -22,9 +22,10 @@ const (
 
 type RoleRequest struct {
 	state         protoimpl.MessageState
-	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 }
 
 func (x *RoleRequest) Reset() {
@@ -68,9 +69,10 @@ func (x *RoleRequest) GetUserId() string {
 
 type RoleResponse struct {
 	state         protoimpl.MessageState
-	Role          string `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
-	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Role string `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
 }
 
 func (x *RoleResponse) Reset() {
@@ -114,8 +116,8 @@ func (x *RoleResponse) GetRole() string {
 
 type RolesRequest struct {
 	state         protoimpl.MessageState
-	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 }
 
 func (x *RolesRequest) Reset() {
@@ -152,10 +154,11 @@ func (*RolesRequest) Descriptor() ([]byte, []int) {
 
 type RolesResponse struct {
 	state         protoimpl.MessageState
-	unknownFields protoimpl.UnknownFields
-	Roles         []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
 	sizeCache     protoimpl.SizeCache
-	Total         uint32 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+
+	Total uint32   `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Roles []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
 }
 
 func (x *RolesResponse) Reset() {
