@@ -25,6 +25,10 @@ go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignme
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
+### Tabnine
+
+1. generate swagger comment for the `register` function including tags from github.com/swaggo/swag library.
+
 ## Services
 
 [Authentication](api/rest/v1/authentication/authentication.md)

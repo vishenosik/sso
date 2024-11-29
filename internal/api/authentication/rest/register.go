@@ -12,39 +12,21 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Account struct {
-	ID string
-}
-
-type HTTPError struct {
-	err string
-}
-
-// getArticleById godoc
-//
-//	@Summary 	Регистрация пользователя
-//	@Tags 		users
-//	@Router 	/register/us/article_id [post]
-//	@Accept 	json
-//	@Param 		article_id path string true "Идентификатор баннера" example(5bs8879f-1e45-4043-a8f6-a8f7b934f45a)
-//	@Param 		request body models.RegisterRequest true "Данные пользователя"
-//	@Success 	200
-//	@Failure 	406
-//	@Failure 	417
-//	@Failure 	500
-
-// ShowAccount godoc
-// @Summary      Show an account
-// @Description  get string by ID
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        id   path      int  true  "Account ID"
-// @Success      200  {object}  Account
-// @Failure      400  {object}  HTTPError
-// @Failure      404  {object}  HTTPError
-// @Failure      500  {object}  HTTPError
-// @Router       /accounts/{id} [get]
+// Register godoc
+// @Summary      Register a new user
+// @Description  Registers a new user with the provided nickname, email, and password
+// @Tags         authentication
+// @Accept       x-www-form-urlencoded
+// @Produce      plain
+// @Param        nickname  formData  string  true  "User's nickname"
+// @Param        email     formData  string  true  "User's email"
+// @Param        pswd      formData  string  true  "User's password"
+// @Success      200  {string}  string  "Hello BITCH!"
+// @Failure      400  {string} string ""
+// @Failure      406  {string} string ""
+// @Failure      417  {string} string ""
+// @Failure      500  {string} string ""
+// @Router       /register [post]
 func (srv server) register() http.HandlerFunc {
 
 	log := srv.log.With(
