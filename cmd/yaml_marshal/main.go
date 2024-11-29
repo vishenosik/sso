@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"regexp"
-	"slices"
-	"strings"
 
 	"github.com/fatih/color"
 	"gopkg.in/yaml.v2"
@@ -47,7 +45,7 @@ func main() {
 		},
 		{
 			Name: "Sagar",
-			Age:  25,
+			Age:  2,
 		},
 	}
 
@@ -58,20 +56,11 @@ func main() {
 
 	data := string(yamlData)
 
-	re := regexp.MustCompile("[0-9]+")
-	nums := re.FindAllString(data, -1)
-
-	fmt.Println(nums)
-
-	slices.SortFunc(nums, func(i, j string) int {
-		return len(j) - len(i) // Sort by length in descending order.  If lengths are same, sort lexicographically.  This will ensure the order of numbers in the map is preserved.  For example, "123" will come before "12".  If you want to sort lexicographically, remove this line.  For example, "123" will come before "12".  If you want to sort by length in descending order, remove this line.  For example, "123" will come before "12".  If you want to sort by length in descending order, remove this line.  For example, "123" will come before "12".  If you want to sort by length in descending order, remove this line.  For example, "123" will come before "12".  If you want to sort by
+	patternNumber := `[0-9]+`
+	data = regexp.MustCompile(patternNumber).ReplaceAllStringFunc(data, func(s string) string {
+		return color.BlueString(s)
 	})
 
-	fmt.Println(nums)
-
-	for _, num := range nums {
-		data = strings.ReplaceAll(data, num, color.BlueString(num))
-	}
 	fmt.Println(" --- YAML MAP---")
 	fmt.Println(data) // yamlData will be in bytes. So converting it to string.
 

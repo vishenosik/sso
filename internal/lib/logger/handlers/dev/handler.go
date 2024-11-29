@@ -5,7 +5,7 @@ import (
 	"io"
 	stdLog "log"
 	"log/slog"
-	"strings"
+	"regexp"
 
 	"github.com/fatih/color"
 	"gopkg.in/yaml.v2"
@@ -84,7 +84,16 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 	attrs := string(data)
 	key := "port"
 
-	attrs = strings.ReplaceAll(attrs, key, color.RedString(key))
+	patternNumber := `[0-9]+`
+	attrs = regexp.MustCompile(patternNumber).ReplaceAllStringFunc(attrs, func(s string) string {
+		return color.BlueString(s)
+	})
+
+	pattern := `\b` + regexp.QuoteMeta(key) + `\b` + `|` + `\b` + regexp.QuoteMeta("op") + `\b`
+
+	attrs = regexp.MustCompile(pattern).ReplaceAllStringFunc(attrs, func(s string) string {
+		return color.RedString(s)
+	})
 
 	handler.std.Println(
 		color.WhiteString(attrs),
