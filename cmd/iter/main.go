@@ -3,19 +3,25 @@ package main
 import (
 	"fmt"
 	"iter"
+	"reflect"
 	"slices"
 )
 
 func main() {
-	for x, emp := range EmployeeIterator(Employees) {
-		fmt.Println(x, emp)
-	}
+	// for x, emp := range EmployeeIterator(Employees) {
+	// 	fmt.Println(x, emp)
+	// }
 
 	for x := range slices.Values(Employees) {
-		fmt.Println(x)
+		// fmt.Println(x)
+		for k, v := range IterateStruct(x) {
+			fmt.Println(k, v)
+		}
 	}
 
-	// slices.Collect()
+	names := slices.Collect(EmployeesNames(Employees))
+
+	fmt.Println(names)
 }
 
 // Let's define an arbitrary struct
@@ -34,6 +40,28 @@ func EmployeeIterator(e []Employee) iter.Seq2[int, Employee] {
 	return func(yield func(int, Employee) bool) {
 		for i := 0; i <= len(e)-1; i++ {
 			if !yield(i+1, e[i]) {
+				return
+			}
+		}
+	}
+}
+
+func EmployeesNames(e []Employee) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for i := 0; i <= len(e)-1; i++ {
+			if !yield(e[i].Name) {
+				return
+			}
+		}
+	}
+}
+
+func IterateStruct(empl Employee) iter.Seq2[string, any] {
+	return func(yield func(string, any) bool) {
+		_value := reflect.ValueOf(empl)
+		_type := reflect.TypeOf(empl)
+		for i := range _value.NumField() {
+			if !yield(_type.Field(i).Name, _value.Field(i)) {
 				return
 			}
 		}
