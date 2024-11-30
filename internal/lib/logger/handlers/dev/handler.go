@@ -75,12 +75,6 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 	timeStr := rec.Time.Format("[15:05:05.000]")
 	msg := color.CyanString(rec.Message)
 
-	handler.std.Println(
-		timeStr,
-		level,
-		msg,
-	)
-
 	attrs := string(data)
 	key := "port"
 
@@ -96,6 +90,9 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 	})
 
 	handler.std.Println(
+		timeStr,
+		level,
+		msg+"\n",
 		color.WhiteString(attrs),
 	)
 
