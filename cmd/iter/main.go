@@ -3,105 +3,72 @@ package main
 import (
 	"fmt"
 	"iter"
+	_ "net/http/pprof"
 	"reflect"
 	"slices"
+
+	"github.com/blacksmith-vish/sso/internal/lib/collections"
 )
 
-func main() {
-	// for x, emp := range EmployeeIterator(Employees) {
-	// 	fmt.Println(x, emp)
-	// }
+type Employee struct {
+	Name string
+	Age  int
+}
 
-	for x := range slices.Values(Employees) {
-		// fmt.Println(x)
-		for k, v := range IterateStruct(x) {
+type Employees []Employee
+
+// create a pre-defined list of employees
+var employees = Employees{
+	{
+		Name: "Nikita",
+		Age:  23,
+	},
+	{
+		Name: "Vika",
+		Age:  52,
+	},
+	{
+		Name: "John",
+		Age:  5,
+	},
+	{
+		Name: "Igor",
+		Age:  36,
+	},
+	// {
+	// 	Name: "John",
+	// 	Age:  5,
+	// },
+	{
+		Name: "Johnson",
+		Age:  5,
+	},
+}
+
+func main() {
+
+	for x, emp := range employees.EmployeeIterator() {
+		fmt.Println(x, emp)
+	}
+
+	for x := range slices.Values(employees) {
+		for k, v := range x.FieldsIter() {
 			fmt.Println(k, v)
 		}
 	}
 
-	names := slices.Collect(EmployeesNames(Employees))
+	names := employees.Names()
 
 	fmt.Println(names)
+
+	_copy := collections.Unique(employees)
+
+	fmt.Println(employees, len(employees), cap(employees))
+	fmt.Println(_copy, len(_copy), cap(_copy))
+	fmt.Println(collections.HasDuplicates(employees))
+
 }
 
-// Let's define an arbitrary struct
-type Employee struct {
-	Name   string
-	Salary int
-}
-
-// create a pre-defined list of employees
-var Employees = []Employee{
-	{Name: "Elliot", Salary: 4},
-	{Name: "Donna", Salary: 5},
-}
-
-func EmployeeIterator(e []Employee) iter.Seq2[int, Employee] {
-	return func(yield func(int, Employee) bool) {
-		for i := 0; i <= len(e)-1; i++ {
-			if !yield(i+1, e[i]) {
-				return
-			}
-		}
-	}
-}
-
-func EmployeesNames(e []Employee) iter.Seq[string] {
-	return func(yield func(string) bool) {
-		for i := 0; i <= len(e)-1; i++ {
-			if !yield(e[i].Name) {
-				return
-			}
-		}
-	}
-}
-
-func IterateStruct(empl Employee) iter.Seq2[string, any] {
-	return func(yield func(string, any) bool) {
-		_value := reflect.ValueOf(empl)
-		_type := reflect.TypeOf(empl)
-		for i := range _value.NumField() {
-			if !yield(_type.Field(i).Name, _value.Field(i)) {
-				return
-			}
-		}
-	}
-}
-
-// our iterator function takes in a value and returns a func
-// that takes in another func with a signature of `func(int) bool`
-func Countdown(v int) func(func(int) bool) {
-	// next, we return a callback func which is typically
-	// called yield, but names like next could also be
-	// applicable
-	return func(yield func(int) bool) {
-		// we then start a for loop that iterates
-		for i := v; i >= 0; i-- {
-			// once we've finished looping
-			if !yield(i) {
-				// we then return and finish our iterations
-				return
-			}
-		}
-	}
-}
-
-// func main() {
-// 	s := []int{1, 2, 3, 4, 5}
-// 	// uses the Reversed iterator defined previously
-// 	next, stop := iter.Pull(Reversed(s))
-// 	defer stop()
-
-// 	for {
-// 		v, ok := next()
-// 		if !ok {
-// 			break
-// 		}
-// 		fmt.Print(v, " ")
-// 	}
-// }
-
-// Reversed returns an iterator that loops over a slice in reverse order.
 func Reversed[V any](s []V) iter.Seq[V] {
 	return func(yield func(V) bool) {
 		for i := len(s) - 1; i >= 0; i-- {
@@ -112,9 +79,38 @@ func Reversed[V any](s []V) iter.Seq[V] {
 	}
 }
 
-func PrintAll[V any](s iter.Seq[V]) {
-	for v := range s {
-		fmt.Print(v, " ")
+func (empls Employees) EmployeeIterator() iter.Seq2[string, Employee] {
+	return func(yield func(string, Employee) bool) {
+		for _, empl := range empls {
+			if !yield(empl.Name, empl) {
+				return
+			}
+		}
 	}
-	fmt.Println()
+}
+
+func (empls Employees) Names() []string {
+	return slices.Collect(empls.NamesIter())
+}
+
+func (empls Employees) NamesIter() iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for _, empl := range empls {
+			if !yield(empl.Name) {
+				return
+			}
+		}
+	}
+}
+
+func (empl Employee) FieldsIter() iter.Seq2[string, any] {
+	return func(yield func(string, any) bool) {
+		_value := reflect.ValueOf(empl)
+		_type := reflect.TypeOf(empl)
+		for i := range _value.NumField() {
+			if !yield(_type.Field(i).Name, _value.Field(i)) {
+				return
+			}
+		}
+	}
 }

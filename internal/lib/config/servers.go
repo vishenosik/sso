@@ -1,14 +1,16 @@
 package config
 
 import (
-	"fmt"
+	"iter"
+	"slices"
 	"time"
 
+	"github.com/blacksmith-vish/sso/internal/lib/collections"
 	"github.com/pkg/errors"
 )
 
 var (
-	ErrServerPortAlreadyInUse = errors.New("port is already in use")
+	ErrServerPortMustBeUnique = errors.New("port numbers must be unique")
 )
 
 type Server struct {
@@ -24,14 +26,25 @@ type RESTConfig struct {
 	Server
 }
 
+type Servers []Server
+
 func comparePorts(servers ...Server) error {
-	ports := make(map[uint16]*struct{})
-	for _, server := range servers {
-		if _, ok := ports[server.Port]; ok {
-			return fmt.Errorf("%v: %w", server.Port, ErrServerPortAlreadyInUse)
-		} else {
-			ports[server.Port] = nil
-		}
+	if collections.HasDuplicates(Servers(servers).Ports()) {
+		return ErrServerPortMustBeUnique
 	}
 	return nil
+}
+
+func (srvs Servers) Ports() []uint16 {
+	return slices.Collect(srvs.PortsIter())
+}
+
+func (srvs Servers) PortsIter() iter.Seq[uint16] {
+	return func(yield func(uint16) bool) {
+		for _, srv := range srvs {
+			if !yield(srv.Port) {
+				return
+			}
+		}
+	}
 }
