@@ -2,7 +2,7 @@ version: "3"
 
 includes:
   sdk:
-    taskfile: ./sso-sdk/Taskfile.yaml
+    taskfile: ./sso-sdk/Taskfile_{{OS}}.yaml
     optional: true
 
   redis:
