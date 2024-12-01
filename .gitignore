@@ -12,6 +12,8 @@
 .env
 # output of the go coverage tool, specifically when used with LiteIDE
 *.out
+# output of the web benchmarking tool
+*.pdf
 # go workspace file
 go.work
 go.work.sum

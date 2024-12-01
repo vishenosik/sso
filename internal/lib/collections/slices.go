@@ -24,14 +24,7 @@ func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	return slices.Collect(uniqueIter())
 }
 
-func HasDuplicates[Slice ~[]Type, Type comparable](slice Slice) bool {
-	return len(slice) != len(Unique(slice))
-}
-
-/*
-package collections
-
-func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
+func Unique2[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	buffer := make(map[Type]struct{})
 	for _, elem := range slice {
 		buffer[elem] = struct{}{}
@@ -43,4 +36,6 @@ func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	return unique
 }
 
-*/
+func HasDuplicates[Slice ~[]Type, Type comparable](slice Slice) bool {
+	return len(slice) != len(Unique(slice))
+}

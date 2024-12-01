@@ -32,3 +32,12 @@ go install github.com/swaggo/swag/cmd/swag@latest
 ## Services
 
 [Authentication](api/rest/v1/authentication/authentication.md)
+
+## Benchmarking
+
+```bash
+# benchmark running into file
+go test -bench=. -benchmem ./internal/lib/collections -cpuprofile=profile.out
+# benchmark pdf version
+go tool pprof --pdf profile.out > pprof.pdf 
+```
