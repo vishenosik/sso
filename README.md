@@ -37,7 +37,7 @@ go install github.com/swaggo/swag/cmd/swag@latest
 
 ```bash
 # benchmark running into file
-go test -bench=. -benchmem ./internal/lib/collections -cpuprofile=profile.out
+go test -bench . -benchmem ./internal/lib/collections -cpuprofile=profile.out
 # benchmark pdf version
 go tool pprof --pdf profile.out > pprof.pdf 
 ```
