@@ -40,4 +40,6 @@ go install github.com/swaggo/swag/cmd/swag@latest
 go test -bench . -benchmem ./internal/lib/collections -cpuprofile=profile.out
 # benchmark pdf version
 go tool pprof --pdf profile.out > pprof.pdf 
+
+go test -bench . -benchmem ./internal/lib/collections -cpuprofile=./profiles/cpu.out -memprofile=./profiles/mem.out
 ```
