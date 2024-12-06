@@ -42,7 +42,7 @@ func NewApp(
 
 	// Data schemas init
 
-	cachedDB := combined.NewCachedDB(store, cache)
+	cachedStore := combined.NewCachedStore(store, cache)
 
 	// Services init
 	authenticationService := authenticationService.NewService(
@@ -50,7 +50,7 @@ func NewApp(
 		conf.AuthenticationService,
 		store,
 		store,
-		cachedDB,
+		cachedStore,
 	)
 
 	grpcapp := grpcApp.NewGrpcApp(log, conf.GrpcConfig, authenticationService)

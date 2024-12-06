@@ -8,22 +8,22 @@ import (
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 )
 
-type CachedDB struct {
+type CachedStore struct {
 	store *sqlstore.Store
 	cache *cache.Cache
 }
 
-func NewCachedDB(
+func NewCachedStore(
 	store *sqlstore.Store,
 	cache *cache.Cache,
-) *CachedDB {
-	return &CachedDB{
+) *CachedStore {
+	return &CachedStore{
 		store: store,
 		cache: cache,
 	}
 }
 
-func (cdb *CachedDB) App(ctx context.Context, id string) (models.App, error) {
+func (cdb *CachedStore) App(ctx context.Context, id string) (models.App, error) {
 
 	app, err := cdb.cache.App(ctx, id)
 	if err == nil {
@@ -45,14 +45,14 @@ func (cdb *CachedDB) App(ctx context.Context, id string) (models.App, error) {
 	return app, nil
 }
 
-func (cdb *CachedDB) IsAdmin(ctx context.Context, userID string) (bool, error) {
+func (cdb *CachedStore) IsAdmin(ctx context.Context, userID string) (bool, error) {
 	return cdb.store.IsAdmin(ctx, userID)
 }
 
-func (cdb *CachedDB) SaveUser(ctx context.Context, id string, nickname string, email string, passHash []byte) error {
+func (cdb *CachedStore) SaveUser(ctx context.Context, id string, nickname string, email string, passHash []byte) error {
 	return cdb.store.SaveUser(ctx, id, nickname, email, passHash)
 }
 
-func (cdb *CachedDB) UserByEmail(ctx context.Context, email string) (models.User, error) {
+func (cdb *CachedStore) UserByEmail(ctx context.Context, email string) (models.User, error) {
 	return cdb.store.UserByEmail(ctx, email)
 }
