@@ -1,16 +1,18 @@
 package sqlstore
 
 import (
+	"context"
 	"database/sql"
 
+	"github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
 	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
 )
 
 type Store struct {
-	db    *sql.DB
-	apps  *apps.Apps
-	users *users.Users
+	provider StoreProvider
+	apps     *apps.Apps
+	users    *users.Users
 }
 
 type StoreProvider interface {
@@ -18,26 +20,34 @@ type StoreProvider interface {
 }
 
 func NewStore(
-	store StoreProvider,
+	provider StoreProvider,
 ) *Store {
 
-	db := store.DB()
+	db := provider.DB()
 
 	return &Store{
-		db:    db,
-		apps:  apps.NewAppsStore(db),
-		users: users.NewUsersStore(db),
+		provider: provider,
+		apps:     apps.NewAppsStore(db),
+		users:    users.NewUsersStore(db),
 	}
 }
 
 func (store *Store) Stop() error {
-	return store.db.Close()
+	return store.provider.DB().Close()
 }
 
-func (store *Store) Apps() *apps.Apps {
-	return store.apps
+func (store *Store) App(ctx context.Context, id string) (models.App, error) {
+	return store.apps.App(ctx, id)
 }
 
-func (store *Store) Users() *users.Users {
-	return store.users
+func (store *Store) IsAdmin(ctx context.Context, userID string) (bool, error) {
+	return store.users.IsAdmin(ctx, userID)
+}
+
+func (store *Store) SaveUser(ctx context.Context, id string, nickname string, email string, passHash []byte) error {
+	return store.users.SaveUser(ctx, id, nickname, email, passHash)
+}
+
+func (store *Store) UserByEmail(ctx context.Context, email string) (models.User, error) {
+	return store.users.UserByEmail(ctx, email)
 }

@@ -1,8 +1,7 @@
-package cache
+package redis
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -25,22 +24,12 @@ func NewRedisCache(addr string) (*RedisCache, error) {
 	return &RedisCache{client: client}, nil
 }
 
-func (c *RedisCache) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	json, err := json.Marshal(value)
-	if err != nil {
-		return err
-	}
-
-	return c.client.Set(ctx, key, json, expiration).Err()
+func (ca *RedisCache) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
+	return ca.client.Set(ctx, key, value, expiration).Err()
 }
 
-func (c *RedisCache) Get(ctx context.Context, key string, dest interface{}) error {
-	val, err := c.client.Get(ctx, key).Result()
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal([]byte(val), dest)
+func (ca *RedisCache) Get(ctx context.Context, key string) (string, error) {
+	return ca.client.Get(ctx, key).Result()
 }
 
 func (c *RedisCache) Delete(ctx context.Context, key string) error {
