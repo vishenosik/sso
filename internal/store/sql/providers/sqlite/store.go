@@ -11,19 +11,19 @@ const (
 	dialect string = "sqlite"
 )
 
-type store struct {
+type Store struct {
 	db *sql.DB
 }
 
-func MustInitSqlite(StorePath string) *store {
-	store, err := NewSqliteStore(StorePath)
+func MustInitSqlite(StorePath string) *Store {
+	Store, err := NewSqliteStore(StorePath)
 	if err != nil {
 		panic(err)
 	}
-	return store
+	return Store
 }
 
-func NewSqliteStore(StorePath string) (*store, error) {
+func NewSqliteStore(StorePath string) (*Store, error) {
 
 	const op = "Store.sqlite.New"
 
@@ -32,23 +32,23 @@ func NewSqliteStore(StorePath string) (*store, error) {
 		return nil, errors.Wrap(err, op)
 	}
 
-	return &store{
+	return &Store{
 		db: db,
 	}, nil
 }
 
-func (store *store) DB() *sql.DB {
-	return store.db
+func (Store *Store) DB() *sql.DB {
+	return Store.db
 }
 
-func (store *store) Dialect() string {
+func (Store *Store) Dialect() string {
 	return dialect
 }
 
-func (store *store) MigrationsPath() string {
+func (Store *Store) MigrationsPath() string {
 	return path.Join("migrations", dialect)
 }
 
-func (store *store) Stop() error {
-	return store.db.Close()
+func (Store *Store) Stop() error {
+	return Store.db.Close()
 }

@@ -17,6 +17,15 @@ func NewCachedStore(
 	store *sqlstore.Store,
 	cache *cache.Cache,
 ) *CachedStore {
+
+	if store == nil {
+		panic("store cannot be nil")
+	}
+
+	if cache == nil {
+		// TODO: handle cache initialization error logging
+	}
+
 	return &CachedStore{
 		store: store,
 		cache: cache,

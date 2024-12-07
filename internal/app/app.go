@@ -6,14 +6,8 @@ import (
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/migrate"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
-	"github.com/blacksmith-vish/sso/internal/store/cache"
-	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
-	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
-	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 )
 
 type App struct {
@@ -27,21 +21,12 @@ func NewApp(
 ) *App {
 
 	// Stores init
-	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
-	migrate.MustMigrate(sqliteStore)
-
-	store := sqlstore.NewStore(sqliteStore)
+	store := sqliteStore(conf.StorePath)
 
 	// Cache init
-	redisCache, err := redis.NewRedisCache(conf.Redis)
-	if err != nil {
-		// TODO: handle error
-		log.Error("Failed to create redis cache", attrs.Error(err))
-	}
-	cache := cache.NewCache(redisCache)
+	cache := redisCache(log, conf.Redis)
 
 	// Data schemas init
-
 	cachedStore := combined.NewCachedStore(store, cache)
 
 	// Services init
@@ -53,13 +38,14 @@ func NewApp(
 		cachedStore,
 	)
 
+	// GRPC services init
 	grpcapp := grpcApp.NewGrpcApp(log, conf.GrpcConfig, authenticationService)
 
+	// REST services init
 	restapp := restApp.NewRestApp(log, conf.RestConfig, authenticationService)
 
 	return &App{
 		GRPCServer: grpcapp,
 		RESTServer: restapp,
 	}
-
 }
