@@ -78,7 +78,7 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 	attrs := string(data)
 	key := "port"
 
-	patternNumber := `[0-9]+`
+	patternNumber := `(^|\W)(\d+(?:\.\d+)?)(|!\w)`
 	attrs = regexp.MustCompile(patternNumber).ReplaceAllStringFunc(attrs, func(s string) string {
 		return color.BlueString(s)
 	})
@@ -115,4 +115,17 @@ func (handler *DevHandler) WithGroup(name string) slog.Handler {
 		Handler: handler.Handler.WithGroup(name),
 		std:     handler.std,
 	}
+}
+
+// NumberFinder finds all numbers in text that are not included in words
+func NumberFinder(text string) []string {
+	// Regex pattern explanation:
+	// (?<!\w)     - Negative lookbehind: ensure the number is not preceded by a word character
+	// \d+         - Match one or more digits
+	// (?:\.\d+)?  - Optionally match a decimal point followed by one or more digits
+	// (?!\w)      - Negative lookahead: ensure the number is not followed by a word character
+	pattern := `(?<!\w)\d+(?:\.\d+)?(?!\w)`
+
+	re := regexp.MustCompile(pattern)
+	return re.FindAllString(text, -1)
 }

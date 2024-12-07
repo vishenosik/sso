@@ -13,22 +13,22 @@ var (
 	ErrServerPortMustBeUnique = errors.New("port numbers must be unique")
 )
 
-type Server struct {
-	Port    uint16 `validate:"gte=8000,lte=65535"`
+type ServerOptions struct {
+	Port    uint16 `validate:"gte=2999,lte=65535"`
 	Timeout time.Duration
 }
 
 type GRPCConfig struct {
-	Server
+	ServerOptions
 }
 
 type RESTConfig struct {
-	Server
+	ServerOptions
 }
 
-type Servers []Server
+type Servers []ServerOptions
 
-func comparePorts(servers ...Server) error {
+func comparePorts(servers ...ServerOptions) error {
 	if collections.HasDuplicates(Servers(servers).Ports()) {
 		return ErrServerPortMustBeUnique
 	}

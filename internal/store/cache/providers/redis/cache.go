@@ -2,8 +2,10 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -11,9 +13,15 @@ type RedisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(addr string) (*RedisCache, error) {
+func NewRedisCache(conf config.Redis) (*RedisCache, error) {
+
+	fmt.Println("configuring Redis cache provider...", conf)
+
 	client := redis.NewClient(&redis.Options{
-		Addr: addr,
+		Addr:     fmt.Sprintf("%s:%d", conf.Options.Host, conf.Options.Port),
+		Username: conf.Options.User,
+		Password: conf.Options.Password,
+		DB:       conf.Options.DB,
 	})
 
 	_, err := client.Ping(context.Background()).Result()

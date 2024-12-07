@@ -10,16 +10,26 @@ services:
 servers:
 
   grpc:
-    server:
+    server_options:
       port: 44844
       timeout: 5s
 
   rest:
-    server:
+    server_options:
       port: 8080
       timeout: 5s
   
   routes:
-    server:
+    server_options:
       port: 3000
       timeout: 5s
+
+cache:
+
+  redis:
+    options:
+      user: my_user
+      password: my_user_password
+      db: 0
+      host: localhost
+      port: 6380

@@ -23,6 +23,7 @@ type Config struct {
 	StorePath string   `yaml:"store_path"`
 	Services  Services `yaml:"services"`
 	Servers   Servers  `yaml:"servers"`
+	Cache     Cache    `yaml:"cache"`
 }
 
 func (conf Config) FetchConfig() *config.Config {
@@ -32,6 +33,7 @@ func (conf Config) FetchConfig() *config.Config {
 		AuthenticationService: conf.Services.getAuthenticationService(),
 		GrpcConfig:            conf.Servers.getGrpcConfig(),
 		RestConfig:            conf.Servers.getRestConfig(),
+		Redis:                 conf.Cache.getRedisConfig(),
 	}
 }
 

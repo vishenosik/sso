@@ -24,6 +24,7 @@ func (srv *server) Register(
 	)
 
 	serviceRequest := models.RegisterRequest{
+		Nickname: "me",
 		Email:    request.GetEmail(),
 		Password: request.GetPassword(),
 	}

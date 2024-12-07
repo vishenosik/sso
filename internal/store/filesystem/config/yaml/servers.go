@@ -6,17 +6,17 @@ import (
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 )
 
-type Server struct {
+type ServerOptions struct {
 	Port    uint16        `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
 type GRPCConfig struct {
-	Server `yaml:"server"`
+	ServerOptions `yaml:"server_options"`
 }
 
 type RESTConfig struct {
-	Server `yaml:"server"`
+	ServerOptions `yaml:"server_options"`
 }
 
 type Servers struct {
@@ -24,8 +24,8 @@ type Servers struct {
 	REST RESTConfig `yaml:"rest"`
 }
 
-func (srv Server) server() config.Server {
-	return config.Server{
+func (srv ServerOptions) options() config.ServerOptions {
+	return config.ServerOptions{
 		Port:    srv.Port,
 		Timeout: srv.Timeout,
 	}
@@ -33,12 +33,12 @@ func (srv Server) server() config.Server {
 
 func (srvs Servers) getRestConfig() config.RESTConfig {
 	return config.RESTConfig{
-		Server: srvs.REST.server(),
+		ServerOptions: srvs.REST.options(),
 	}
 }
 
 func (srvs Servers) getGrpcConfig() config.GRPCConfig {
 	return config.GRPCConfig{
-		Server: srvs.GRPC.server(),
+		ServerOptions: srvs.GRPC.options(),
 	}
 }

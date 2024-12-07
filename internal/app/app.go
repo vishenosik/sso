@@ -33,7 +33,7 @@ func NewApp(
 	store := sqlstore.NewStore(sqliteStore)
 
 	// Cache init
-	redisCache, err := redis.NewRedisCache("")
+	redisCache, err := redis.NewRedisCache(conf.Redis)
 	if err != nil {
 		// TODO: handle error
 		log.Error("Failed to create redis cache", attrs.Error(err))

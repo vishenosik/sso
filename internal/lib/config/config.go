@@ -17,6 +17,7 @@ type Config struct {
 	AuthenticationService AuthenticationService
 	GrpcConfig            GRPCConfig
 	RestConfig            RESTConfig
+	Redis                 Redis
 }
 
 type ConfigProvider interface {
@@ -44,7 +45,7 @@ func (conf *Config) validate() error {
 		return errors.Wrap(err, op)
 	}
 
-	if err := comparePorts(conf.GrpcConfig.Server, conf.RestConfig.Server); err != nil {
+	if err := comparePorts(conf.GrpcConfig.ServerOptions, conf.RestConfig.ServerOptions); err != nil {
 		return errors.Wrap(err, op)
 	}
 

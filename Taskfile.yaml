@@ -6,7 +6,7 @@ includes:
     optional: true
 
   redis:
-    taskfile: ./containers/redis/Taskfile.yaml
+    taskfile: ./tools/containers/redis/Taskfile.yaml
     optional: true
 
 dotenv: ['.env']
