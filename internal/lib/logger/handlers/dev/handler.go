@@ -7,46 +7,37 @@ import (
 	"log/slog"
 	"regexp"
 
+	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/fatih/color"
 	"gopkg.in/yaml.v2"
 )
 
-type DevHandler struct {
+type Handler struct {
 	slog.Handler
-	std   *stdLog.Logger
-	attrs []slog.Attr
+	std           *stdLog.Logger
+	attrs         []slog.Attr
+	highlightNums bool
 }
+
+// Сигнатура функции для задания параметров
+type optsFunc func(*Handler)
 
 func NewHandler(
 	out io.Writer,
-	opts *slog.HandlerOptions,
-) *DevHandler {
-	h := &DevHandler{
-		Handler: slog.NewJSONHandler(out, opts),
+	slogOpts *slog.HandlerOptions,
+	opts ...optsFunc,
+) *Handler {
+	h := &Handler{
+		Handler: slog.NewJSONHandler(out, slogOpts),
 		std:     stdLog.New(out, "", 0),
+	}
+	for _, opt := range opts {
+		opt(h)
 	}
 	return h
 }
 
-func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
-
-	level := rec.Level.String() + ":"
-
-	switch rec.Level {
-
-	case slog.LevelDebug:
-		level = color.MagentaString(level)
-
-	case slog.LevelInfo:
-		level = color.BlueString(level)
-
-	case slog.LevelWarn:
-		level = color.YellowString(level)
-
-	case slog.LevelError:
-		level = color.RedString(level)
-
-	}
+func (handler *Handler) Handle(_ context.Context, rec slog.Record) error {
 
 	fields := make(map[string]any, rec.NumAttrs())
 
@@ -72,60 +63,47 @@ func (handler *DevHandler) Handle(_ context.Context, rec slog.Record) error {
 		}
 	}
 
-	timeStr := rec.Time.Format("[15:05:05.000]")
-	msg := color.CyanString(rec.Message)
-
 	attrs := string(data)
 	key := "port"
 
-	patternNumber := `(^|\W)(\d+(?:\.\d+)?)(|!\w)`
-	attrs = regexp.MustCompile(patternNumber).ReplaceAllStringFunc(attrs, func(s string) string {
-		return color.BlueString(s)
-	})
+	if handler.highlightNums {
+		attrs = colors.HighlightNumbers(attrs, colors.Blue)
+	}
 
+	// TODO:
+	// 1. Add more fields like service, env, etc.
+	// 2. Move to another package for better reusability
 	pattern := `\b` + regexp.QuoteMeta(key) + `\b` + `|` + `\b` + regexp.QuoteMeta("op") + `\b`
-
 	attrs = regexp.MustCompile(pattern).ReplaceAllStringFunc(attrs, func(s string) string {
 		return color.RedString(s)
 	})
 
 	handler.std.Println(
-		timeStr,
-		level,
-		msg+"\n",
+		rec.Time.Format("[15:05:05.000]"),
+		level(rec),
+		color.CyanString(rec.Message)+"\n",
 		color.WhiteString(attrs),
 	)
 
 	return nil
 }
 
-func (handler *DevHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (handler *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 
 	handler.attrs = append(handler.attrs, attrs...)
 	// return handler
-	return &DevHandler{
-		Handler: handler.Handler.WithAttrs(handler.attrs),
-		std:     handler.std,
-		attrs:   attrs,
+	return &Handler{
+		Handler:       handler.Handler.WithAttrs(handler.attrs),
+		std:           handler.std,
+		attrs:         attrs,
+		highlightNums: handler.highlightNums,
 	}
 }
 
-func (handler *DevHandler) WithGroup(name string) slog.Handler {
-	return &DevHandler{
-		Handler: handler.Handler.WithGroup(name),
-		std:     handler.std,
+func (handler *Handler) WithGroup(name string) slog.Handler {
+	return &Handler{
+		Handler:       handler.Handler.WithGroup(name),
+		std:           handler.std,
+		highlightNums: handler.highlightNums,
 	}
-}
-
-// NumberFinder finds all numbers in text that are not included in words
-func NumberFinder(text string) []string {
-	// Regex pattern explanation:
-	// (?<!\w)     - Negative lookbehind: ensure the number is not preceded by a word character
-	// \d+         - Match one or more digits
-	// (?:\.\d+)?  - Optionally match a decimal point followed by one or more digits
-	// (?!\w)      - Negative lookahead: ensure the number is not followed by a word character
-	pattern := `(?<!\w)\d+(?:\.\d+)?(?!\w)`
-
-	re := regexp.MustCompile(pattern)
-	return re.FindAllString(text, -1)
 }

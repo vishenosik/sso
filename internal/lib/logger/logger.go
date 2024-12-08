@@ -12,7 +12,7 @@ import (
 func SetupLogger(env string) *slog.Logger {
 
 	handlers := map[string]slog.Handler{
-		config.EnvDev:  dev.NewHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		config.EnvDev:  dev.NewHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}, dev.WithNumberHighlight()),
 		config.EnvProd: slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
 		config.EnvTest: slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}),
 	}
