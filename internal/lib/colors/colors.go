@@ -4,8 +4,10 @@ import (
 	"github.com/fatih/color"
 )
 
+type ColorCode uint8
+
 const (
-	Red uint8 = iota
+	Red ColorCode = iota
 	Green
 	Yellow
 	Blue
@@ -16,7 +18,7 @@ const (
 
 type colorFunc func(format string, a ...any) string
 
-var colors = map[uint8]colorFunc{
+var colors = map[ColorCode]colorFunc{
 	Red:     color.RedString,
 	Green:   color.GreenString,
 	Yellow:  color.YellowString,

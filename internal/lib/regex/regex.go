@@ -2,6 +2,7 @@ package regex
 
 import (
 	"regexp"
+	"strings"
 )
 
 // regex patterns
@@ -18,6 +19,13 @@ var (
 	// combinedRegex compiles the combined pattern
 	NumberRegex = regexp.MustCompile(patternNumber)
 )
+
+func KeyWordsCompile(keywords ...string) *regexp.Regexp {
+	for i := range keywords {
+		keywords[i] = `\b` + regexp.QuoteMeta(keywords[i]) + `\b`
+	}
+	return regexp.MustCompile(strings.Join(keywords, "|"))
+}
 
 // NumberFinder finds all numbers in text that are not included in words or followed by anything
 func NumberFinder(text string) []string {

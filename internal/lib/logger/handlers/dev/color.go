@@ -3,6 +3,7 @@ package dev
 import (
 	"log/slog"
 
+	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/fatih/color"
 )
 
@@ -27,8 +28,14 @@ func level(rec slog.Record) string {
 	return level
 }
 
-func WithNumberHighlight() optsFunc {
+func WithNumbersHighlight(color colors.ColorCode) optsFunc {
 	return func(h *Handler) {
-		h.highlightNums = true
+		h.high = colors.Modify(h.high, colors.WithNumbersHighlight(color))
+	}
+}
+
+func WithKeyWordsHighlight(keywordsToColors map[string]colors.ColorCode) optsFunc {
+	return func(h *Handler) {
+		h.high = colors.Modify(h.high, colors.WithKeyWordsHighlight(keywordsToColors))
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"io"
 	stdLog "log"
 	"log/slog"
-	"regexp"
 
 	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/fatih/color"
@@ -14,12 +13,13 @@ import (
 
 type Handler struct {
 	slog.Handler
-	std           *stdLog.Logger
-	attrs         []slog.Attr
-	highlightNums bool
+	attrs []slog.Attr
+	std   *stdLog.Logger
+	// syntax highlighter
+	high *colors.Higlighter
 }
 
-// Сигнатура функции для задания параметров
+// The signature of the function for setting parameters
 type optsFunc func(*Handler)
 
 func NewHandler(
@@ -30,6 +30,7 @@ func NewHandler(
 	h := &Handler{
 		Handler: slog.NewJSONHandler(out, slogOpts),
 		std:     stdLog.New(out, "", 0),
+		high:    colors.NewHighlighter(),
 	}
 	for _, opt := range opts {
 		opt(h)
@@ -37,7 +38,7 @@ func NewHandler(
 	return h
 }
 
-func (handler *Handler) Handle(_ context.Context, rec slog.Record) error {
+func (h *Handler) Handle(_ context.Context, rec slog.Record) error {
 
 	fields := make(map[string]any, rec.NumAttrs())
 
@@ -46,7 +47,7 @@ func (handler *Handler) Handle(_ context.Context, rec slog.Record) error {
 		return true
 	})
 
-	for _, a := range handler.attrs {
+	for _, a := range h.attrs {
 		fields[a.Key] = a.Value.Any()
 	}
 
@@ -64,21 +65,12 @@ func (handler *Handler) Handle(_ context.Context, rec slog.Record) error {
 	}
 
 	attrs := string(data)
-	key := "port"
 
-	if handler.highlightNums {
-		attrs = colors.HighlightNumbers(attrs, colors.Blue)
-	}
+	attrs = h.high.HighlightNumbers(attrs)
 
-	// TODO:
-	// 1. Add more fields like service, env, etc.
-	// 2. Move to another package for better reusability
-	pattern := `\b` + regexp.QuoteMeta(key) + `\b` + `|` + `\b` + regexp.QuoteMeta("op") + `\b`
-	attrs = regexp.MustCompile(pattern).ReplaceAllStringFunc(attrs, func(s string) string {
-		return color.RedString(s)
-	})
+	attrs = h.high.HighlightKeyWords(attrs)
 
-	handler.std.Println(
+	h.std.Println(
 		rec.Time.Format("[15:05:05.000]"),
 		level(rec),
 		color.CyanString(rec.Message)+"\n",
@@ -88,22 +80,22 @@ func (handler *Handler) Handle(_ context.Context, rec slog.Record) error {
 	return nil
 }
 
-func (handler *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 
-	handler.attrs = append(handler.attrs, attrs...)
-	// return handler
+	h.attrs = append(h.attrs, attrs...)
+	// return h
 	return &Handler{
-		Handler:       handler.Handler.WithAttrs(handler.attrs),
-		std:           handler.std,
-		attrs:         attrs,
-		highlightNums: handler.highlightNums,
+		Handler: h.Handler.WithAttrs(h.attrs),
+		std:     h.std,
+		attrs:   attrs,
+		high:    h.high,
 	}
 }
 
-func (handler *Handler) WithGroup(name string) slog.Handler {
+func (h *Handler) WithGroup(name string) slog.Handler {
 	return &Handler{
-		Handler:       handler.Handler.WithGroup(name),
-		std:           handler.std,
-		highlightNums: handler.highlightNums,
+		Handler: h.Handler.WithGroup(name),
+		std:     h.std,
+		high:    h.high,
 	}
 }
