@@ -1,7 +1,6 @@
 package colors
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/blacksmith-vish/sso/internal/lib/regex"
@@ -34,14 +33,9 @@ func Modify(
 	h *Higlighter,
 	opts ...optsFunc,
 ) *Higlighter {
-	fmt.Println("Modify 1", h == nil)
-
 	if h == nil {
 		h = NewHighlighter(opts...)
 	}
-
-	fmt.Println("Modify 2", h == nil)
-
 	for _, opt := range opts {
 		opt(h)
 	}
