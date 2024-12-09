@@ -73,8 +73,8 @@ func (h *Handler) Handle(_ context.Context, rec slog.Record) error {
 	h.std.Println(
 		rec.Time.Format("[15:05:05.000]"),
 		level(rec),
-		color.CyanString(rec.Message)+"\n",
-		color.WhiteString(attrs),
+		color.CyanString(rec.Message),
+		"\n"+attrs,
 	)
 
 	return nil

@@ -7,6 +7,7 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/handlers/dev"
 )
 
@@ -20,11 +21,8 @@ func SetupLogger(env string) *slog.Logger {
 			},
 			dev.WithNumbersHighlight(colors.Blue),
 			dev.WithKeyWordsHighlight(map[string]colors.ColorCode{
-				"err":   colors.Red,
-				"env":   colors.Cyan,
-				"op":    colors.Green,
-				"level": colors.Yellow,
-				"time":  colors.Magenta,
+				attrs.AttrError:     colors.Red,
+				attrs.AttrOperation: colors.Green,
 			}),
 		),
 

@@ -16,7 +16,7 @@ func redisCache(
 	redisCache, err := redis.NewRedisCache(conf)
 	if err != nil {
 		// TODO: handle error
-		log.Error("Failed to create redis cache", attrs.Error(err))
+		log.Error("Failed to init redis cache", attrs.Error(err))
 		return cache.NewCache(cache.NewNoopCache())
 	}
 	return cache.NewCache(redisCache)

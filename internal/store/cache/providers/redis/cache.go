@@ -14,9 +14,6 @@ type RedisCache struct {
 }
 
 func NewRedisCache(conf config.Redis) (*RedisCache, error) {
-
-	fmt.Println("configuring Redis cache provider...", conf)
-
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", conf.Options.Host, conf.Options.Port),
 		Username: conf.Options.User,
