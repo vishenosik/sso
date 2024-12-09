@@ -8,7 +8,7 @@ import (
 )
 
 func level(rec slog.Record) string {
-	level := rec.Level.String() + ":"
+	level := rec.Level.String()
 
 	switch rec.Level {
 

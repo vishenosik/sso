@@ -2,8 +2,8 @@ package dev
 
 import (
 	"context"
+	"fmt"
 	"io"
-	stdLog "log"
 	"log/slog"
 
 	"github.com/blacksmith-vish/sso/internal/lib/colors"
@@ -11,10 +11,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	timeFormat = "15:04:05.000"
+)
+
 type Handler struct {
 	slog.Handler
-	attrs []slog.Attr
-	std   *stdLog.Logger
+	attrs  []slog.Attr
+	writer io.Writer
 	// syntax highlighter
 	high *colors.Higlighter
 }
@@ -23,13 +27,13 @@ type Handler struct {
 type optsFunc func(*Handler)
 
 func NewHandler(
-	out io.Writer,
+	writer io.Writer,
 	slogOpts *slog.HandlerOptions,
 	opts ...optsFunc,
 ) *Handler {
 	h := &Handler{
-		Handler: slog.NewJSONHandler(out, slogOpts),
-		std:     stdLog.New(out, "", 0),
+		Handler: slog.NewJSONHandler(writer, slogOpts),
+		writer:  writer,
 		high:    colors.NewHighlighter(),
 	}
 	for _, opt := range opts {
@@ -65,17 +69,21 @@ func (h *Handler) Handle(_ context.Context, rec slog.Record) error {
 	}
 
 	attrs := string(data)
-
 	attrs = h.high.HighlightNumbers(attrs)
-
 	attrs = h.high.HighlightKeyWords(attrs)
 
-	h.std.Println(
-		rec.Time.Format("[15:05:05.000]"),
-		level(rec),
-		color.CyanString(rec.Message),
-		"\n"+attrs,
-	)
+	_, err = io.WriteString(
+		h.writer,
+		fmt.Sprintf(
+			"[%s] %s: %s\n%s\n",
+			rec.Time.Format(timeFormat),
+			level(rec),
+			color.CyanString(rec.Message),
+			attrs,
+		))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -86,7 +94,7 @@ func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	// return h
 	return &Handler{
 		Handler: h.Handler.WithAttrs(h.attrs),
-		std:     h.std,
+		writer:  h.writer,
 		attrs:   attrs,
 		high:    h.high,
 	}
@@ -95,7 +103,7 @@ func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 func (h *Handler) WithGroup(name string) slog.Handler {
 	return &Handler{
 		Handler: h.Handler.WithGroup(name),
-		std:     h.std,
+		writer:  h.writer,
 		high:    h.high,
 	}
 }
