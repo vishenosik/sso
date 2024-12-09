@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/blacksmith-vish/sso/internal/store/cache/components/apps"
 	"github.com/blacksmith-vish/sso/internal/store/cache/components/users"
@@ -22,8 +21,6 @@ func NewCache(
 		// TODO: handle provider nil
 		provider = NewNoopCache()
 	}
-
-	fmt.Println("HERE", provider == nil)
 
 	return &Cache{
 		provider: provider,
