@@ -1,14 +1,15 @@
 package dev
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"log/slog"
+	"sync"
 
 	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/fatih/color"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -16,11 +17,18 @@ const (
 )
 
 type Handler struct {
-	slog.Handler
-	attrs  []slog.Attr
-	writer io.Writer
+	handler slog.Handler
+	writer  io.Writer
+	rec     nextFunc
+	buf     *bytes.Buffer
+	mutex   *sync.Mutex
+
+	outputEmptyAttrs bool
 	// syntax highlighter
-	high *colors.Higlighter
+	highlight *colors.Higlighter
+
+	// marshaller type
+	marshalType uint8
 }
 
 // The signature of the function for setting parameters
@@ -28,59 +36,61 @@ type optsFunc func(*Handler)
 
 func NewHandler(
 	writer io.Writer,
-	slogOpts *slog.HandlerOptions,
+	level slog.Level,
 	opts ...optsFunc,
 ) *Handler {
+
+	handlerOptions := &slog.HandlerOptions{
+		Level: level,
+	}
+
+	buf := &bytes.Buffer{}
+
 	h := &Handler{
-		Handler: slog.NewJSONHandler(writer, slogOpts),
-		writer:  writer,
-		high:    colors.NewHighlighter(),
+		handler: slog.NewJSONHandler(buf, &slog.HandlerOptions{
+			Level:       handlerOptions.Level,
+			AddSource:   handlerOptions.AddSource,
+			ReplaceAttr: suppressDefaultAttrs(handlerOptions.ReplaceAttr),
+		}),
+		buf:       buf,
+		writer:    writer,
+		highlight: colors.NewHighlighter(),
+		rec:       handlerOptions.ReplaceAttr,
+		mutex:     &sync.Mutex{},
 	}
 	for _, opt := range opts {
 		opt(h)
 	}
+
+	fmt.Println(h)
+
 	return h
 }
 
-func (h *Handler) Handle(_ context.Context, rec slog.Record) error {
+func (h *Handler) Handle(ctx context.Context, rec slog.Record) error {
 
-	fields := make(map[string]any, rec.NumAttrs())
-
-	rec.Attrs(func(a slog.Attr) bool {
-		fields[a.Key] = a.Value.Any()
-		return true
-	})
-
-	for _, a := range h.attrs {
-		fields[a.Key] = a.Value.Any()
+	attrs, err := h.computeAttrs(ctx, rec)
+	if err != nil {
+		return err
 	}
 
-	var (
-		data []byte
-		err  error
+	attrsStr, err := h.marshal(attrs)
+	if err != nil {
+		return err
+	}
+
+	attrsStr = h.highlight.HighlightNumbers(attrsStr)
+	attrsStr = h.highlight.HighlightKeyWords(attrsStr)
+
+	output := fmt.Sprintf(
+		"[%s] %s: %s\n%s\n",
+		rec.Time.Format(timeFormat),
+		level(rec),
+		color.CyanString(rec.Message),
+		attrsStr,
 	)
 
-	if len(fields) > 0 {
-		data, err = yaml.Marshal(fields)
-		// data, err = json.MarshalIndent(fields, "", "  ")
-		if err != nil {
-			return err
-		}
-	}
-
-	attrs := string(data)
-	attrs = h.high.HighlightNumbers(attrs)
-	attrs = h.high.HighlightKeyWords(attrs)
-
-	_, err = io.WriteString(
-		h.writer,
-		fmt.Sprintf(
-			"[%s] %s: %s\n%s\n",
-			rec.Time.Format(timeFormat),
-			level(rec),
-			color.CyanString(rec.Message),
-			attrs,
-		))
+	_, err = io.WriteString(h.writer, output)
 	if err != nil {
 		return err
 	}
@@ -88,22 +98,30 @@ func (h *Handler) Handle(_ context.Context, rec slog.Record) error {
 	return nil
 }
 
-func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (h *Handler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.handler.Enabled(ctx, level)
+}
 
-	h.attrs = append(h.attrs, attrs...)
-	// return h
+func (h *Handler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &Handler{
-		Handler: h.Handler.WithAttrs(h.attrs),
-		writer:  h.writer,
-		attrs:   attrs,
-		high:    h.high,
+		handler:     h.handler.WithAttrs(attrs),
+		writer:      h.writer,
+		highlight:   h.highlight,
+		buf:         h.buf,
+		rec:         h.rec,
+		mutex:       h.mutex,
+		marshalType: h.marshalType,
 	}
 }
 
 func (h *Handler) WithGroup(name string) slog.Handler {
 	return &Handler{
-		Handler: h.Handler.WithGroup(name),
-		writer:  h.writer,
-		high:    h.high,
+		handler:     h.handler.WithGroup(name),
+		writer:      h.writer,
+		highlight:   h.highlight,
+		buf:         h.buf,
+		rec:         h.rec,
+		mutex:       h.mutex,
+		marshalType: h.marshalType,
 	}
 }

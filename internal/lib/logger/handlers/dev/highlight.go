@@ -30,12 +30,12 @@ func level(rec slog.Record) string {
 
 func WithNumbersHighlight(color colors.ColorCode) optsFunc {
 	return func(h *Handler) {
-		h.high = colors.Modify(h.high, colors.WithNumbersHighlight(color))
+		h.highlight = colors.Modify(h.highlight, colors.WithNumbersHighlight(color))
 	}
 }
 
 func WithKeyWordsHighlight(keywordsToColors map[string]colors.ColorCode) optsFunc {
 	return func(h *Handler) {
-		h.high = colors.Modify(h.high, colors.WithKeyWordsHighlight(keywordsToColors))
+		h.highlight = colors.Modify(h.highlight, colors.WithKeyWordsHighlight(keywordsToColors))
 	}
 }

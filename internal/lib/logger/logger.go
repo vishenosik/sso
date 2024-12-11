@@ -12,30 +12,33 @@ import (
 )
 
 func SetupLogger(env string) *slog.Logger {
+	var handler slog.Handler
+	switch env {
 
-	handlers := map[string]slog.Handler{
-		config.EnvDev: dev.NewHandler(
+	case config.EnvProd:
+		handler = slog.NewJSONHandler(
 			os.Stdout,
-			&slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			},
+			&slog.HandlerOptions{Level: slog.LevelInfo},
+		)
+
+	case config.EnvTest:
+		handler = slog.NewJSONHandler(
+			io.Discard,
+			&slog.HandlerOptions{Level: slog.LevelInfo},
+		)
+
+	case config.EnvDev:
+		handler = dev.NewHandler(
+			os.Stdout,
+			slog.LevelDebug,
+			dev.WithYamlMarshaller(),
 			dev.WithNumbersHighlight(colors.Blue),
 			dev.WithKeyWordsHighlight(map[string]colors.ColorCode{
 				attrs.AttrError:     colors.Red,
 				attrs.AttrOperation: colors.Green,
 			}),
-		),
+		)
 
-		config.EnvProd: slog.NewJSONHandler(
-			os.Stdout,
-			&slog.HandlerOptions{Level: slog.LevelInfo},
-		),
-
-		config.EnvTest: slog.NewJSONHandler(
-			io.Discard,
-			&slog.HandlerOptions{Level: slog.LevelInfo},
-		),
 	}
-
-	return slog.New(handlers[env])
+	return slog.New(handler)
 }
