@@ -36,7 +36,7 @@ func (srv *server) IsAdmin(
 			return nil, status.Error(codes.InvalidArgument, message)
 		}
 		if errors.Is(err, models.ErrUserNotFound) {
-			return nil, status.Error(codes.AlreadyExists, message)
+			return nil, status.Error(codes.NotFound, message)
 		}
 		return nil, status.Error(codes.Internal, message)
 	}
