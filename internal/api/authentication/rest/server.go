@@ -9,15 +9,27 @@ import (
 
 	embed "github.com/blacksmith-vish/sso"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	"github.com/blacksmith-vish/sso/pkg/api"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type Authentication interface {
+	Login(
+		ctx context.Context,
+		request models.LoginRequest,
+		appID string,
+	) (token string, err error)
+
 	RegisterNewUser(
 		ctx context.Context,
 		request models.RegisterRequest,
 	) (userID string, err error)
+
+	IsAdmin(
+		ctx context.Context,
+		userID string,
+	) (isAdmin bool, err error)
 }
 
 type authenticationAPI struct {
@@ -71,6 +83,8 @@ func (srv server) InitRouters(router *chi.Mux) {
 
 	// Creating a New Router
 	apiRouter := chi.NewRouter()
+
+	router.Get(api.ApiV1("/users/{user_id}/is_admin"), srv.isAdmin())
 
 	apiRouter.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ping failed", http.StatusNotAcceptable)
