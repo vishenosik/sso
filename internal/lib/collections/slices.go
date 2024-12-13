@@ -1,6 +1,8 @@
 package collections
 
-import "iter"
+import (
+	"iter"
+)
 
 func Iter[S ~[]T, T any](slice S) iter.Seq[T] {
 	return func(yield func(T) bool) {
@@ -12,7 +14,15 @@ func Iter[S ~[]T, T any](slice S) iter.Seq[T] {
 	}
 }
 
-func Filter[T any](seq iter.Seq[T], by func(T) bool) iter.Seq[T] {
+func Filter[T any](seq iter.Seq[T], by func(T) bool) (it iter.Seq[T], cnt int) {
+	it = filter(seq, by)
+	for range it {
+		cnt++
+	}
+	return it, cnt
+}
+
+func filter[T any](seq iter.Seq[T], by func(T) bool) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for i := range seq {
 			if by(i) {

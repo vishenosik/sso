@@ -13,9 +13,9 @@ import (
 
 func TestFilter(t *testing.T) {
 
-	numbers := intSlice(1_000_000_00)
+	numbers := intSlice(100_000_000)
 
-	filtered := Filter(Iter(numbers), func(i int) bool {
+	filtered := filter(Iter(numbers), func(i int) bool {
 		return i%2 == 0
 	})
 
@@ -25,9 +25,26 @@ func TestFilter(t *testing.T) {
 
 }
 
+func TestFilter1(t *testing.T) {
+
+	numbers := intSlice(100_000_000)
+
+	filtered, cnt := Filter(Iter(numbers), func(i int) bool {
+		return i%2 == 0
+	})
+
+	out := make([]int, 0, cnt)
+	for i := range filtered {
+		out = append(out, i)
+	}
+
+	t.Log(len(out))
+
+}
+
 func TestFilter2(t *testing.T) {
 
-	numbers := intSlice(1_000_000_00)
+	numbers := intSlice(100_000_000)
 
 	var out []int
 	for _, n := range numbers {
