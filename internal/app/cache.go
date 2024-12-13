@@ -6,6 +6,7 @@ import (
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/store/cache"
+	"github.com/blacksmith-vish/sso/internal/store/cache/providers/noop"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
 )
 
@@ -17,7 +18,7 @@ func redisCache(
 	if err != nil {
 		// TODO: handle error
 		log.Error("Failed to init redis cache", attrs.Error(err))
-		return cache.NewCache(cache.NewNoopCache())
+		return cache.NewCache(noop.NewNoopCache())
 	}
 	return cache.NewCache(redisCache)
 }

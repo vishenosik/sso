@@ -5,6 +5,7 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/store/cache/components/apps"
 	"github.com/blacksmith-vish/sso/internal/store/cache/components/users"
+	"github.com/blacksmith-vish/sso/internal/store/cache/providers/noop"
 	"github.com/blacksmith-vish/sso/internal/store/models"
 )
 
@@ -19,7 +20,7 @@ func NewCache(
 ) *Cache {
 	if provider == nil {
 		// TODO: handle provider nil
-		provider = NewNoopCache()
+		provider = noop.NewNoopCache()
 	}
 
 	return &Cache{
