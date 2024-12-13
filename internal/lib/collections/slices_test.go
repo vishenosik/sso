@@ -13,7 +13,7 @@ import (
 
 func TestFilter(t *testing.T) {
 
-	numbers := intSlice(1_000)
+	numbers := intSlice(1_000_000_00)
 
 	filtered := Filter(Iter(numbers), func(i int) bool {
 		return i%2 == 0
@@ -22,6 +22,21 @@ func TestFilter(t *testing.T) {
 	s := slices.Collect(filtered)
 
 	t.Log(len(s))
+
+}
+
+func TestFilter2(t *testing.T) {
+
+	numbers := intSlice(1_000_000_00)
+
+	var out []int
+	for _, n := range numbers {
+		if n%2 == 0 {
+			out = append(out, n)
+		}
+	}
+
+	t.Log(len(out))
 
 }
 
