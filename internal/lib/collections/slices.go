@@ -1,5 +1,29 @@
 package collections
 
+import "iter"
+
+func Iter[S ~[]T, T any](slice S) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for _, elem := range slice {
+			if !yield(elem) {
+				return
+			}
+		}
+	}
+}
+
+func Filter[T any](seq iter.Seq[T], by func(T) bool) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for i := range seq {
+			if by(i) {
+				if !yield(i) {
+					return
+				}
+			}
+		}
+	}
+}
+
 func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	buffer := make(map[Type]struct{}, len(slice))
 	for _, elem := range slice {

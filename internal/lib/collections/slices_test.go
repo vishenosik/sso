@@ -3,12 +3,35 @@ package collections
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"testing"
 
 	"github.com/pkg/profile"
 
 	"github.com/brianvoe/gofakeit/v6"
 )
+
+func TestFilter(t *testing.T) {
+
+	numbers := intSlice(1_000)
+
+	filtered := Filter(Iter(numbers), func(i int) bool {
+		return i%2 == 0
+	})
+
+	s := slices.Collect(filtered)
+
+	t.Log(len(s))
+
+}
+
+func intSlice(n int) []int {
+	out := make([]int, n)
+	for i := 0; i < n; i++ {
+		out[i] = i
+	}
+	return out
+}
 
 func randomIntSlice(n int) []int {
 	slice := make([]int, n)
