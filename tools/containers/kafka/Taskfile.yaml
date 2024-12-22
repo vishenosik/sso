@@ -1,0 +1,13 @@
+version: "3"
+
+tasks:
+
+  run:
+    desc: "Run kafka docker server"
+    dir: '{{.TASKFILE_DIR}}'
+    cmd: docker compose -f docker-compose.yaml up -d --build
+
+  stop:
+    desc: "Stop kafka"
+    dir: '{{.TASKFILE_DIR}}'
+    cmd: docker stop kafka
