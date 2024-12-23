@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -39,12 +40,19 @@ func startProducer() {
 		}
 	}()
 
-	for _, word := range []string{"message 1", "message 2", "message 3"} {
-		p.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Value:          []byte(word),
-		}, nil)
-	}
+	go func() {
+		for i := 0; i < 10; i++ {
+			word := fmt.Sprintf("message %d", i)
+			err := p.Produce(&kafka.Message{
+				TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+				Value:          []byte(word),
+			}, nil)
+			if err != nil {
+				fmt.Printf("Failed to produce message: %v\n", err)
+			}
+			time.Sleep(time.Second * 2)
+		}
+	}()
 }
 
 func startConsumer() {
