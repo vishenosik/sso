@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/go-playground/validator/v10"
@@ -27,10 +27,12 @@ func (auth *Authentication) IsAdmin(
 	userID string,
 ) (bool, error) {
 
-	fail, attr := operation.FailResultWithAttr(false, op("IsAdmin"))
+	Operation := op("IsAdmin")
+
+	fail := operation.FailResult(false, Operation)
 
 	log := auth.log.With(
-		attr,
+		attrs.Operation(Operation),
 		slog.String("userID", userID),
 	)
 

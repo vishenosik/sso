@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/operation"
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/store/models"
 )
 

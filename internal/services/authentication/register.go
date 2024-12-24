@@ -3,8 +3,8 @@ package authentication
 import (
 	"context"
 
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/go-playground/validator/v10"
@@ -31,8 +31,12 @@ func (auth *Authentication) RegisterNewUser(
 	request models.RegisterRequest,
 ) (string, error) {
 
-	fail, attr := operation.FailResultWithAttr("", op("Login"))
-	log := auth.log.With(attr)
+	OP := op("Register")
+
+	fail := operation.FailResult("", OP)
+	log := auth.log.With(
+		attrs.Operation(OP),
+	)
 
 	if err := validator.New().Struct(request); err != nil {
 		log.Error("failed to validate request body", attrs.Error(err))

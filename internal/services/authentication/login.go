@@ -6,9 +6,9 @@ import (
 
 	"errors"
 
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/jwt"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/operation"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/go-playground/validator/v10"
@@ -37,10 +37,12 @@ func (auth *Authentication) Login(
 	appID string,
 ) (string, error) {
 
-	fail, attr := operation.FailResultWithAttr("", op("Login"))
+	OP := op("Login")
+
+	fail := operation.FailResult("", OP)
 
 	log := auth.log.With(
-		attr,
+		attrs.Operation(OP),
 		slog.String("app_id", appID),
 	)
 
