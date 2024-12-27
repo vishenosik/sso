@@ -47,4 +47,5 @@ go.work.sum
 **/files
 **/storage
 # 
-**log**
+*.log
+/log
