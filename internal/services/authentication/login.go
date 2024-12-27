@@ -21,7 +21,7 @@ func compileLogin(
 ) loginFunc {
 
 	method := op("Login")
-	fail := operation.FailResult("", method)
+	fail := operation.FailWrapError("", method)
 
 	return func(ctx context.Context, auth *Authentication, request models.LoginRequest, appID string) (string, error) {
 

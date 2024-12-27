@@ -5,31 +5,59 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/api"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 )
 
-func RequestLogger(log *slog.Logger) func(next http.Handler) http.Handler {
+type loggingResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
 
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+	return &loggingResponseWriter{w, http.StatusOK}
+}
+
+func (lrw *loggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
+}
+
+func RequestLogger(logger *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-
 		fn := func(w http.ResponseWriter, r *http.Request) {
 
-			t1 := time.Now()
+			timeStart := time.Now()
+			lrw := newLoggingResponseWriter(w)
+
+			log := logger.With(
+				slog.String("method", fmt.Sprintf("%s %s", r.Method, r.URL.Path)),
+			)
+
 			defer func() {
-				log.Info(
-					"request accepted"+r.Method+r.Host+r.RequestURI+r.RemoteAddr,
-					slog.Int64("took_ms", time.Since(t1).Abs().Milliseconds()),
-				)
-				fmt.Printf(
-					"time %03d",
-					time.Since(t1).Milliseconds(),
-				)
+				if api.IsClientError(lrw.statusCode) || api.IsServerError(lrw.statusCode) {
+					log.Error("request failed with error",
+						slog.Int("code", lrw.statusCode),
+						//TODO slog.String("RequestID", attrs.RequestID(r)),
+						attrs.Took(timeStart),
+					)
+				} else if api.IsRedirect(lrw.statusCode) {
+					log.Warn("request redirected",
+						slog.Int("code", lrw.statusCode),
+						//TODO slog.String("RequestID", attrs.RequestID(r)),
+						attrs.Took(timeStart),
+					)
+				} else {
+					logger.Info("request accepted",
+						slog.Int("code", lrw.statusCode),
+						//TODO slog.String("RequestID", attrs.RequestID(r)),
+						attrs.Took(timeStart),
+					)
+				}
 			}()
-
-			next.ServeHTTP(w, r)
-
+			next.ServeHTTP(lrw, r)
 		}
-
 		return http.HandlerFunc(fn)
 	}
-
 }

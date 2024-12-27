@@ -17,7 +17,7 @@ func compileIsAdmin(
 ) isAdminFunc {
 
 	method := op("IsAdmin")
-	fail := operation.FailResult(false, method)
+	fail := operation.FailWrapError(false, method)
 
 	return func(ctx context.Context, auth *Authentication, userID string) (bool, error) {
 

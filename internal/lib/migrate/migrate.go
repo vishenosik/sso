@@ -2,8 +2,7 @@ package migrate
 
 import (
 	"database/sql"
-
-	embed "github.com/blacksmith-vish/sso"
+	"io/fs"
 
 	"github.com/pkg/errors"
 	"github.com/pressly/goose/v3"
@@ -15,15 +14,29 @@ type Storage interface {
 	MigrationsPath() string
 }
 
-func MustMigrate(store Storage) {
-	if err := Migrate(store); err != nil {
+type migrator struct{}
+
+func NewMigrator(
+	logger goose.Logger,
+	migrations fs.FS,
+) *migrator {
+
+	if logger != nil {
+		goose.SetLogger(logger)
+	}
+
+	goose.SetBaseFS(migrations)
+
+	return &migrator{}
+}
+
+func (m *migrator) MustMigrate(store Storage) {
+	if err := m.Migrate(store); err != nil {
 		panic(err)
 	}
 }
 
-func Migrate(store Storage) error {
-
-	goose.SetBaseFS(embed.SQLiteMigrations)
+func (m *migrator) Migrate(store Storage) error {
 
 	dialect := store.Dialect()
 

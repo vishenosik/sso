@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"time"
 
 	embed "github.com/blacksmith-vish/sso"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
@@ -87,6 +88,7 @@ func (srv server) InitRouters(router *chi.Mux) {
 	router.Get(api.ApiV1("/users/{user_id}/is_admin"), srv.isAdmin())
 
 	apiRouter.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(time.Millisecond * 10)
 		http.Error(w, "ping failed", http.StatusNotAcceptable)
 		// w.Write([]byte("PONG"))
 	})

@@ -62,8 +62,6 @@ func NewHandler(
 		opt(h)
 	}
 
-	fmt.Println(h)
-
 	return h
 }
 
@@ -79,16 +77,23 @@ func (h *Handler) Handle(ctx context.Context, rec slog.Record) error {
 		return err
 	}
 
-	attrsStr = h.highlight.HighlightNumbers(attrsStr)
-	attrsStr = h.highlight.HighlightKeyWords(attrsStr)
-
 	output := fmt.Sprintf(
-		"[%s] %s: %s\n%s\n",
+		"[%s] %s: %s\n",
 		rec.Time.Format(timeFormat),
 		level(rec),
 		color.CyanString(rec.Message),
-		attrsStr,
 	)
+
+	attrsStr = h.highlight.HighlightNumbers(attrsStr)
+	attrsStr = h.highlight.HighlightKeyWords(attrsStr)
+
+	if attrsStr != "" {
+		output = fmt.Sprintf(
+			"%s%s\n",
+			output,
+			attrsStr,
+		)
+	}
 
 	_, err = io.WriteString(h.writer, output)
 	if err != nil {

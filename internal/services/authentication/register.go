@@ -20,7 +20,7 @@ func compileRegisterNewUser(
 ) registerNewUserFunc {
 
 	method := op("RegisterNewUser")
-	fail := operation.FailResult("", method)
+	fail := operation.FailWrapError("", method)
 	log := logger.With(
 		attrs.Operation(method),
 	)

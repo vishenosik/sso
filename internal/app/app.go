@@ -3,11 +3,16 @@ package app
 import (
 	"log/slog"
 
+	embed "github.com/blacksmith-vish/sso"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/handlers/std"
+	"github.com/blacksmith-vish/sso/internal/lib/migrate"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
+	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
+	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 )
 
 type App struct {
@@ -21,7 +26,14 @@ func NewApp(
 ) *App {
 
 	// Stores init
-	store := sqliteStore(conf.StorePath)
+	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
+	store := sqlstore.NewStore(sqliteStore)
+
+	// Stores migration
+	migrate.NewMigrator(
+		std.NewStdLogger(log),
+		embed.SQLiteMigrations,
+	).MustMigrate(sqliteStore)
 
 	// Cache init
 	cache := redisCache(log, conf.Redis)
