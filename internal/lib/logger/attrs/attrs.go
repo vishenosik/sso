@@ -13,6 +13,8 @@ const (
 	AttrError     = "err"
 	AttrOperation = "operation"
 	AttrTook      = "took"
+	AttrUserID    = "user_id" // Assuming User struct has field "ID"
+	AttrAppID     = "app_id"  // Assuming App struct has field "
 )
 
 func Error(err error) slog.Attr {
@@ -25,4 +27,12 @@ func Operation(op string) slog.Attr {
 
 func Took(timeStart time.Time) slog.Attr {
 	return slog.String(AttrTook, time_helper.FormatWithMeasurementUnit(time.Since(timeStart)))
+}
+
+func UserID(userID string) slog.Attr {
+	return slog.String(AttrUserID, userID)
+}
+
+func AppID(appID string) slog.Attr {
+	return slog.String(AttrAppID, appID)
 }

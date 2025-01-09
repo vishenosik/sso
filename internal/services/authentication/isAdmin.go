@@ -7,9 +7,9 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
+	"github.com/blacksmith-vish/sso/internal/lib/validator"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/go-playground/validator/v10"
 )
 
 func compileIsAdmin(
@@ -23,12 +23,13 @@ func compileIsAdmin(
 
 		log := logger.With(
 			attrs.Operation(method),
-			slog.String("userID", userID),
+			attrs.UserID(userID),
 		)
 
 		log.Info("checking if user is admin")
 
-		if err := validator.New().Var(userID, "required,uuid4"); err != nil {
+		if err := validator.UUID4(userID); err != nil {
+			log.Error("userID validation failed", attrs.Error(err))
 			return fail(models.ErrInvalidUserID)
 		}
 

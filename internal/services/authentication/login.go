@@ -9,10 +9,9 @@ import (
 	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/jwt"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
+	"github.com/blacksmith-vish/sso/internal/lib/validator"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/go-playground/validator/v10"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,14 +29,12 @@ func compileLogin(
 			slog.String("app_id", appID),
 		)
 
-		valid := validator.New()
-
-		if err := valid.Var(appID, "required,uuid4"); err != nil {
+		if err := validator.UUID4(appID); err != nil {
 			log.Error("appID validation failed", attrs.Error(err))
 			return fail(models.ErrInvalidAppID)
 		}
 
-		if err := valid.Struct(request); err != nil {
+		if err := validator.Struct(request); err != nil {
 			log.Error("failed to validate request body", attrs.Error(err))
 			return fail(models.ErrInvalidRequest)
 		}
@@ -68,18 +65,16 @@ func compileLogin(
 			return fail(models.ErrUsersStore)
 		}
 
+		userIDAttr := attrs.UserID(user.ID)
+
 		if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(request.Password)); err != nil {
-			log.Error(
-				"invalid password",
-				slog.String("err", err.Error()),
-				slog.String("user_id", user.ID),
-			)
+			log.Error("invalid password", attrs.Error(err), userIDAttr)
 			return fail(models.ErrInvalidCredentials)
 		}
 
 		token := jwt.NewToken(user, app, auth.tokenTTL)
 
-		log.Info("user logged in succesfully", slog.String("user_id", user.ID))
+		log.Info("user logged in succesfully", userIDAttr)
 
 		return token, nil
 	}

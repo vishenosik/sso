@@ -6,9 +6,9 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
+	"github.com/blacksmith-vish/sso/internal/lib/validator"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
@@ -27,7 +27,7 @@ func compileRegisterNewUser(
 
 	return func(ctx context.Context, auth *Authentication, request models.RegisterRequest) (string, error) {
 
-		if err := validator.New().Struct(request); err != nil {
+		if err := validator.Struct(request); err != nil {
 			log.Error("failed to validate request body", attrs.Error(err))
 			return fail(models.ErrInvalidRequest)
 		}
