@@ -26,7 +26,7 @@ func compileLogin(
 
 		log := logger.With(
 			attrs.Operation(method),
-			slog.String("app_id", appID),
+			attrs.AppID(appID),
 		)
 
 		if err := validator.UUID4(appID); err != nil {
