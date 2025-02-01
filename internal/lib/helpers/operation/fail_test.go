@@ -25,4 +25,9 @@ func Test_ReturnFailWithError(t *testing.T) {
 	result3, _ := FailWrapError(Int, op)(Err)
 	require.Equal(t, Int, result3)
 
+	result4, _ := FailWrapError[any](nil, op)(Err)
+	require.Equal(t, nil, result4)
+
+	result4, _ = FailNilWrapError(op)(Err)
+	require.Equal(t, nil, result4)
 }
