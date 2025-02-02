@@ -2,6 +2,8 @@ package operation
 
 import (
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // FailWrapError is a generic function that returns a closure that takes an error as input,
@@ -38,4 +40,14 @@ func FailWrapError[Type any](result Type, op string) func(err error) (Type, erro
 // - An error that is the result of wrapping the input error with the provided operation string.
 func FailNilWrapError(op string) func(err error) (any, error) {
 	return FailWrapError[any](nil, op)
+}
+
+func FailWrapErrorStatus[Type any](result Type, message string) func(code codes.Code) (Type, error) {
+	return func(code codes.Code) (Type, error) {
+		return result, status.Error(code, message)
+	}
+}
+
+func FailNilWrapErrorStatus(message string) func(code codes.Code) (any, error) {
+	return FailWrapErrorStatus[any](nil, message)
 }
