@@ -71,7 +71,7 @@ func Test_IsAdmin(t *testing.T) {
 			userID: WrongID,
 			expected: expectedResult{
 				isAdmin: false,
-				err:     models.ErrInvalidUserID,
+				err:     models.ErrUserInvalidID,
 			},
 		},
 	}

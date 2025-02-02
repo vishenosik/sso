@@ -6,11 +6,9 @@ import (
 	"log/slog"
 
 	// pkg
-	"google.golang.org/grpc/codes"
 
 	// internal
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/lib/helpers/errorHelper"
 	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
@@ -35,15 +33,6 @@ func compileIsAdmin(
 	const message = "admin check failed"
 	fail := operation.FailWrapErrorStatus((*authentication_v1.IsAdminResponse)(nil), message)
 
-	codeMap := errorHelper.NewErrorsMap(
-		map[error]codes.Code{
-			models.ErrUsersStore:    codes.Internal,
-			models.ErrInvalidUserID: codes.InvalidArgument,
-			models.ErrUserNotFound:  codes.NotFound,
-		},
-		codes.Internal,
-	)
-
 	return func(ctx context.Context, request *authentication_v1.IsAdminRequest) (*authentication_v1.IsAdminResponse, error) {
 
 		log := logger.With(
@@ -54,7 +43,7 @@ func compileIsAdmin(
 		isAdmin, err := srv.auth.IsAdmin(ctx, request.GetUserId())
 		if err != nil {
 			log.Error(message, attrs.Error(err))
-			return fail(codeMap.Get(err))
+			return fail(models.ServiceErrorsToGrpcCodes.Get(err))
 		}
 
 		return &authentication_v1.IsAdminResponse{

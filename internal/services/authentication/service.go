@@ -113,7 +113,7 @@ func NewService(
 //
 //	ErrUserNotFound - user not found
 //	ErrUsersStore - other users store errors
-//	ErrInvalidUserID - userID is invalid (basically not uuid4)
+//	ErrUserInvalidID - userID is invalid (basically not uuid4)
 func (auth *Authentication) IsAdmin(
 	ctx context.Context,
 	userID string,
@@ -149,7 +149,7 @@ func (auth *Authentication) RegisterNewUser(
 // Returned errors:
 //
 //	ErrInvalidRequest - one or more `@request` fields are not valid
-//	ErrInvalidAppID - appID is invalid (basically not uuid4)
+//	ErrAppInvalidID - appID is invalid (basically not uuid4)
 //	ErrAppNotFound - app not found
 //	ErrAppsStore - other apps store errors
 //	ErrUserNotFound - user not found

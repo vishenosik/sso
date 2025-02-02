@@ -7,11 +7,8 @@ import (
 
 	// pkg
 
-	"google.golang.org/grpc/codes"
-
 	// internal
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/lib/helpers/errorHelper"
 	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
 	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
@@ -37,19 +34,6 @@ func compileLoginFunc(
 	const message = "login failed"
 	fail := operation.FailWrapErrorStatus((*authentication_v1.LoginResponse)(nil), message)
 
-	codeMap := errorHelper.NewErrorsMap(
-		map[error]codes.Code{
-			models.ErrInvalidRequest:     codes.InvalidArgument,
-			models.ErrInvalidAppID:       codes.InvalidArgument,
-			models.ErrAppNotFound:        codes.NotFound,
-			models.ErrAppsStore:          codes.Internal,
-			models.ErrUserNotFound:       codes.NotFound,
-			models.ErrUsersStore:         codes.Internal,
-			models.ErrInvalidCredentials: codes.Unauthenticated,
-		},
-		codes.Internal,
-	)
-
 	log := logger.With(
 		attrs.Operation(authentication_v1.Authentication_Login_FullMethodName),
 	)
@@ -64,7 +48,7 @@ func compileLoginFunc(
 		token, err := srv.auth.Login(ctx, serviceRequest, request.GetAppId())
 		if err != nil {
 			log.Error(message, attrs.Error(err))
-			return fail(codeMap.Get(err))
+			return fail(models.ServiceErrorsToGrpcCodes.Get(err))
 		}
 
 		return &authentication_v1.LoginResponse{
