@@ -50,19 +50,19 @@ type AppProvider interface {
 }
 
 type (
-	isAdminFunc func(
+	isAdminFunc = func(
 		ctx context.Context,
 		auth *Authentication,
 		userID string,
 	) (bool, error)
 
-	registerNewUserFunc func(
+	registerNewUserFunc = func(
 		ctx context.Context,
 		auth *Authentication,
 		request models.RegisterRequest,
 	) (string, error)
 
-	loginFunc func(
+	loginFunc = func(
 		ctx context.Context,
 		auth *Authentication,
 		request models.LoginRequest,
