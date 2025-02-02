@@ -1,53 +1,73 @@
 package authentication
 
 import (
+	// std
 	"context"
 	"log/slog"
 
-	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-
-	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
-
+	// pkg
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+
+	// internal
+	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/errorHelper"
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
+	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 )
 
-func (srv *server) Register(
-	ctx context.Context,
-	request *authentication_v1.RegisterRequest,
-) (*authentication_v1.RegisterResponse, error) {
+// compileRegisterNewUserFunc creates and returns a function for registering a new user.
+// It sets up error handling, logging, and maps errors to appropriate gRPC status codes.
+//
+// Parameters:
+//
+//	logger: A pointer to a slog.Logger for logging operations.
+//	srv: A pointer to the server struct containing authentication service.
+//
+// Returns:
+//
+//	registerNewUserFunc: A function that handles the registration of a new user.
+//	 This returned function takes a context and a RegisterRequest, and returns
+//	 a RegisterResponse and an error.
+func compileRegisterNewUserFunc(
+	logger *slog.Logger,
+	srv *server,
+) registerNewUserFunc {
 
-	log := srv.log.With(
-		slog.String("op", authentication_v1.Authentication_Register_FullMethodName),
+	const message = "user registration failed"
+	fail := operation.FailWrapErrorStatus((*authentication_v1.RegisterResponse)(nil), message)
+
+	codeMap := errorHelper.NewErrorsMap(
+		map[error]codes.Code{
+			models.ErrInvalidRequest:  codes.InvalidArgument,
+			models.ErrPasswordTooLong: codes.InvalidArgument,
+			models.ErrGenerateHash:    codes.Internal,
+			models.ErrUserExists:      codes.AlreadyExists,
+			models.ErrUsersStore:      codes.Internal,
+		},
+		codes.Internal,
 	)
 
-	serviceRequest := models.RegisterRequest{
-		Nickname: "me",
-		Email:    request.GetEmail(),
-		Password: request.GetPassword(),
-	}
-
-	if err := validator.New().Struct(serviceRequest); err != nil {
-		log.Error("validation failed", "err", err.Error())
-		return nil, status.Error(codes.InvalidArgument, "login failed")
-	}
-
-	UserID, err := srv.auth.RegisterNewUser(
-		ctx,
-		serviceRequest,
+	log := logger.With(
+		attrs.Operation(authentication_v1.Authentication_Register_FullMethodName),
 	)
-	if err != nil {
-		if errors.Is(err, models.ErrUserExists) {
-			return nil, status.Error(codes.AlreadyExists, "login failed")
+
+	return func(ctx context.Context, request *authentication_v1.RegisterRequest) (*authentication_v1.RegisterResponse, error) {
+
+		serviceRequest := models.RegisterRequest{
+			Nickname: "me",
+			Email:    request.GetEmail(),
+			Password: request.GetPassword(),
 		}
-		return nil, status.Error(codes.Internal, "login failed")
-	}
 
-	response := &authentication_v1.RegisterResponse{
-		UserId: UserID,
-	}
+		userID, err := srv.auth.RegisterNewUser(ctx, serviceRequest)
+		if err != nil {
+			log.Error(message, attrs.Error(err))
+			return fail(codeMap.Get(err))
+		}
 
-	return response, nil
+		return &authentication_v1.RegisterResponse{
+			UserId: userID,
+		}, nil
+	}
 }
