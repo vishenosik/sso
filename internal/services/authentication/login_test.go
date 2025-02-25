@@ -140,7 +140,7 @@ func Test_Login_Fail_App(t *testing.T) {
 
 	t.Run("invalid app ID", func(t *testing.T) {
 		token, err := service.Login(context.TODO(), models.LoginRequest{}, WrongID)
-		require.ErrorIs(t, err, models.ErrInvalidAppID)
+		require.ErrorIs(t, err, models.ErrAppInvalidID)
 		require.Empty(t, token)
 	})
 

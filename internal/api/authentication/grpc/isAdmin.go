@@ -1,49 +1,54 @@
 package authentication
 
 import (
+	// std
 	"context"
 	"log/slog"
 
+	// pkg
+
+	// internal
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
+	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
+	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-func (srv *server) IsAdmin(
-	ctx context.Context,
-	request *authentication_v1.IsAdminRequest,
-) (*authentication_v1.IsAdminResponse, error) {
+// compileIsAdmin compiles the isAdmin function, which checks if a user is an admin.
+// It takes a logger and a server instance as parameters and returns a function that can be used to check if a user is an admin.
+//
+// Parameters:
+//
+//	logger: A logger instance to log any errors that occur during the admin check.
+//	srv: A server instance that has access to the authentication service.
+//
+// Returns:
+//
+//	isAdminFunc: A function that takes a context and an IsAdminRequest as parameters and returns an IsAdminResponse and an error.
+func compileIsAdmin(
+	logger *slog.Logger,
+	srv *server,
+) isAdminFunc {
 
-	const message = "login failed"
+	const message = "admin check failed"
+	fail := operation.FailWrapErrorStatus((*authentication_v1.IsAdminResponse)(nil), message)
 
-	log := srv.log.With(
-		slog.String("op", authentication_v1.Authentication_IsAdmin_FullMethodName),
-		slog.String("userID", request.GetUserId()),
-	)
+	return func(ctx context.Context, request *authentication_v1.IsAdminRequest) (*authentication_v1.IsAdminResponse, error) {
 
-	isAdmin, err := srv.auth.IsAdmin(
-		ctx,
-		request.GetUserId(),
-	)
+		log := logger.With(
+			attrs.Operation(authentication_v1.Authentication_IsAdmin_FullMethodName),
+			attrs.UserID(request.GetUserId()),
+		)
 
-	if err != nil {
-
-		log.Error(message, slog.String("err", err.Error()))
-
-		if errors.Is(err, models.ErrInvalidUserID) {
-			return nil, status.Error(codes.InvalidArgument, message)
+		isAdmin, err := srv.auth.IsAdmin(ctx, request.GetUserId())
+		if err != nil {
+			log.Error(message, attrs.Error(err))
+			return fail(models.ServiceErrorsToGrpcCodes.Get(err))
 		}
-		if errors.Is(err, models.ErrUserNotFound) {
-			return nil, status.Error(codes.NotFound, message)
-		}
-		return nil, status.Error(codes.Internal, message)
+
+		return &authentication_v1.IsAdminResponse{
+			IsAdmin: isAdmin,
+		}, nil
 	}
 
-	response := &authentication_v1.IsAdminResponse{
-		IsAdmin: isAdmin,
-	}
-
-	return response, nil
 }

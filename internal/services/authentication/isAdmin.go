@@ -30,7 +30,7 @@ func compileIsAdmin(
 
 		if err := validator.UUID4(userID); err != nil {
 			log.Error("userID validation failed", attrs.Error(err))
-			return fail(models.ErrInvalidUserID)
+			return fail(models.ErrUserInvalidID)
 		}
 
 		isAdmin, err := auth.userProvider.IsAdmin(ctx, userID)

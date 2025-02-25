@@ -31,7 +31,7 @@ func compileLogin(
 
 		if err := validator.UUID4(appID); err != nil {
 			log.Error("appID validation failed", attrs.Error(err))
-			return fail(models.ErrInvalidAppID)
+			return fail(models.ErrAppInvalidID)
 		}
 
 		if err := validator.Struct(request); err != nil {

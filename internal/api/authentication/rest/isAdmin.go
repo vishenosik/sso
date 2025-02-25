@@ -28,7 +28,7 @@ func (srv server) isAdmin() http.HandlerFunc {
 			log.Error("failed to check admin status", slog.String("err", err.Error()))
 
 			switch {
-			case err == models.ErrInvalidUserID:
+			case err == models.ErrUserInvalidID:
 				http.Error(w, "Invalid user ID", http.StatusBadRequest)
 			case err == models.ErrUserNotFound:
 				http.Error(w, "User not found", http.StatusNotFound)
