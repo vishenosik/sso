@@ -10,7 +10,7 @@ import (
 
 	embed "github.com/blacksmith-vish/sso"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	"github.com/blacksmith-vish/sso/pkg/api"
+	"github.com/blacksmith-vish/sso/pkg/helpers/api"
 
 	"github.com/go-chi/chi/v5"
 )

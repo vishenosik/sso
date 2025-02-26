@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/blacksmith-vish/sso/internal/lib/colors"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/handlers/dev"
+	"github.com/blacksmith-vish/sso/pkg/colors"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
+	"github.com/blacksmith-vish/sso/pkg/logger/handlers/dev"
 )
 
 func SetupLogger(env string) *slog.Logger {

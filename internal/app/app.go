@@ -7,12 +7,12 @@ import (
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/handlers/std"
-	"github.com/blacksmith-vish/sso/internal/lib/migrate"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
+	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
+	"github.com/blacksmith-vish/sso/pkg/migrate"
 )
 
 type App struct {

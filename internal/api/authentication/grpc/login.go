@@ -9,9 +9,9 @@ import (
 
 	// internal
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	"github.com/blacksmith-vish/sso/pkg/helpers/operation"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 )
 
 // compileLoginFunc compiles a login function that authenticates a user and returns a token.

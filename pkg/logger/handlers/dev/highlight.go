@@ -3,7 +3,7 @@ package dev
 import (
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/internal/lib/colors"
+	"github.com/blacksmith-vish/sso/pkg/colors"
 	"github.com/fatih/color"
 )
 

@@ -9,8 +9,8 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/app"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/logger"
 	config_yaml "github.com/blacksmith-vish/sso/internal/store/filesystem/config/yaml"
+	"github.com/blacksmith-vish/sso/pkg/logger"
 )
 
 // @title           sso

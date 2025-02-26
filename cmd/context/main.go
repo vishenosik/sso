@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/internal/lib/logger"
+	"github.com/blacksmith-vish/sso/pkg/logger"
 )
 
 func main() {

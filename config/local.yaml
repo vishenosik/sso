@@ -33,3 +33,10 @@ cache:
       db: 0
       host: localhost
       port: 6380
+
+redis:
+  user: my_user
+  password: my_user_password
+  db: 1
+  host: someshit
+  port: 6381

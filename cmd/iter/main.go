@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"slices"
 
-	"github.com/blacksmith-vish/sso/internal/lib/collections"
+	"github.com/blacksmith-vish/sso/pkg/collections"
 )
 
 type Employee struct {

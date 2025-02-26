@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/lib/helpers/api"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
+	"github.com/blacksmith-vish/sso/pkg/helpers/api"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 )
 
 type loggingResponseWriter struct {

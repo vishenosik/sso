@@ -10,7 +10,7 @@ import (
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	_ "github.com/blacksmith-vish/sso/internal/gen/docs"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	middleW "github.com/blacksmith-vish/sso/internal/lib/middleware"
+	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 	httpSwagger "github.com/swaggo/http-swagger/v2"

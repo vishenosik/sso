@@ -4,10 +4,10 @@ import (
 	"log/slog"
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
 	"github.com/blacksmith-vish/sso/internal/store/cache"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/noop"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 )
 
 func redisCache(

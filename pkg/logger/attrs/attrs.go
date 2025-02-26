@@ -6,7 +6,7 @@ import (
 	"time"
 
 	// internal
-	time_helper "github.com/blacksmith-vish/sso/internal/lib/helpers/time"
+	time_helper "github.com/blacksmith-vish/sso/pkg/helpers/time"
 )
 
 const (

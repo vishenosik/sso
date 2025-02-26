@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/blacksmith-vish/sso/internal/lib/colors"
+	"github.com/blacksmith-vish/sso/pkg/colors"
 	"github.com/fatih/color"
 )
 

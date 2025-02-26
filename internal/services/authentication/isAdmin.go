@@ -5,11 +5,11 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/internal/lib/helpers/operation"
-	"github.com/blacksmith-vish/sso/internal/lib/logger/attrs"
-	"github.com/blacksmith-vish/sso/internal/lib/validator"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
+	"github.com/blacksmith-vish/sso/pkg/helpers/operation"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
+	"github.com/blacksmith-vish/sso/pkg/validator"
 )
 
 func compileIsAdmin(
