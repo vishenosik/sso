@@ -3,9 +3,9 @@ module github.com/blacksmith-vish/sso
 go 1.23.3
 
 require (
-	github.com/blang/semver/v4 v4.0.0
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2
+	github.com/dgraph-io/dgo/v210 v210.0.0-20230328113526-b66f8ae53a2d
 	github.com/fatih/color v1.18.0
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-playground/validator/v10 v10.22.1
@@ -47,6 +47,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
