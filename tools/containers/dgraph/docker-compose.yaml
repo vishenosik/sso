@@ -9,7 +9,7 @@ services:
     container_name: zero
     image: dgraph/dgraph:latest
     volumes:
-      - ./data:/dgraph
+      - /home/vishenosik/go/src/sso/tools/containers/dgraph/data:/dgraph
     ports:
       - 5080:5080
       - 6080:6080
@@ -19,12 +19,12 @@ services:
     container_name: alpha
     image: dgraph/dgraph:latest
     volumes:
-      - ./data:/dgraph
+      - /home/vishenosik/go/src/sso/tools/containers/dgraph/data:/dgraph
     ports:
       - 8080:8080
       - 9080:9080
     restart: on-failure
-    command: dgraph alpha --my=alpha:7080 --zero=zero:5080 --security whitelist=localhost,172.24.0.1
+    command: dgraph alpha --my=alpha:7080 --zero=zero:5080 --security whitelist=localhost,172.17.0.0:172.20.0.1
   ratel:
   # A simple web interface for exploring Dgraph data.
     container_name: ratel

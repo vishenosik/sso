@@ -9,6 +9,10 @@ includes:
     taskfile: ./tools/containers/redis/Taskfile.yaml
     optional: true
 
+  dgo:
+    taskfile: ./tools/containers/dgraph/Taskfile.yaml
+    optional: true
+
   kafka:
     taskfile: ./tools/containers/kafka/Taskfile.yaml
     optional: true
