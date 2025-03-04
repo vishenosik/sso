@@ -13,6 +13,10 @@ includes:
     taskfile: ./tools/containers/kafka/Taskfile.yaml
     optional: true
 
+  dg:
+    taskfile: ./tools/containers/dgraph/Taskfile.yaml
+    optional: true
+
   grafana:
     taskfile: ./tools/containers/grafana-loki-promtail/Taskfile.yaml
     optional: true

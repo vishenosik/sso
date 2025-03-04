@@ -9,7 +9,7 @@ services:
     container_name: zero
     image: dgraph/dgraph:latest
     volumes:
-      - /home/vishenosik/projects/dgraph/data:/dgraph
+      - ./data:/dgraph
     ports:
       - 5080:5080
       - 6080:6080
@@ -19,7 +19,7 @@ services:
     container_name: alpha
     image: dgraph/dgraph:latest
     volumes:
-      - /home/vishenosik/projects/dgraph/data:/dgraph
+      - ./data:/dgraph
     ports:
       - 8080:8080
       - 9080:9080
