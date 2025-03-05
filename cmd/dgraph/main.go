@@ -9,14 +9,19 @@ import (
 	"github.com/dgraph-io/dgo/v210"
 	"github.com/dgraph-io/dgo/v210/protos/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
 )
 
 func main() {
 
+	ctx := context.TODO()
+
 	client := newClient()
 
-	err := setup(client)
+	err := client.Login(ctx, "user", "passwd")
+
+	err = setup(client)
 	if err != nil {
 		log.Fatal(fmt.Errorf("main %w", err))
 	}
@@ -27,12 +32,11 @@ func main() {
 }
 
 func newClient() *dgo.Dgraph {
-	// Dial a gRPC connection. The address to dial to can be configured when
-	// setting up the dgraph cluster.
-	dialOpts := append([]grpc.DialOption{},
-		grpc.WithInsecure(),
-		grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
-	d, err := grpc.Dial("localhost:9080", dialOpts...)
+	d, err := grpc.NewClient(
+		"localhost:9080",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)),
+	)
 
 	if err != nil {
 		log.Fatal(fmt.Errorf("newClient %w", err))
