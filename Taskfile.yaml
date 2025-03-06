@@ -106,6 +106,6 @@ tasks:
       SWAG: swag init -g ./cmd/sso/main.go
     cmds:
       # make internal docs (go-based)
-      - $SWAG -o $GEN_DIR/docs --ot go
+      - $SWAG -o ./internal/gen/swagger --ot go
       # make sdk docs (json,yaml)
-      - $SWAG -o ./sso-sdk/docs --ot json,yaml
+      - $SWAG -o ./sso-sdk/swagger --ot json,yaml --instanceName sso_swagger
