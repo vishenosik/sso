@@ -98,6 +98,11 @@ tasks:
     desc: Generate dependency graph in pdf
     cmd: go mod graph | modgraphviz | dot -Tpdf -o graph.pdf
     
+  init:
+    desc: Initialize project (python is required)
+    cmds:
+      - python ./scripts/create_dotenv.py
+
   # DOCS
 
   swagger:

@@ -34,6 +34,10 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 
+	runServer()
+}
+
+func runServer() {
 	// Инициализация конфига
 	yaml := config_yaml.MustLoad()
 

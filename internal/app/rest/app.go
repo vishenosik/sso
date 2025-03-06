@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
-	_ "github.com/blacksmith-vish/sso/internal/gen/docs"
+	_ "github.com/blacksmith-vish/sso/internal/gen/swagger"
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
