@@ -1,16 +1,14 @@
 package main
 
 import (
-	"context"
-	"log/slog"
+	"flag"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/blacksmith-vish/sso/internal/app"
-	"github.com/blacksmith-vish/sso/internal/lib/config"
-	config_yaml "github.com/blacksmith-vish/sso/internal/store/filesystem/config/yaml"
-	"github.com/blacksmith-vish/sso/pkg/logger"
+
+	_ "github.com/blacksmith-vish/sso/internal/lib/config/info"
 )
 
 // @title           sso
@@ -33,27 +31,15 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-
+	flag.Parse()
 	runServer()
 }
 
 func runServer() {
-	// Инициализация конфига
-	yaml := config_yaml.MustLoad()
-
-	conf := config.NewConfig(yaml)
-
-	log := logger.SetupLogger(conf.Env)
-
-	log.Info("start app")
-
 	// Инициализация приложения
-	application := app.NewApp(log, conf)
+	application := app.NewApp()
 
-	// Инициализация gRPC-сервер
-	go application.GRPCServer.MustRun()
-
-	go application.RESTServer.MustRun()
+	application.Run()
 
 	// Graceful shut down
 
@@ -61,17 +47,6 @@ func runServer() {
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-stop
 
-	log.Info("app stopping", slog.String("signal", sig.String()))
+	application.Stop(sig.String())
 
-	ctx, cancel := context.WithTimeout(context.Background(), conf.RestConfig.Timeout)
-	defer func() {
-		// extra handling here
-		cancel()
-	}()
-
-	application.GRPCServer.Stop()
-
-	application.RESTServer.Stop(ctx)
-
-	log.Info("app stopped")
 }

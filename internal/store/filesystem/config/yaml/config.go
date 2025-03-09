@@ -13,10 +13,15 @@ import (
 )
 
 func init() {
+
+	flag.StringVar(&res, "config", "", "path to config file")
+
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	}
 }
+
+var res string
 
 type Config struct {
 	Env       string   `yaml:"env"`
@@ -64,12 +69,6 @@ func MustLoadByPath(path string) *Config {
 
 // flag > env > default
 func fetchConfigPath() string {
-	var res string
-
-	flag.StringVar(&res, "config", "", "path to config file")
-
-	flag.Parse()
-
 	if res == "" {
 		res = os.Getenv("CONFIG_PATH")
 	}

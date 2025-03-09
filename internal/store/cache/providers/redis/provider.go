@@ -5,15 +5,22 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
 	"github.com/go-redis/redis/v8"
 )
 
-type RedisCache struct {
+type ConfigProvider interface {
+	RedisConfig() (Config, error)
+}
+
+type redisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(conf config.Redis) (*RedisCache, error) {
+func NewRedisCache(provider ConfigProvider) (*redisCache, error) {
+
+	conf, _ := provider.RedisConfig()
+	// TODO: handle error
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", conf.Options.Host, conf.Options.Port),
 		Username: conf.Options.User,
@@ -26,17 +33,17 @@ func NewRedisCache(conf config.Redis) (*RedisCache, error) {
 		return nil, err
 	}
 
-	return &RedisCache{client: client}, nil
+	return &redisCache{client: client}, nil
 }
 
-func (ca *RedisCache) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
+func (ca *redisCache) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
 	return ca.client.Set(ctx, key, value, expiration).Err()
 }
 
-func (ca *RedisCache) Get(ctx context.Context, key string) (string, error) {
+func (ca *redisCache) Get(ctx context.Context, key string) (string, error) {
 	return ca.client.Get(ctx, key).Result()
 }
 
-func (c *RedisCache) Delete(ctx context.Context, key string) error {
+func (c *redisCache) Delete(ctx context.Context, key string) error {
 	return c.client.Del(ctx, key).Err()
 }
