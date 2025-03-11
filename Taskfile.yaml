@@ -31,16 +31,13 @@ env:
   # internal folder
   INTERNAL_WILDCARD: ./internal/...
 
-vars:
-  FLAG_CONFIG: --config=$CONFIG_PATH
-
 tasks:
 
   # MAIN
 
   run:
     desc: Run main application
-    cmd: go run ./cmd/sso {{.FLAG_CONFIG}}
+    cmd: go run ./cmd/sso
 
   build:
     desc: Builds application
@@ -105,8 +102,8 @@ tasks:
 
   # DOCS
 
-  swagger:
-    desc: Generate swagger docs
+  docs:
+    desc: Generate docs
     env:
       SWAG: swag init -g ./cmd/sso/main.go
     cmds:
@@ -114,3 +111,5 @@ tasks:
       - $SWAG -o ./internal/gen/swagger --ot go
       # make sdk docs (json,yaml)
       - $SWAG -o ./sso-sdk/swagger --ot json,yaml --instanceName sso_swagger
+      # make env example
+      - go run ./cmd/sso/main.go --config.doc=./docs/.env.example

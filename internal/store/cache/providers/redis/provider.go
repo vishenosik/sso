@@ -5,27 +5,27 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/go-redis/redis/v8"
 )
 
-type ConfigProvider interface {
-	RedisConfig() (Config, error)
+type Config struct {
+	Server      config.Server
+	Credentials config.Credentials
+	DB          int
 }
 
 type redisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(provider ConfigProvider) (*redisCache, error) {
-
-	conf, _ := provider.RedisConfig()
-	// TODO: handle error
+func NewRedisCache(config Config) (*redisCache, error) {
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", conf.Options.Host, conf.Options.Port),
-		Username: conf.Options.User,
-		Password: conf.Options.Password,
-		DB:       conf.Options.DB,
+		Addr:     fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port),
+		Username: config.Credentials.User,
+		Password: config.Credentials.Password,
+		DB:       config.DB,
 	})
 
 	_, err := client.Ping(context.Background()).Result()

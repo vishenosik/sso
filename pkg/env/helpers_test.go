@@ -1,4 +1,4 @@
-package info
+package env
 
 import (
 	"fmt"
@@ -18,6 +18,6 @@ type test_config struct {
 
 func Test_ConfigInfoTags(t *testing.T) {
 
-	fmt.Println(string(ConfigInfoTags(test_config{})))
+	fmt.Println(string(genEnvConfig(test_config{})))
 
 }

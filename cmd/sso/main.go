@@ -7,8 +7,6 @@ import (
 	"syscall"
 
 	"github.com/blacksmith-vish/sso/internal/app"
-
-	_ "github.com/blacksmith-vish/sso/internal/lib/config/info"
 )
 
 // @title           sso

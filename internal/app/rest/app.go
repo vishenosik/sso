@@ -9,7 +9,7 @@ import (
 
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	_ "github.com/blacksmith-vish/sso/internal/gen/swagger"
-	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
@@ -22,13 +22,27 @@ type App struct {
 	port   uint16
 }
 
-type Service interface {
-	InitRouters(router *chi.Mux)
+type Config struct {
+	Server config.Server
 }
 
 func NewRestApp(
 	log *slog.Logger,
-	conf config.RESTConfig,
+	config Config,
+	authenticationService authentication.Authentication,
+) *App {
+
+	err := config.Server.Validate()
+	if err != nil {
+		panic(errors.Wrap(err, "failed to validate REST config"))
+	}
+
+	return newRestApp(log, config, authenticationService)
+}
+
+func newRestApp(
+	log *slog.Logger,
+	config Config,
 	authenticationService authentication.Authentication,
 ) *App {
 
@@ -49,16 +63,10 @@ func NewRestApp(
 	return &App{
 		log: log,
 		server: &http.Server{
-			Addr:    fmt.Sprintf(":%d", conf.Port),
+			Addr:    fmt.Sprintf(":%d", config.Server.Port),
 			Handler: router,
 		},
-		port: conf.Port,
-	}
-}
-
-func setRouters(router *chi.Mux, services ...Service) {
-	for i := range services {
-		services[i].InitRouters(router)
+		port: config.Server.Port,
 	}
 }
 
@@ -97,5 +105,15 @@ func (a *App) Stop(ctx context.Context) {
 
 	if err := a.server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server Shutdown Failed:%+v", err)
+	}
+}
+
+type Service interface {
+	InitRouters(router *chi.Mux)
+}
+
+func setRouters(router *chi.Mux, services ...Service) {
+	for i := range services {
+		services[i].InitRouters(router)
 	}
 }

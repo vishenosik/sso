@@ -8,8 +8,6 @@ import (
 
 	"github.com/blacksmith-vish/sso/internal/lib/config"
 
-	config_yaml "github.com/blacksmith-vish/sso/internal/store/filesystem/config/yaml"
-
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,8 +24,7 @@ type Suite struct {
 }
 
 func newConfig() *config.Config {
-	yaml := config_yaml.MustLoadByPath("../../config/local.yaml")
-	return config.NewConfig(yaml)
+	return config.EnvConfig()
 }
 
 func New(t *testing.T) (context.Context, *Suite) {

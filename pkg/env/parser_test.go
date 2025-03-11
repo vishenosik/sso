@@ -27,18 +27,13 @@ func Test_ReadEnv(t *testing.T) {
 		Email: "johndoe@example.com",
 		Addr:  &testAddr{Address: "127.0.0.1", Port: 8080},
 	}
-
+	os.Setenv("NAME", expect.Name)
 	os.Setenv("AGE", strconv.Itoa(expect.Age))
 	os.Setenv("EMAIL", expect.Email)
 	os.Setenv("ADDRESS", expect.Addr.Address)
+	os.Setenv("PORT", strconv.Itoa(expect.Addr.Port))
 
-	init := testConfig{
-		Name: "John Doe",
-		Age:  29,
-		Addr: &testAddr{Port: 8080},
-	}
-
-	ReadEnv(&init)
+	init := ReadEnv[testConfig]()
 
 	if !reflect.DeepEqual(expect, init) {
 		t.Errorf("updateEnv: expect %v, got %v", expect, init)

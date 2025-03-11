@@ -6,9 +6,8 @@ import (
 	"net"
 
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/grpc"
-	"github.com/blacksmith-vish/sso/internal/lib/config"
-
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
+	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
@@ -24,6 +23,10 @@ type App struct {
 	port uint16
 }
 
+type Config struct {
+	Server config.Server
+}
+
 // NewGrpcApp creates and initializes a new gRPC application.
 //
 // It sets up a gRPC server with authentication services and configures logging.
@@ -37,7 +40,7 @@ type App struct {
 //   - *App: A pointer to the newly created App struct, ready to be run.
 func NewGrpcApp(
 	log *slog.Logger,
-	conf config.GRPCConfig,
+	config Config,
 	authService authentication.Authentication,
 ) *App {
 
@@ -58,7 +61,7 @@ func NewGrpcApp(
 	return &App{
 		log:        Log,
 		gRPCServer: gRPCServer,
-		port:       conf.Port,
+		port:       config.Server.Port,
 	}
 }
 

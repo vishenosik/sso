@@ -10,9 +10,11 @@ const (
 	EnvTag = "env"
 )
 
-func ReadEnv[Type any](container *Type) {
-	_value := reflect.ValueOf(container).Elem()
+func ReadEnv[Type any]() Type {
+	var container Type
+	_value := reflect.ValueOf(&container).Elem()
 	updateEnvRecoursive(_value)
+	return container
 }
 
 func updateEnvRecoursive(_value reflect.Value) {
@@ -21,6 +23,9 @@ func updateEnvRecoursive(_value reflect.Value) {
 		field := _value.Field(n)
 
 		if field.Kind() == reflect.Pointer {
+			if field.IsNil() {
+				field.Set(reflect.New(field.Type().Elem()))
+			}
 			field = field.Elem()
 		}
 
@@ -32,6 +37,7 @@ func updateEnvRecoursive(_value reflect.Value) {
 			updateEnvRecoursive(field)
 			continue
 		}
+
 		env, ok := _value.Type().Field(n).Tag.Lookup(EnvTag)
 		if !ok {
 			continue

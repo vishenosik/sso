@@ -6,15 +6,14 @@ import (
 	"time"
 
 	embed "github.com/blacksmith-vish/sso"
-	"github.com/blacksmith-vish/sso/internal/app/config"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	cfg "github.com/blacksmith-vish/sso/internal/lib/config"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
-	config_yaml "github.com/blacksmith-vish/sso/internal/store/filesystem/config/yaml"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
+	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/blacksmith-vish/sso/pkg/logger"
 	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
 	"github.com/blacksmith-vish/sso/pkg/migrate"
@@ -23,19 +22,19 @@ import (
 type App struct {
 	grpcServer *grpcApp.App
 	restServer *restApp.App
-	config     config.ConfigSources
 	log        *slog.Logger
 }
 
 func NewApp() *App {
 
-	// Инициализация конфига
-	conf := cfg.NewConfig(config_yaml.MustLoad())
+	conf := cfg.EnvConfig()
 
-	app := &App{
-		log:    logger.SetupLogger(conf.Env),
-		config: config.NewConfigSources(),
-	}
+	// logger setup
+	// TODO: implement env logic
+	log := logger.SetupLogger(conf.Env)
+
+	// Cache init
+	cache := loadCache()
 
 	// Stores init
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
@@ -43,32 +42,43 @@ func NewApp() *App {
 
 	// Stores migration
 	migrate.NewMigrator(
-		std.NewStdLogger(app.log),
+		std.NewStdLogger(log),
 		embed.SQLiteMigrations,
 	).MustMigrate(sqliteStore)
-
-	// Cache init
-	cache := app.redisCache(app.log)
 
 	// Data schemas init
 	cachedStore := combined.NewCachedStore(store, cache)
 
 	// Services init
 	authenticationService := authenticationService.NewService(
-		app.log,
+		log,
 		conf.AuthenticationService,
 		store,
 		store,
 		cachedStore,
 	)
 
-	// GRPC services init
-	app.grpcServer = grpcApp.NewGrpcApp(app.log, conf.GrpcConfig, authenticationService)
-
-	// REST services init
-	app.restServer = restApp.NewRestApp(app.log, conf.RestConfig, authenticationService)
-
-	return app
+	return &App{
+		log: log,
+		grpcServer: grpcApp.NewGrpcApp(
+			log,
+			grpcApp.Config{
+				Server: config.Server{
+					Port: conf.GrpcConfig.Port,
+				},
+			},
+			authenticationService,
+		),
+		restServer: restApp.NewRestApp(
+			log,
+			restApp.Config{
+				Server: config.Server{
+					Port: conf.RestConfig.Port,
+				},
+			},
+			authenticationService,
+		),
+	}
 }
 
 func (app *App) Run() {

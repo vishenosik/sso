@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	config "github.com/blacksmith-vish/sso/internal/store/config_test"
+	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/dgraph-io/dgo/v210"
 	"github.com/dgraph-io/dgo/v210/protos/api"
 	"google.golang.org/grpc"
@@ -16,23 +16,17 @@ type dgraphClient struct {
 	Client *dgo.Dgraph
 }
 
-func NewClient(
-	ctx context.Context,
-) *dgraphClient {
-
-	conf := loadConfig(config.NewFSConfig[dgraphConfig](""))
-
-	return &dgraphClient{
-		Client: newClient(ctx, conf),
-	}
+type Config struct {
+	Credentials config.Credentials
+	Server      config.Server
 }
 
-func newClient(
+func NewClient(
 	ctx context.Context,
-	conf dgraphConfig,
+	config Config,
 ) *dgo.Dgraph {
 
-	addr := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
+	addr := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -48,7 +42,7 @@ func newClient(
 		api.NewDgraphClient(connection),
 	)
 
-	err = client.Login(ctx, conf.User, conf.Password)
+	err = client.Login(ctx, config.Credentials.User, config.Credentials.Password)
 	if err != nil {
 		// TODO: handle error
 	}
