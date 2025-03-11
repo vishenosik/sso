@@ -3,8 +3,6 @@ package users
 import (
 	"context"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 )
 
@@ -19,10 +17,10 @@ func (store *store) SaveUser(ctx context.Context, id, nickname, email string, pa
 
 	_, err = stmt.ExecContext(ctx, id, nickname, email, passHash)
 	if err != nil {
-		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-			return errors.Wrap(models.ErrAlreadyExists, op)
-		}
+		// var sqliteErr sqlite3.Error
+		// if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+		// 	return errors.Wrap(models.ErrAlreadyExists, op)
+		// }
 
 		return errors.Wrap(err, op)
 	}
