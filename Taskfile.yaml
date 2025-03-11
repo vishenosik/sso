@@ -30,6 +30,8 @@ dotenv: ['.env']
 env:
   # internal folder
   INTERNAL_WILDCARD: ./internal/...
+  # coverage file
+  COVERAGE_FILE: ./tests/cover.out
 
 tasks:
 
@@ -58,7 +60,7 @@ tasks:
     aliases: [cover]
     deps:
       - test
-    cmd: go tool cover -html=$COVERAGE_FILE
+    cmd: go tool cover -html="$COVERAGE_FILE"
 
   bench:
     desc: Run benchmarks
