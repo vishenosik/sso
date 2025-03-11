@@ -18,12 +18,6 @@ var (
 	ErrServerPortMustBeUnique = errors.New("port numbers must be unique")
 )
 
-const (
-	EnvDev  = "dev"
-	EnvProd = "prod"
-	EnvTest = "test"
-)
-
 type Config struct {
 	Env                   string `env:"ENV" default:"dev" validate:"oneof=dev prod test" desc:"The environment in which the application is running"`
 	StorePath             string `env:"STORE_PATH" default:"./storage/sso.db" validate:"required" desc:"Path to sqlite store"`
@@ -31,6 +25,7 @@ type Config struct {
 	GrpcConfig            GrpcServer
 	RestConfig            RestServer
 	Redis                 Redis
+	service
 }
 
 type RestServer struct {
@@ -51,6 +46,15 @@ type Redis struct {
 	DB       int    `env:"REDIS_DB" default:"0" desc:"Redis database connection"`
 	Host     string `env:"REDIS_HOST" default:"127.0.0.1" desc:"Redis server host"`
 	Port     uint16 `env:"REDIS_PORT" default:"6380" desc:"Redis server port"`
+}
+
+type Vault struct {
+	Address string `env:"VAULT_ADDRESS" default:"127.0.0.1:8200" desc:"Vault address"`
+	Token   string `env:"VAULT_TOKEN" desc:"Vault token"`
+}
+
+type service struct {
+	vault Vault
 }
 
 func init() {

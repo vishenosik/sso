@@ -3,15 +3,13 @@ package main
 import (
 	"context"
 	"log/slog"
-
-	"github.com/blacksmith-vish/sso/pkg/logger"
 )
 
 func main() {
 
 	ctx := context.Background()
 
-	ctx = SetContext(ctx, NewServerContext(logger.SetupLogger("dev")))
+	// ctx = SetContext(ctx, NewServerContext(logger.SetupLogger("dev")))
 
 	cont := FromContext(ctx)
 
@@ -21,7 +19,7 @@ func main() {
 
 	cont.Logger.Error("shit 1")
 
-	ctx = SetContext(ctx, NewServerContext(logger.SetupLogger("dev")))
+	// ctx = SetContext(ctx, NewServerContext(logger.SetupLogger("dev")))
 
 	cont = FromContext(ctx)
 

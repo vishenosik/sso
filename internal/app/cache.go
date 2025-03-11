@@ -1,7 +1,7 @@
 package app
 
 import (
-	cfg "github.com/blacksmith-vish/sso/internal/lib/config"
+	cfg "github.com/blacksmith-vish/sso/internal/app/config"
 	"github.com/blacksmith-vish/sso/internal/store/cache"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"

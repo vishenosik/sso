@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/internal/app/config"
 
 	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
 	"google.golang.org/grpc"

@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/internal/app/config"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/blacksmith-vish/sso/pkg/helpers/operation"

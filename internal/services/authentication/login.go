@@ -6,7 +6,7 @@ import (
 
 	"errors"
 
-	"github.com/blacksmith-vish/sso/internal/lib/jwt"
+	"github.com/blacksmith-vish/sso/internal/app/jwt"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/blacksmith-vish/sso/pkg/helpers/operation"

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/lib/config"
+	"github.com/blacksmith-vish/sso/internal/app/config"
 	"github.com/brianvoe/gofakeit/v6"
 )
 

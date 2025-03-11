@@ -6,17 +6,22 @@ import (
 	"time"
 
 	embed "github.com/blacksmith-vish/sso"
+	cfg "github.com/blacksmith-vish/sso/internal/app/config"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
-	cfg "github.com/blacksmith-vish/sso/internal/lib/config"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger"
 	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
 	"github.com/blacksmith-vish/sso/pkg/migrate"
+)
+
+const (
+	envDev  = "dev"
+	envProd = "prod"
+	envTest = "test"
 )
 
 type App struct {
@@ -31,7 +36,7 @@ func NewApp() *App {
 
 	// logger setup
 	// TODO: implement env logic
-	log := logger.SetupLogger(conf.Env)
+	log := setupLogger(conf.Env)
 
 	// Cache init
 	cache := loadCache()
