@@ -42,7 +42,7 @@ type AuthenticationService struct {
 
 type Redis struct {
 	User     string `env:"REDIS_USER" desc:"Redis user"`
-	Password string `env:"REDIS_PASSWORD" desc:"Redis user's password"`
+	Password string `env:"REDIS_USER_PASSWORD" desc:"Redis user's password"`
 	DB       int    `env:"REDIS_DB" default:"0" desc:"Redis database connection"`
 	Host     string `env:"REDIS_HOST" default:"127.0.0.1" desc:"Redis server host"`
 	Port     uint16 `env:"REDIS_PORT" default:"6380" desc:"Redis server port"`

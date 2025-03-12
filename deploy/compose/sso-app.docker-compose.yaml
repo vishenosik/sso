@@ -1,15 +1,21 @@
 version: "3.6"
 
+name: sso
+
+networks:
+  redis:
+  sso:
+  dgraph:
+
 services:
   
-  sso_app:
-    container_name: sso_app
+  app-1:
+    container_name: app-1
     image: sso-app
     ports:
       - ${REST_PORT}:${REST_PORT}
       - ${GRPC_PORT}:${GRPC_PORT}
     environment:
-      REDIS_URL: redis:6379
       # The environment in which the application is running (string)
       ENV: dev
       # Path to sqlite store (string)
@@ -23,13 +29,92 @@ services:
       # Redis user (string)
       REDIS_USER: ${REDIS_USER}
       # Redis user's password (string)
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_USER_PASSWORD: ${REDIS_USER_PASSWORD}
       # Redis database connection (int)
       REDIS_DB: ${REDIS_DB}
       # Redis server host (string)
       REDIS_HOST: ${REDIS_HOST}
       # Redis server port (uint16)
-      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PORT: 6379
 
     volumes:
-      - ./storage/:/app/storage/
+      - ../../storage/:/app/storage/
+    depends_on:
+      - redis
+    networks:
+      - sso
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+    volumes:
+      - ../../data/redis:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      sh -c '
+        mkdir -p /usr/local/etc/redis &&
+        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
+        echo "user $REDIS_USER on >$REDIS_USER_PASSWORD ~* +@all" >> /usr/local/etc/redis/users.acl &&
+        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+      '
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+    networks:
+      - redis
+
+  zero:
+    container_name: zero
+    image: dgraph/dgraph:latest
+    volumes:
+      - ../../data/dgraph:/dgraph
+    ports:
+      - 5080:5080
+      - 6080:6080
+    restart: on-failure
+    command: dgraph zero --my=zero:5080
+    networks:
+      - dgraph
+
+  alpha:
+    container_name: alpha
+    image: dgraph/dgraph:latest
+    volumes:
+      - ../../data/dgraph:/dgraph
+    ports:
+      - 8080:8080
+      - ${DGRAPH_GRPC_PORT}:${DGRAPH_GRPC_PORT}
+    restart: on-failure
+    command: dgraph alpha --my=alpha:7080 --zero=zero:5080 --security whitelist=localhost,172.17.0.0:172.20.0.1
+    networks:
+      - dgraph
+  ratel:
+  # A simple web interface for exploring Dgraph data.
+    container_name: ratel
+    image: dgraph/ratel:latest
+    ports:
+      - 8000:8000
+    networks:
+      - dgraph

@@ -38,8 +38,10 @@ func NewApp() *App {
 	// TODO: implement env logic
 	log := setupLogger(conf.Env)
 
+	app := &App{log: log}
+
 	// Cache init
-	cache := loadCache()
+	cache := app.loadCache()
 
 	// Stores init
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
@@ -63,27 +65,27 @@ func NewApp() *App {
 		cachedStore,
 	)
 
-	return &App{
-		log: log,
-		grpcServer: grpcApp.NewGrpcApp(
-			log,
-			grpcApp.Config{
-				Server: config.Server{
-					Port: conf.GrpcConfig.Port,
-				},
+	app.grpcServer = grpcApp.NewGrpcApp(
+		log,
+		grpcApp.Config{
+			Server: config.Server{
+				Port: conf.GrpcConfig.Port,
 			},
-			authenticationService,
-		),
-		restServer: restApp.NewRestApp(
-			log,
-			restApp.Config{
-				Server: config.Server{
-					Port: conf.RestConfig.Port,
-				},
+		},
+		authenticationService,
+	)
+
+	app.restServer = restApp.NewRestApp(
+		log,
+		restApp.Config{
+			Server: config.Server{
+				Port: conf.RestConfig.Port,
 			},
-			authenticationService,
-		),
-	}
+		},
+		authenticationService,
+	)
+
+	return app
 }
 
 func (app *App) Run() {
