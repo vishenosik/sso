@@ -1,0 +1,13 @@
+### Exclude catalog
+bin/
+docs/
+deploy/
+sso-sdk/
+storage/
+tests/
+tools/
+.gitignore
+.vscode
+.idea
+.task
+.obsidian

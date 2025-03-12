@@ -37,21 +37,36 @@ tasks:
 
   # MAIN
 
-  run:
+  run-local:
     desc: Run main application
     cmd: go run ./cmd/sso
 
   run-docker:
     desc: "Run sso docker server"
-    cmd: docker compose -f docker-compose.yaml up -d --build
+    deps:
+      - build-docker
+    cmd: docker compose -f ./deploy/compose/sso-app.docker-compose.yaml up -d --build
 
-  build:
+  build-local:
     desc: Builds application
     cmds:
       - 'go build -o bin/ ./cmd/sso/main.go'
     sources:
       - ./*.go,
       - ./**/*.go
+
+  build-docker:
+    desc: Build Docker image
+    cmd: 'docker build -t sso-app . -f ./deploy/docker/sso-app.Dockerfile'
+
+  copy-bin:
+    desc: copy binary from sso-app image to local storage
+    deps:
+      - build-docker
+    cmds:
+      - 'docker create --name extract sso-app'
+      - 'docker cp extract:/app/main ./bin/main'
+      - 'docker rm extract'
 
   # TESTING
 
@@ -84,7 +99,7 @@ tasks:
 
   dev:
     desc: Build and start app with file listener (hot reload)
-    deps: [build]
+    deps: [build-local]
     silent: true
     watch: true
     cmd: ./bin/main {{.FLAG_CONFIG}}

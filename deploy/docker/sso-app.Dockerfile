@@ -8,11 +8,13 @@ WORKDIR /app
 COPY go.mod go.sum embed.go ./
 RUN go mod download
 
-COPY ./cmd/sso/main.go ./cmd/sso/main.go
-COPY ./internal ./internal
-COPY ./pkg ./pkg
-COPY ./migrations ./migrations
-COPY ./static ./static
+COPY . .
+
+# COPY ./cmd/sso/main.go ./cmd/sso/main.go
+# COPY ./internal ./internal
+# COPY ./pkg ./pkg
+# COPY ./migrations ./migrations
+# COPY ./static ./static
 
 # Build
 RUN CGO_ENABLED=1 GOOS=linux go build -o bin/ cmd/sso/main.go
@@ -24,7 +26,7 @@ WORKDIR /
 
 COPY --from=build-stage /app/bin/main /app/main
 
-EXPOSE 8080
-EXPOSE 44844
+EXPOSE ${REST_PORT}
+EXPOSE ${GRPC_PORT}
 
 ENTRYPOINT [ "./app/main" ] 

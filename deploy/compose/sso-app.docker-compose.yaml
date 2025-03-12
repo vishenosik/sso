@@ -1,0 +1,35 @@
+version: "3.6"
+
+services:
+  
+  sso_app:
+    container_name: sso_app
+    image: sso-app
+    ports:
+      - ${REST_PORT}:${REST_PORT}
+      - ${GRPC_PORT}:${GRPC_PORT}
+    environment:
+      REDIS_URL: redis:6379
+      # The environment in which the application is running (string)
+      ENV: dev
+      # Path to sqlite store (string)
+      STORE_PATH: ./app/storage/sso.db
+      # Authentication service standart TTL (time.Duration)
+      AUTHENTICATION_TOKEN_TTL: ${AUTHENTICATION_TOKEN_TTL}
+      # gRPC server port (uint16)
+      GRPC_PORT: ${GRPC_PORT}
+      # REST server port (uint16)
+      REST_PORT: ${REST_PORT}
+      # Redis user (string)
+      REDIS_USER: ${REDIS_USER}
+      # Redis user's password (string)
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Redis database connection (int)
+      REDIS_DB: ${REDIS_DB}
+      # Redis server host (string)
+      REDIS_HOST: ${REDIS_HOST}
+      # Redis server port (uint16)
+      REDIS_PORT: ${REDIS_PORT}
+
+    volumes:
+      - ./storage/:/app/storage/
