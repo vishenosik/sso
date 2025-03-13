@@ -40,7 +40,7 @@ func runServer() {
 		panic(err)
 	}
 
-	application.Run()
+	application.MustRun()
 
 	// Graceful shut down
 

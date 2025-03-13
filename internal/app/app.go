@@ -120,7 +120,7 @@ func NewApp() (*App, error) {
 	return app, nil
 }
 
-func (app *App) Run() {
+func (app *App) MustRun() {
 
 	app.log.Info("start app")
 
