@@ -13,6 +13,8 @@ import (
 	"github.com/blacksmith-vish/sso/internal/store/combined"
 	"github.com/blacksmith-vish/sso/internal/store/dgraph"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
+
+	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
@@ -32,15 +34,20 @@ type App struct {
 	log        *slog.Logger
 }
 
-func NewApp() *App {
-
-	ctx := context.TODO()
+func NewApp() (*App, error) {
 
 	conf := cfg.EnvConfig()
 
 	// logger setup
 	// TODO: implement env logic
 	log := setupLogger(conf.Env)
+
+	appctx, err := libctx.NewAppContext(log)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := libctx.SetAppContext(context.Background(), appctx)
 
 	app := &App{log: log}
 
@@ -51,7 +58,7 @@ func NewApp() *App {
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
 	store := sqlstore.NewStore(sqliteStore)
 
-	_, err := dgraph.NewClient(ctx, dgraph.Config{
+	_, err = dgraph.NewClient(ctx, dgraph.Config{
 		Credentials: config.Credentials{
 			User:     conf.Dgraph.User,
 			Password: conf.Dgraph.Password,
@@ -101,7 +108,7 @@ func NewApp() *App {
 	)
 
 	app.restServer = restApp.NewRestApp(
-		log,
+		ctx,
 		restApp.Config{
 			Server: config.Server{
 				Port: conf.RestConfig.Port,
@@ -110,7 +117,7 @@ func NewApp() *App {
 		authenticationService,
 	)
 
-	return app
+	return app, nil
 }
 
 func (app *App) Run() {

@@ -9,6 +9,7 @@ import (
 
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	_ "github.com/blacksmith-vish/sso/internal/gen/swagger"
+	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
@@ -27,7 +28,7 @@ type Config struct {
 }
 
 func NewRestApp(
-	log *slog.Logger,
+	ctx context.Context,
 	config Config,
 	authenticationService authentication.Authentication,
 ) *App {
@@ -37,14 +38,25 @@ func NewRestApp(
 		panic(errors.Wrap(err, "failed to validate REST config"))
 	}
 
-	return newRestApp(log, config, authenticationService)
+	app, err := newRestApp(ctx, config, authenticationService)
+	if err != nil {
+		panic(err)
+	}
+	return app
 }
 
 func newRestApp(
-	log *slog.Logger,
+	ctx context.Context,
 	config Config,
 	authenticationService authentication.Authentication,
-) *App {
+) (*App, error) {
+
+	appctx, err := libctx.AppContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	log := appctx.Logger
 
 	authentication := authentication.NewAuthenticationServer(log, authenticationService)
 
@@ -67,7 +79,7 @@ func newRestApp(
 			Handler: router,
 		},
 		port: config.Server.Port,
-	}
+	}, nil
 }
 
 func (a *App) MustRun() {

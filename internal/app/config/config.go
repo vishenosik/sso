@@ -1,15 +1,19 @@
 package config
 
 import (
+	// std
 	"flag"
 	"log"
 	"os"
 	"time"
 
-	"github.com/blacksmith-vish/sso/pkg/collections"
-	"github.com/blacksmith-vish/sso/pkg/env"
+	// pkg
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+
+	// internal
+	"github.com/blacksmith-vish/sso/pkg/collections"
+	"github.com/blacksmith-vish/sso/pkg/env"
 )
 
 var (
