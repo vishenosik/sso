@@ -82,6 +82,7 @@ func NewApp() *App {
 
 	// Services init
 	authenticationService := authenticationService.NewService(
+		ctx,
 		log,
 		conf.AuthenticationService,
 		store,

@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"time"
@@ -27,6 +28,7 @@ func suite_NewService(
 	appProvider AppProvider,
 ) *Authentication {
 	return NewService(
+		context.TODO(),
 		slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo})),
 		suite_newConfig(),
 		userSaver,

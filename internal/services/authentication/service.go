@@ -85,6 +85,7 @@ type Authentication struct {
 
 // New returns a new instance of Auth
 func NewService(
+	ctx context.Context,
 	logger *slog.Logger,
 	conf config.AuthenticationService,
 	userSaver UserSaver,
