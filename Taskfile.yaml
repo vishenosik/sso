@@ -43,8 +43,6 @@ tasks:
 
   run-docker:
     desc: "Run sso docker server"
-    deps:
-      - build-docker
     cmd: docker compose -f ./deploy/compose/sso-app.docker-compose.yaml up -d --build
 
   build-local:
