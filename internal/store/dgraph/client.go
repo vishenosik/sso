@@ -18,15 +18,15 @@ type dgraphClient struct {
 
 type Config struct {
 	Credentials config.Credentials
-	Server      config.Server
+	GrpcServer  config.Server
 }
 
 func NewClient(
 	ctx context.Context,
 	config Config,
-) *dgo.Dgraph {
+) (*dgo.Dgraph, error) {
 
-	addr := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
+	addr := fmt.Sprintf("%s:%d", config.GrpcServer.Host, config.GrpcServer.Port)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -35,7 +35,7 @@ func NewClient(
 
 	connection, err := grpc.NewClient(addr, opts...)
 	if err != nil {
-		// TODO: handle error
+		return nil, err
 	}
 
 	client := dgo.NewDgraphClient(
@@ -44,8 +44,8 @@ func NewClient(
 
 	err = client.Login(ctx, config.Credentials.User, config.Credentials.Password)
 	if err != nil {
-		// TODO: handle error
+		return nil, err
 	}
 
-	return client
+	return client, nil
 }

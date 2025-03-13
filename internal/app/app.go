@@ -11,9 +11,11 @@ import (
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
+	"github.com/blacksmith-vish/sso/internal/store/dgraph"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
+	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
 	"github.com/blacksmith-vish/sso/pkg/migrate"
 )
@@ -32,6 +34,8 @@ type App struct {
 
 func NewApp() *App {
 
+	ctx := context.TODO()
+
 	conf := cfg.EnvConfig()
 
 	// logger setup
@@ -46,6 +50,24 @@ func NewApp() *App {
 	// Stores init
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
 	store := sqlstore.NewStore(sqliteStore)
+
+	_, err := dgraph.NewClient(ctx, dgraph.Config{
+		Credentials: config.Credentials{
+			User:     conf.Dgraph.User,
+			Password: conf.Dgraph.Password,
+		},
+		GrpcServer: config.Server{
+			Host: conf.Dgraph.GrpcHost,
+			Port: conf.Dgraph.GrpcPort,
+		},
+	})
+
+	if err != nil {
+		log.Error(
+			"failed to connect to dgraph",
+			attrs.Error(err),
+		)
+	}
 
 	// Stores migration
 	migrate.NewMigrator(

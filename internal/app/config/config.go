@@ -25,6 +25,7 @@ type Config struct {
 	GrpcConfig            GrpcServer
 	RestConfig            RestServer
 	Redis                 Redis
+	Dgraph                Dgraph
 	service
 }
 
@@ -44,12 +45,19 @@ type Redis struct {
 	User     string `env:"REDIS_USER" desc:"Redis user"`
 	Password string `env:"REDIS_USER_PASSWORD" desc:"Redis user's password"`
 	DB       int    `env:"REDIS_DB" default:"0" desc:"Redis database connection"`
-	Host     string `env:"REDIS_HOST" default:"127.0.0.1" desc:"Redis server host"`
+	Host     string `env:"REDIS_HOST" default:"localhost" desc:"Redis server host"`
 	Port     uint16 `env:"REDIS_PORT" default:"6380" desc:"Redis server port"`
 }
 
+type Dgraph struct {
+	User     string `env:"DGRAPH_USER" desc:"Dgraph user"`
+	Password string `env:"DGRAPH_USER_PASSWORD" desc:"Dgraph user's password"`
+	GrpcHost string `env:"DGRAPH_GRPC_HOST" default:"localhost" desc:"Dgraph server host"`
+	GrpcPort uint16 `env:"DGRAPH_GRPC_PORT" default:"9080" desc:"Dgraph server port"`
+}
+
 type Vault struct {
-	Address string `env:"VAULT_ADDRESS" default:"127.0.0.1:8200" desc:"Vault address"`
+	Address string `env:"VAULT_ADDRESS" default:"localhost:8200" desc:"Vault address"`
 	Token   string `env:"VAULT_TOKEN" desc:"Vault token"`
 }
 
