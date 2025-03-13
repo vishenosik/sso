@@ -62,6 +62,8 @@ func NewApp() *App {
 		},
 	})
 
+	log.Debug("", slog.Any("conf", conf))
+
 	if err != nil {
 		log.Error(
 			"failed to connect to dgraph",
