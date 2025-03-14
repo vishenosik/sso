@@ -17,7 +17,7 @@ func (ctx *testContext) Key() testContextKey {
 	return testContextKey{}
 }
 
-func Test_RequestContext(t *testing.T) {
+func Test_Context(t *testing.T) {
 	testID := "12345"
 	requestCtx := &testContext{testID: testID}
 
