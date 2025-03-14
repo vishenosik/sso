@@ -17,8 +17,8 @@ import (
 type App struct {
 	// log is a structured logger for the application.
 	log *slog.Logger
-	// gRPCServer is the main gRPC server instance.
-	gRPCServer *grpc.Server
+	// server is the main gRPC server instance.
+	server *grpc.Server
 	// port is the network port on which the gRPC server will listen.
 	port uint16
 }
@@ -48,10 +48,10 @@ func NewGrpcApp(
 		"gRPC",
 	)
 
-	gRPCServer := grpc.NewServer()
+	server := grpc.NewServer()
 
 	authentication_v1.RegisterAuthenticationServer(
-		gRPCServer,
+		server,
 		authentication.NewAuthenticationServer(
 			Log,
 			authService,
@@ -59,9 +59,9 @@ func NewGrpcApp(
 	)
 
 	return &App{
-		log:        Log,
-		gRPCServer: gRPCServer,
-		port:       config.Server.Port,
+		log:    Log,
+		server: server,
+		port:   config.Server.Port,
 	}
 }
 
@@ -105,7 +105,7 @@ func (a *App) Run() error {
 
 	log.Info("gRPC server is running", slog.String("addr", listener.Addr().String()))
 
-	if err := a.gRPCServer.Serve(listener); err != nil {
+	if err := a.server.Serve(listener); err != nil {
 		return errors.Wrap(err, op)
 	}
 
@@ -125,6 +125,6 @@ func (a *App) Stop() {
 	a.log.With(slog.String("op", op)).
 		Info("stopping gRPC server", slog.Any("port", a.port))
 
-	a.gRPCServer.GracefulStop()
+	a.server.GracefulStop()
 
 }

@@ -35,9 +35,12 @@ func main() {
 
 func runServer() {
 	// Инициализация приложения
-	application := app.NewApp()
+	application, err := app.NewApp()
+	if err != nil {
+		panic(err)
+	}
 
-	application.Run()
+	application.MustRun()
 
 	// Graceful shut down
 
