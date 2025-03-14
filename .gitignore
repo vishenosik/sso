@@ -5,7 +5,7 @@
 *.dll
 *.so
 *.dylib
-/bin
+bin/*
 # test binary, built with `go test -c`
 *.test
 # environment
@@ -27,7 +27,7 @@ go.work.sum
 .idea
 # TASKFILE SETTINGS
 # checksums
-/.task
+.task/
 # OBSIDIAN SETTINGS
 # to exclude Obsidian's settings (including plugin and hotkey configurations)
 .obsidian/
@@ -48,6 +48,6 @@ go.work.sum
 **/storage
 # 
 *.log
-/log
+log/
 
 !**/.gitkeep
