@@ -39,11 +39,9 @@ func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	for _, elem := range slice {
 		buffer[elem] = struct{}{}
 	}
-	unique := make(Slice, len(buffer))
-	i := 0
+	unique := make(Slice, 0, len(buffer))
 	for elem := range buffer {
-		unique[i] = elem
-		i++
+		unique = append(unique, elem)
 	}
 	return unique
 }
