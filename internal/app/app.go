@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -34,6 +35,14 @@ type App struct {
 	log        *slog.Logger
 }
 
+func MustInitApp() *App {
+	app, err := NewApp()
+	if err != nil {
+		panic(fmt.Sprintf("failed to create app %s", err))
+	}
+	return app
+}
+
 func NewApp() (*App, error) {
 
 	conf := cfg.EnvConfig()
@@ -44,14 +53,7 @@ func NewApp() (*App, error) {
 
 	log.Debug("config loaded from env", slog.Any("config", conf))
 
-	appctx, err := libctx.NewAppContext(log)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx := libctx.SetAppContext(context.Background(), appctx)
-
-	app := &App{log: log}
+	ctx := libctx.WithAppCtx(context.Background(), log)
 
 	// Cache init
 	cache := loadCache(ctx)
@@ -60,7 +62,7 @@ func NewApp() (*App, error) {
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
 	store := sqlstore.NewStore(sqliteStore)
 
-	_, err = dgraph.NewClient(ctx, dgraph.Config{
+	_, err := dgraph.NewClient(ctx, dgraph.Config{
 		Credentials: config.Credentials{
 			User:     conf.Dgraph.User,
 			Password: conf.Dgraph.Password,
@@ -97,27 +99,27 @@ func NewApp() (*App, error) {
 		cachedStore,
 	)
 
-	app.grpcServer = grpcApp.NewGrpcApp(
-		log,
-		grpcApp.Config{
-			Server: config.Server{
-				Port: conf.GrpcConfig.Port,
+	return &App{
+		log: log,
+		grpcServer: grpcApp.NewGrpcApp(
+			log,
+			grpcApp.Config{
+				Server: config.Server{
+					Port: conf.GrpcConfig.Port,
+				},
 			},
-		},
-		authenticationService,
-	)
-
-	app.restServer = restApp.NewRestApp(
-		ctx,
-		restApp.Config{
-			Server: config.Server{
-				Port: conf.RestConfig.Port,
+			authenticationService,
+		),
+		restServer: restApp.NewRestApp(
+			ctx,
+			restApp.Config{
+				Server: config.Server{
+					Port: conf.RestConfig.Port,
+				},
 			},
-		},
-		authenticationService,
-	)
-
-	return app, nil
+			authenticationService,
+		),
+	}, nil
 }
 
 func (app *App) MustRun() {

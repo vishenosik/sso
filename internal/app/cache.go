@@ -17,8 +17,8 @@ import (
 
 func loadCache(ctx context.Context) *cache.Cache {
 
-	appctx, err := libctx.AppContext(ctx)
-	if err != nil {
+	appctx, ok := libctx.AppCtx(ctx)
+	if !ok {
 		// TODO: handle error
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/pkg/errors"
+	pkgctx "github.com/blacksmith-vish/sso/pkg/context"
 )
 
 type appContextKey struct{}
@@ -13,27 +13,19 @@ type appContext struct {
 	Logger *slog.Logger
 }
 
-func NewAppContext(
-	log *slog.Logger,
-) (*appContext, error) {
-
-	if log == nil {
-		return nil, errors.New("shit happens")
-	}
-
-	return &appContext{
-		Logger: log,
-	}, nil
+func (ctx *appContext) Key() appContextKey {
+	return appContextKey{}
 }
 
-func AppContext(ctx context.Context) (*appContext, error) {
-	serverCtx, ok := ctx.Value(appContextKey{}).(*appContext)
-	if !ok {
-		return nil, errors.New("todo: AppContext error")
-	}
-	return serverCtx, nil
+func WithAppCtx(
+	ctx context.Context,
+	logger *slog.Logger,
+) context.Context {
+	return pkgctx.With(ctx, &appContext{
+		Logger: logger,
+	})
 }
 
-func SetAppContext(ctx context.Context, serverCtx *appContext) context.Context {
-	return context.WithValue(ctx, appContextKey{}, serverCtx)
+func AppCtx(ctx context.Context) (*appContext, bool) {
+	return pkgctx.From[*appContext](ctx)
 }

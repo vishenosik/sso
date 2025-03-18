@@ -35,10 +35,7 @@ func main() {
 
 func runServer() {
 	// Инициализация приложения
-	application, err := app.NewApp()
-	if err != nil {
-		panic(err)
-	}
+	application := app.MustInitApp()
 
 	application.MustRun()
 

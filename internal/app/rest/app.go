@@ -51,9 +51,9 @@ func newRestApp(
 	authenticationService authentication.Authentication,
 ) (*App, error) {
 
-	appctx, err := libctx.AppContext(ctx)
-	if err != nil {
-		return nil, err
+	appctx, ok := libctx.AppCtx(ctx)
+	if !ok {
+		return nil, nil
 	}
 
 	log := appctx.Logger
