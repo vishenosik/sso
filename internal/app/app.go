@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	embed "github.com/blacksmith-vish/sso"
 	cfg "github.com/blacksmith-vish/sso/internal/app/config"
@@ -53,7 +52,7 @@ func NewApp() (*App, error) {
 
 	log.Debug("config loaded from env", slog.Any("config", conf))
 
-	ctx := libctx.WithAppCtx(context.Background(), log)
+	ctx := libctx.WithAppCtx(context.TODO(), log)
 
 	// Cache init
 	cache := loadCache(ctx)
@@ -132,15 +131,16 @@ func (app *App) MustRun() {
 	go app.restServer.MustRun()
 }
 
-func (app *App) Stop(signal string) {
+func (app *App) Stop(ctx context.Context) {
 
-	app.log.Info("app stopping", slog.String("signal", signal))
+	const msg = "app stopping"
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer func() {
-		// extra handling here
-		cancel()
-	}()
+	signal, ok := libctx.SignalCtx(ctx)
+	if !ok {
+		app.log.Info(msg, slog.String("signal", signal.Signal.String()))
+	} else {
+		app.log.Info(msg)
+	}
 
 	app.grpcServer.Stop()
 

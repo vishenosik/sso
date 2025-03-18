@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/blacksmith-vish/sso/internal/app"
+	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 )
 
 // @title           sso
@@ -34,17 +37,20 @@ func main() {
 }
 
 func runServer() {
+
+	ctx := context.Background()
+
 	// Инициализация приложения
 	application := app.MustInitApp()
 
 	application.MustRun()
 
 	// Graceful shut down
-
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
-	sig := <-stop
 
-	application.Stop(sig.String())
+	stopctx, cancel := context.WithTimeout(libctx.WithSignalCtx(ctx, <-stop), time.Second*5)
+	defer cancel()
 
+	application.Stop(stopctx)
 }
