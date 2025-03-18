@@ -42,6 +42,8 @@ func NewApp() (*App, error) {
 	// TODO: implement env logic
 	log := setupLogger(conf.Env)
 
+	log.Debug("config loaded from env", slog.Any("config", conf))
+
 	appctx, err := libctx.NewAppContext(log)
 	if err != nil {
 		return nil, err
@@ -52,7 +54,7 @@ func NewApp() (*App, error) {
 	app := &App{log: log}
 
 	// Cache init
-	cache := app.loadCache()
+	cache := loadCache(ctx)
 
 	// Stores init
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
@@ -68,8 +70,6 @@ func NewApp() (*App, error) {
 			Port: conf.Dgraph.GrpcPort,
 		},
 	})
-
-	log.Debug("", slog.Any("conf", conf))
 
 	if err != nil {
 		log.Error(

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -10,9 +11,18 @@ import (
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
+
+	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 )
 
-func (app *App) loadCache() *cache.Cache {
+func loadCache(ctx context.Context) *cache.Cache {
+
+	appctx, err := libctx.AppContext(ctx)
+	if err != nil {
+		// TODO: handle error
+	}
+
+	log := appctx.Logger
 
 	conf := cfg.EnvConfig().Redis
 
@@ -28,11 +38,11 @@ func (app *App) loadCache() *cache.Cache {
 		DB: conf.DB,
 	})
 	if err != nil {
-		app.log.Error("Failed to init redis cache", attrs.Error(err))
+		log.Error("Failed to init redis cache", attrs.Error(err))
 		return cache.NewCache(noop.NewNoopCache())
 	}
 
-	app.log.Info(
+	log.Info(
 		"Connected to redis cache",
 		slog.String("addr", fmt.Sprintf("%s:%d", conf.Host, conf.Port)),
 	)
