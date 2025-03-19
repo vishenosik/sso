@@ -29,4 +29,4 @@ jobs:
         git config --global user.email 'github-actions@github.com'
         git add docs/CHANGELOG.md  
         git commit -m "Update CHANGELOG.md"
-        git push https://github.com/vishenosik/sso.git HEAD:main 
+        git push https://github.com/vishenosik/sso.git HEAD:master 
