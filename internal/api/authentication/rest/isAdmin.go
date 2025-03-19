@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	"github.com/go-chi/chi/v5"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
 )
 
 func (srv server) isAdmin() http.HandlerFunc {

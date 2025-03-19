@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"net"
 
-	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/grpc"
-	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/pkg/errors"
+	authentication "github.com/vishenosik/sso/internal/api/authentication/grpc"
+	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
+	"github.com/vishenosik/sso/pkg/helpers/config"
 	"google.golang.org/grpc"
 )
 

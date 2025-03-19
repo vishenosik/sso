@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	models "github.com/blacksmith-vish/sso/internal/store/models"
+	models "github.com/vishenosik/sso/internal/store/models"
 	mock "github.com/stretchr/testify/mock"
 )
 

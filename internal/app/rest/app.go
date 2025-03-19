@@ -7,15 +7,15 @@ import (
 	"log/slog"
 	"net/http"
 
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
+	appctx "github.com/vishenosik/sso/internal/app/context"
 
-	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
-	_ "github.com/blacksmith-vish/sso/internal/gen/swagger"
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
+	authentication "github.com/vishenosik/sso/internal/api/authentication/rest"
+	_ "github.com/vishenosik/sso/internal/gen/swagger"
+	"github.com/vishenosik/sso/pkg/helpers/config"
+	middleW "github.com/vishenosik/sso/pkg/middleware"
 )
 
 type App struct {

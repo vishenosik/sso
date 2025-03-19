@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store/models"
 )
 
 func (users *Users) UserByID(ctx context.Context, id string) (models.User, error) {

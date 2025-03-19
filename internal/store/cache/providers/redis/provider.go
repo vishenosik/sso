@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/go-redis/redis/v8"
+	"github.com/vishenosik/sso/pkg/helpers/config"
 )
 
 type Config struct {

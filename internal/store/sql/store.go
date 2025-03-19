@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/apps"
-	"github.com/blacksmith-vish/sso/internal/store/sql/components/users"
+	"github.com/vishenosik/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store/sql/components/apps"
+	"github.com/vishenosik/sso/internal/store/sql/components/users"
 )
 
 type Store struct {

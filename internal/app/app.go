@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
-	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
-	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
-	"github.com/blacksmith-vish/sso/internal/store/combined"
+	grpcApp "github.com/vishenosik/sso/internal/app/grpc"
+	restApp "github.com/vishenosik/sso/internal/app/rest"
+	authenticationService "github.com/vishenosik/sso/internal/services/authentication"
+	"github.com/vishenosik/sso/internal/store/combined"
 
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
+	appctx "github.com/vishenosik/sso/internal/app/context"
+	"github.com/vishenosik/sso/pkg/helpers/config"
 )
 
 type App struct {

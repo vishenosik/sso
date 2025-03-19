@@ -1,4 +1,4 @@
-module github.com/blacksmith-vish/sso
+module github.com/vishenosik/sso
 
 go 1.23.3
 

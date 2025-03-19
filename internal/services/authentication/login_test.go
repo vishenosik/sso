@@ -5,19 +5,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/services/authentication/mocks"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/internal/services/authentication/mocks"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	store_models "github.com/blacksmith-vish/sso/internal/store/models"
+	store_models "github.com/vishenosik/sso/internal/store/models"
 )
 
 func Test_Login_Success(t *testing.T) {

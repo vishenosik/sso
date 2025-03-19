@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/internal/store/models"
 )
 
 func (store *store) IsAdmin(ctx context.Context, userID string) (bool, error) {

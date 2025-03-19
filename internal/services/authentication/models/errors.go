@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/blacksmith-vish/sso/pkg/helpers/errorHelper"
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/pkg/helpers/errorHelper"
 	"google.golang.org/grpc/codes"
 )
 

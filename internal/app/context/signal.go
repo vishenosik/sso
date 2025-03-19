@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	pkgctx "github.com/blacksmith-vish/sso/pkg/context"
+	pkgctx "github.com/vishenosik/sso/pkg/context"
 )
 
 type signalContextKey struct{}

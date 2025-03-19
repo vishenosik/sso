@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store/models"
 )
 
 func (apps *Apps) SaveApp(ctx context.Context, app models.App) error {

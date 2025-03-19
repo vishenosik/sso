@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	embed "github.com/blacksmith-vish/sso"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	"github.com/blacksmith-vish/sso/pkg/helpers/api"
+	embed "github.com/vishenosik/sso"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
+	"github.com/vishenosik/sso/pkg/helpers/api"
 
 	"github.com/go-chi/chi/v5"
 )

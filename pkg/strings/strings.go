@@ -3,7 +3,7 @@ package strings
 import (
 	"strings"
 
-	"github.com/blacksmith-vish/sso/pkg/collections"
+	"github.com/vishenosik/sso/pkg/collections"
 )
 
 func ReplaceAllStringFunc(

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/blacksmith-vish/sso/internal/services/authentication/mocks"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/google/uuid"
+	"github.com/vishenosik/sso/internal/services/authentication/mocks"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
+	store_models "github.com/vishenosik/sso/internal/store/models"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

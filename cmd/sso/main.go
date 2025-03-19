@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/app"
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
+	"github.com/vishenosik/sso/internal/app"
+	appctx "github.com/vishenosik/sso/internal/app/context"
 )
 
 // @title           sso

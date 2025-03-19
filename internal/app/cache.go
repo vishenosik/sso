@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
-	"github.com/blacksmith-vish/sso/internal/store/cache"
-	"github.com/blacksmith-vish/sso/internal/store/cache/providers/noop"
-	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
+	appctx "github.com/vishenosik/sso/internal/app/context"
+	"github.com/vishenosik/sso/internal/store/cache"
+	"github.com/vishenosik/sso/internal/store/cache/providers/noop"
+	"github.com/vishenosik/sso/internal/store/cache/providers/redis"
+	"github.com/vishenosik/sso/pkg/helpers/config"
+	"github.com/vishenosik/sso/pkg/logger/attrs"
 )
 
 func loadCache(ctx context.Context) *cache.Cache {

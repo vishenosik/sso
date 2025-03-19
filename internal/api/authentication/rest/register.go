@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
 
 	"github.com/go-playground/validator/v10"
 

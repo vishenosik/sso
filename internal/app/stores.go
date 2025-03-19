@@ -3,15 +3,15 @@ package app
 import (
 	"context"
 
-	embed "github.com/blacksmith-vish/sso"
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
-	"github.com/blacksmith-vish/sso/internal/store/dgraph"
-	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
-	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
-	"github.com/blacksmith-vish/sso/pkg/migrate"
 	"github.com/dgraph-io/dgo/v210"
+	embed "github.com/vishenosik/sso"
+	appctx "github.com/vishenosik/sso/internal/app/context"
+	"github.com/vishenosik/sso/internal/store/dgraph"
+	sqlstore "github.com/vishenosik/sso/internal/store/sql"
+	"github.com/vishenosik/sso/internal/store/sql/providers/sqlite"
+	"github.com/vishenosik/sso/pkg/helpers/config"
+	"github.com/vishenosik/sso/pkg/logger/handlers/std"
+	"github.com/vishenosik/sso/pkg/migrate"
 )
 
 func loadSqlStore(ctx context.Context) (*sqlstore.Store, error) {

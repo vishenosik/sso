@@ -1,6 +1,6 @@
 package users
 
-import "github.com/blacksmith-vish/sso/internal/store/models"
+import "github.com/vishenosik/sso/internal/store/models"
 
 type Users struct {
 	cache models.CacheProvider

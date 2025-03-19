@@ -6,10 +6,10 @@ import (
 	"log/slog"
 
 	// internal
-	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	"github.com/blacksmith-vish/sso/pkg/helpers/operation"
-	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
+	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
+	"github.com/vishenosik/sso/pkg/helpers/operation"
+	"github.com/vishenosik/sso/pkg/logger/attrs"
 )
 
 // compileRegisterNewUserFunc creates and returns a function for registering a new user.

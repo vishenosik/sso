@@ -5,7 +5,7 @@ import (
 	"regexp"
 
 	// internal
-	"github.com/blacksmith-vish/sso/pkg/regex"
+	"github.com/vishenosik/sso/pkg/regex"
 )
 
 type Higlighter struct {

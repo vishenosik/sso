@@ -3,9 +3,9 @@ package combined
 import (
 	"context"
 
-	"github.com/blacksmith-vish/sso/internal/store/cache"
-	"github.com/blacksmith-vish/sso/internal/store/models"
-	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
+	"github.com/vishenosik/sso/internal/store/cache"
+	"github.com/vishenosik/sso/internal/store/models"
+	sqlstore "github.com/vishenosik/sso/internal/store/sql"
 )
 
 type CachedStore struct {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/internal/store/models"
 )
 
 func (apps *Apps) App(ctx context.Context, id string) (models.App, error) {

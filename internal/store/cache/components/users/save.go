@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store/models"
 )
 
 func (users *Users) SaveUser(ctx context.Context, user models.User) error {

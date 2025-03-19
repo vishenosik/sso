@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 
 	// internal
-	"github.com/blacksmith-vish/sso/pkg/collections"
-	"github.com/blacksmith-vish/sso/pkg/env"
+	"github.com/vishenosik/sso/pkg/collections"
+	"github.com/vishenosik/sso/pkg/env"
 )
 
 var (

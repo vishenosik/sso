@@ -3,8 +3,8 @@ package dev
 import (
 	"log/slog"
 
-	"github.com/blacksmith-vish/sso/pkg/colors"
 	"github.com/fatih/color"
+	"github.com/vishenosik/sso/pkg/colors"
 )
 
 func level(rec slog.Record) string {

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/blacksmith-vish/sso/internal/services/authentication/mocks"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
-	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/vishenosik/sso/internal/services/authentication/mocks"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
+	store_models "github.com/vishenosik/sso/internal/store/models"
 )
 
 func Test_Register_Success(t *testing.T) {

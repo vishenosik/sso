@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/dgraph-io/dgo/v210"
 	"github.com/dgraph-io/dgo/v210/protos/api"
+	"github.com/vishenosik/sso/pkg/helpers/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"

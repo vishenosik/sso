@@ -6,11 +6,11 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/blacksmith-vish/sso/pkg/colors"
-	pkgctx "github.com/blacksmith-vish/sso/pkg/context"
-	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
-	"github.com/blacksmith-vish/sso/pkg/logger/handlers/dev"
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/pkg/colors"
+	pkgctx "github.com/vishenosik/sso/pkg/context"
+	"github.com/vishenosik/sso/pkg/logger/attrs"
+	"github.com/vishenosik/sso/pkg/logger/handlers/dev"
 )
 
 const (

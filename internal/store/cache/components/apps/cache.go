@@ -1,6 +1,6 @@
 package apps
 
-import "github.com/blacksmith-vish/sso/internal/store/models"
+import "github.com/vishenosik/sso/internal/store/models"
 
 type Apps struct {
 	cache models.CacheProvider

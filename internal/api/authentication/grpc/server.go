@@ -7,8 +7,8 @@ import (
 	"log/slog"
 
 	// internal
-	authentication_v1 "github.com/blacksmith-vish/sso/internal/gen/grpc/v1/authentication"
-	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
+	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
+	"github.com/vishenosik/sso/internal/services/authentication/models"
 )
 
 type Authentication interface {
