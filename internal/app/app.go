@@ -35,11 +35,8 @@ func MustInitApp() *App {
 func NewApp() (*App, error) {
 
 	ctx := appctx.SetupAppCtx()
-
 	appContext := appctx.AppCtx(ctx)
 
-	// logger setup
-	// TODO: implement env logic
 	log := appContext.Logger
 	conf := appContext.Config
 
@@ -71,39 +68,37 @@ func NewApp() (*App, error) {
 		cachedStore,
 	)
 
-	return newApp(
+	grpcServer := grpcApp.NewGrpcApp(
 		log,
-		grpcApp.NewGrpcApp(
-			log,
-			grpcApp.Config{
-				Server: config.Server{
-					Port: conf.GrpcConfig.Port,
-				},
+		grpcApp.Config{
+			Server: config.Server{
+				Port: conf.GrpcConfig.Port,
 			},
-			authenticationService,
-		),
-		restApp.NewRestApp(
-			ctx,
-			restApp.Config{
-				Server: config.Server{
-					Port: conf.RestConfig.Port,
-				},
+		},
+		authenticationService,
+	)
+
+	restServer := restApp.NewRestApp(
+		ctx,
+		restApp.Config{
+			Server: config.Server{
+				Port: conf.RestConfig.Port,
 			},
-			authenticationService,
-		),
-	), nil
+		},
+		authenticationService,
+	)
+
+	return newApp(log, grpcServer, restServer), nil
 }
 
 func newApp(
 	logger *slog.Logger,
 	apps ...Server,
 ) *App {
-
 	return &App{
 		log:     logger,
 		servers: apps,
 	}
-
 }
 
 func (app *App) MustRun() {
