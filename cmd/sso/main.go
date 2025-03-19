@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/blacksmith-vish/sso/internal/app"
-	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 )
 
 // @title           sso
@@ -49,7 +49,7 @@ func runServer() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	stopctx, cancel := context.WithTimeout(libctx.WithSignalCtx(ctx, <-stop), time.Second*5)
+	stopctx, cancel := context.WithTimeout(appctx.WithSignalCtx(ctx, <-stop), time.Second*5)
 	defer cancel()
 
 	application.Stop(stopctx)

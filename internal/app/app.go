@@ -5,33 +5,23 @@ import (
 	"fmt"
 	"log/slog"
 
-	embed "github.com/blacksmith-vish/sso"
-	cfg "github.com/blacksmith-vish/sso/internal/app/config"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
-	"github.com/blacksmith-vish/sso/internal/store/dgraph"
-	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 
-	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
-	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
-	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
-	"github.com/blacksmith-vish/sso/pkg/migrate"
-)
-
-const (
-	envDev  = "dev"
-	envProd = "prod"
-	envTest = "test"
 )
 
 type App struct {
-	grpcServer *grpcApp.App
-	restServer *restApp.App
-	log        *slog.Logger
+	log     *slog.Logger
+	servers []Server
+}
+
+type Server interface {
+	MustRun()
+	Stop(ctx context.Context)
 }
 
 func MustInitApp() *App {
@@ -44,107 +34,96 @@ func MustInitApp() *App {
 
 func NewApp() (*App, error) {
 
-	conf := cfg.EnvConfig()
+	ctx := appctx.SetupAppCtx()
+	appContext := appctx.AppCtx(ctx)
 
-	// logger setup
-	// TODO: implement env logic
-	log := setupLogger(conf.Env)
-
-	log.Debug("config loaded from env", slog.Any("config", conf))
-
-	ctx := libctx.WithAppCtx(context.TODO(), log)
+	log := appContext.Logger
+	conf := appContext.Config
 
 	// Cache init
 	cache := loadCache(ctx)
 
 	// Stores init
-	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
-	store := sqlstore.NewStore(sqliteStore)
-
-	_, err := dgraph.NewClient(ctx, dgraph.Config{
-		Credentials: config.Credentials{
-			User:     conf.Dgraph.User,
-			Password: conf.Dgraph.Password,
-		},
-		GrpcServer: config.Server{
-			Host: conf.Dgraph.GrpcHost,
-			Port: conf.Dgraph.GrpcPort,
-		},
-	})
-
+	store, err := loadSqlStore(ctx)
 	if err != nil {
-		log.Error(
-			"failed to connect to dgraph",
-			attrs.Error(err),
-		)
+		return nil, err
 	}
-
-	// Stores migration
-	migrate.NewMigrator(
-		std.NewStdLogger(log),
-		embed.SQLiteMigrations,
-	).MustMigrate(sqliteStore)
 
 	// Data schemas init
 	cachedStore := combined.NewCachedStore(store, cache)
 
+	_, err = loadDgraph(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Services init
 	authenticationService := authenticationService.NewService(
-		ctx,
 		log,
-		conf.AuthenticationService,
+		authenticationService.Config{
+			TokenTTL: conf.AuthenticationService.TokenTTL,
+		},
 		store,
 		store,
 		cachedStore,
 	)
 
+	grpcServer := grpcApp.NewGrpcApp(
+		log,
+		grpcApp.Config{
+			Server: config.Server{
+				Port: conf.GrpcConfig.Port,
+			},
+		},
+		authenticationService,
+	)
+
+	restServer := restApp.NewRestApp(
+		ctx,
+		restApp.Config{
+			Server: config.Server{
+				Port: conf.RestConfig.Port,
+			},
+		},
+		authenticationService,
+	)
+
+	return newApp(log, grpcServer, restServer), nil
+}
+
+func newApp(
+	logger *slog.Logger,
+	apps ...Server,
+) *App {
 	return &App{
-		log: log,
-		grpcServer: grpcApp.NewGrpcApp(
-			log,
-			grpcApp.Config{
-				Server: config.Server{
-					Port: conf.GrpcConfig.Port,
-				},
-			},
-			authenticationService,
-		),
-		restServer: restApp.NewRestApp(
-			ctx,
-			restApp.Config{
-				Server: config.Server{
-					Port: conf.RestConfig.Port,
-				},
-			},
-			authenticationService,
-		),
-	}, nil
+		log:     logger,
+		servers: apps,
+	}
 }
 
 func (app *App) MustRun() {
 
 	app.log.Info("start app")
 
-	// Инициализация gRPC-сервер
-	go app.grpcServer.MustRun()
-
-	go app.restServer.MustRun()
+	for _, server := range app.servers {
+		go server.MustRun()
+	}
 }
 
 func (app *App) Stop(ctx context.Context) {
 
 	const msg = "app stopping"
 
-	signal, ok := libctx.SignalCtx(ctx)
+	signal, ok := appctx.SignalCtx(ctx)
 	if !ok {
 		app.log.Info(msg, slog.String("signal", signal.Signal.String()))
 	} else {
 		app.log.Info(msg)
 	}
 
-	app.grpcServer.Stop()
-
-	app.restServer.Stop(ctx)
+	for _, server := range app.servers {
+		server.Stop(ctx)
+	}
 
 	app.log.Info("app stopped")
 }

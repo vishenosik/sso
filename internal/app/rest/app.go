@@ -7,9 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
+
 	authentication "github.com/blacksmith-vish/sso/internal/api/authentication/rest"
 	_ "github.com/blacksmith-vish/sso/internal/gen/swagger"
-	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	middleW "github.com/blacksmith-vish/sso/pkg/middleware"
 	"github.com/go-chi/chi/v5"
@@ -51,12 +52,9 @@ func newRestApp(
 	authenticationService authentication.Authentication,
 ) (*App, error) {
 
-	appctx, ok := libctx.AppCtx(ctx)
-	if !ok {
-		return nil, nil
-	}
+	appContext := appctx.AppCtx(ctx)
 
-	log := appctx.Logger
+	log := appContext.Logger
 
 	authentication := authentication.NewAuthenticationServer(log, authenticationService)
 

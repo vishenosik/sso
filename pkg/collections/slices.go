@@ -46,6 +46,6 @@ func Unique[Slice ~[]Type, Type comparable](slice Slice) Slice {
 	return unique
 }
 
-func HasDuplicates[Slice ~[]Type, Type comparable](slice Slice) bool {
+func HasDuplicates[Type comparable](slice ...Type) bool {
 	return len(slice) != len(Unique(slice))
 }

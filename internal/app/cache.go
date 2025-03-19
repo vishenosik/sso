@@ -5,26 +5,19 @@ import (
 	"fmt"
 	"log/slog"
 
-	cfg "github.com/blacksmith-vish/sso/internal/app/config"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/blacksmith-vish/sso/internal/store/cache"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/noop"
 	"github.com/blacksmith-vish/sso/internal/store/cache/providers/redis"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
 	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
-
-	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
 )
 
 func loadCache(ctx context.Context) *cache.Cache {
 
-	appctx, ok := libctx.AppCtx(ctx)
-	if !ok {
-		// TODO: handle error
-	}
-
-	log := appctx.Logger
-
-	conf := cfg.EnvConfig().Redis
+	appContext := appctx.AppCtx(ctx)
+	log := appContext.Logger
+	conf := appContext.Config.Redis
 
 	redisCache, err := redis.NewRedisCache(redis.Config{
 		Credentials: config.Credentials{
