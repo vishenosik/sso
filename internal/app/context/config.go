@@ -1,4 +1,4 @@
-package config
+package context
 
 import (
 	// std
@@ -80,13 +80,18 @@ func init() {
 
 }
 
-func EnvConfig() *Config {
-	if conf == nil {
-		cfg := env.ReadEnv[Config]()
-		conf = &cfg
-		if collections.HasDuplicates([]uint16{conf.GrpcConfig.Port, conf.RestConfig.Port}) {
-			panic(ErrServerPortMustBeUnique)
-		}
+func mustLoadEnvConfig() Config {
+	conf, err := loadEnvConfig()
+	if err != nil {
+		panic(err)
 	}
 	return conf
+}
+
+func loadEnvConfig() (Config, error) {
+	conf := env.ReadEnv[Config]()
+	if collections.HasDuplicates(conf.GrpcConfig.Port, conf.RestConfig.Port) {
+		return Config{}, ErrServerPortMustBeUnique
+	}
+	return conf, nil
 }

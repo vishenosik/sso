@@ -2,11 +2,11 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
 	embed "github.com/blacksmith-vish/sso"
-	cfg "github.com/blacksmith-vish/sso/internal/app/config"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
@@ -14,18 +14,11 @@ import (
 	"github.com/blacksmith-vish/sso/internal/store/dgraph"
 	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 
-	libctx "github.com/blacksmith-vish/sso/internal/lib/context"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
 	"github.com/blacksmith-vish/sso/pkg/migrate"
-)
-
-const (
-	envDev  = "dev"
-	envProd = "prod"
-	envTest = "test"
 )
 
 type App struct {
@@ -44,15 +37,17 @@ func MustInitApp() *App {
 
 func NewApp() (*App, error) {
 
-	conf := cfg.EnvConfig()
+	ctx := appctx.SetupAppCtx()
+
+	appContext, ok := appctx.AppCtx(ctx)
+	if !ok {
+		return nil, errors.New("failed to get app context")
+	}
 
 	// logger setup
 	// TODO: implement env logic
-	log := setupLogger(conf.Env)
-
-	log.Debug("config loaded from env", slog.Any("config", conf))
-
-	ctx := libctx.WithAppCtx(context.TODO(), log)
+	log := appContext.Logger
+	conf := appContext.Config
 
 	// Cache init
 	cache := loadCache(ctx)
@@ -61,22 +56,22 @@ func NewApp() (*App, error) {
 	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
 	store := sqlstore.NewStore(sqliteStore)
 
-	_, err := dgraph.NewClient(ctx, dgraph.Config{
-		Credentials: config.Credentials{
-			User:     conf.Dgraph.User,
-			Password: conf.Dgraph.Password,
+	_, err := dgraph.NewClient(
+		ctx,
+		dgraph.Config{
+			Credentials: config.Credentials{
+				User:     conf.Dgraph.User,
+				Password: conf.Dgraph.Password,
+			},
+			GrpcServer: config.Server{
+				Host: conf.Dgraph.GrpcHost,
+				Port: conf.Dgraph.GrpcPort,
+			},
 		},
-		GrpcServer: config.Server{
-			Host: conf.Dgraph.GrpcHost,
-			Port: conf.Dgraph.GrpcPort,
-		},
-	})
+	)
 
 	if err != nil {
-		log.Error(
-			"failed to connect to dgraph",
-			attrs.Error(err),
-		)
+		// return nil, err
 	}
 
 	// Stores migration
@@ -135,7 +130,7 @@ func (app *App) Stop(ctx context.Context) {
 
 	const msg = "app stopping"
 
-	signal, ok := libctx.SignalCtx(ctx)
+	signal, ok := appctx.SignalCtx(ctx)
 	if !ok {
 		app.log.Info(msg, slog.String("signal", signal.Signal.String()))
 	} else {

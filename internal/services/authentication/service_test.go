@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/app/config"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/brianvoe/gofakeit/v6"
 )
 
@@ -16,8 +16,8 @@ const (
 	WrongID        = "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
 )
 
-func suite_newConfig() config.AuthenticationService {
-	return config.AuthenticationService{
+func suite_newConfig() appctx.AuthenticationService {
+	return appctx.AuthenticationService{
 		TokenTTL: time.Minute,
 	}
 }

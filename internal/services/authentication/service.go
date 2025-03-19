@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/blacksmith-vish/sso/internal/app/config"
+	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/blacksmith-vish/sso/pkg/helpers/operation"
@@ -87,7 +87,7 @@ type Authentication struct {
 func NewService(
 	ctx context.Context,
 	logger *slog.Logger,
-	conf config.AuthenticationService,
+	conf appctx.AuthenticationService,
 	userSaver UserSaver,
 	userProvider UserProvider,
 	appProvider AppProvider,
