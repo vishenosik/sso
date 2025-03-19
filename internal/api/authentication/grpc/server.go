@@ -5,10 +5,13 @@ import (
 	// std
 	"context"
 	"log/slog"
+	"strconv"
+	"time"
 
 	// internal
 	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
 	"github.com/vishenosik/sso/internal/services/authentication/models"
+	reqctx "github.com/vishenosik/sso/pkg/context"
 )
 
 type Authentication interface {
@@ -98,6 +101,7 @@ func (srv *server) IsAdmin(
 	ctx context.Context,
 	request *authentication_v1.IsAdminRequest,
 ) (*authentication_v1.IsAdminResponse, error) {
+	ctx = reqctx.WithRequestCtx(ctx, strconv.Itoa(int(time.Now().UnixMicro())))
 	return isAdmin(ctx, request)
 }
 
@@ -117,6 +121,7 @@ func (srv *server) Login(
 	ctx context.Context,
 	request *authentication_v1.LoginRequest,
 ) (*authentication_v1.LoginResponse, error) {
+	ctx = reqctx.WithRequestCtx(ctx, strconv.Itoa(int(time.Now().UnixMicro())))
 	return login(ctx, request)
 }
 
@@ -135,5 +140,6 @@ func (srv *server) Register(
 	ctx context.Context,
 	request *authentication_v1.RegisterRequest,
 ) (*authentication_v1.RegisterResponse, error) {
+	ctx = reqctx.WithRequestCtx(ctx, strconv.Itoa(int(time.Now().UnixMicro())))
 	return registerNewUser(ctx, request)
 }
