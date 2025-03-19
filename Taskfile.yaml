@@ -5,26 +5,6 @@ includes:
     taskfile: ./sso-sdk/Taskfile_{{OS}}.yaml
     optional: true
 
-  redis:
-    taskfile: ./tools/containers/redis/Taskfile.yaml
-    optional: true
-
-  dgo:
-    taskfile: ./tools/containers/dgraph/Taskfile.yaml
-    optional: true
-
-  kafka:
-    taskfile: ./tools/containers/kafka/Taskfile.yaml
-    optional: true
-
-  dg:
-    taskfile: ./tools/containers/dgraph/Taskfile.yaml
-    optional: true
-
-  grafana:
-    taskfile: ./tools/containers/grafana-loki-promtail/Taskfile.yaml
-    optional: true
-
 dotenv: ['.env']
 
 env:
