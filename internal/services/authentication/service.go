@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"time"
 
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/blacksmith-vish/sso/internal/services/authentication/models"
 	store_models "github.com/blacksmith-vish/sso/internal/store/models"
 	"github.com/blacksmith-vish/sso/pkg/helpers/operation"
@@ -83,11 +82,14 @@ type Authentication struct {
 	tokenTTL     time.Duration
 }
 
+type Config struct {
+	TokenTTL time.Duration
+}
+
 // New returns a new instance of Auth
 func NewService(
-	ctx context.Context,
 	logger *slog.Logger,
-	conf appctx.AuthenticationService,
+	conf Config,
 	userSaver UserSaver,
 	userProvider UserProvider,
 	appProvider AppProvider,

@@ -1,6 +1,7 @@
 package grpcApp
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -118,7 +119,7 @@ func (a *App) Run() error {
 // It ensures that ongoing requests are allowed to complete before the server stops.
 //
 // The method does not take any parameters and does not return any value.
-func (a *App) Stop() {
+func (a *App) Stop(_ context.Context) {
 
 	const op = "grpcApp.Stop"
 

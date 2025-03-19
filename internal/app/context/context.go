@@ -10,6 +10,7 @@ import (
 	pkgctx "github.com/blacksmith-vish/sso/pkg/context"
 	"github.com/blacksmith-vish/sso/pkg/logger/attrs"
 	"github.com/blacksmith-vish/sso/pkg/logger/handlers/dev"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -17,6 +18,8 @@ const (
 	EnvProd = "prod"
 	EnvTest = "test"
 )
+
+var errAppCtxLoad = errors.New("failed to get app context")
 
 type appContextKey struct{}
 
@@ -46,8 +49,12 @@ func WithAppCtx(ctx context.Context) context.Context {
 	})
 }
 
-func AppCtx(ctx context.Context) (*appContext, bool) {
-	return pkgctx.From[*appContext](ctx)
+func AppCtx(ctx context.Context) *appContext {
+	contx, ok := pkgctx.From[*appContext](ctx)
+	if !ok {
+		panic(errAppCtxLoad)
+	}
+	return contx
 }
 
 func setupLogger(env string) *slog.Logger {

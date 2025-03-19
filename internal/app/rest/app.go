@@ -52,10 +52,7 @@ func newRestApp(
 	authenticationService authentication.Authentication,
 ) (*App, error) {
 
-	appContext, ok := appctx.AppCtx(ctx)
-	if !ok {
-		return nil, nil
-	}
+	appContext := appctx.AppCtx(ctx)
 
 	log := appContext.Logger
 

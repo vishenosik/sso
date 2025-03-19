@@ -15,13 +15,8 @@ import (
 
 func loadCache(ctx context.Context) *cache.Cache {
 
-	appContext, ok := appctx.AppCtx(ctx)
-	if !ok {
-		// TODO: handle error
-	}
-
+	appContext := appctx.AppCtx(ctx)
 	log := appContext.Logger
-
 	conf := appContext.Config.Redis
 
 	redisCache, err := redis.NewRedisCache(redis.Config{

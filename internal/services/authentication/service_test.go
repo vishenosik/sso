@@ -1,12 +1,10 @@
 package authentication
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"time"
 
-	appctx "github.com/blacksmith-vish/sso/internal/app/context"
 	"github.com/brianvoe/gofakeit/v6"
 )
 
@@ -16,8 +14,8 @@ const (
 	WrongID        = "invalidx-uuid-xxxx-xxxx-xxxxxxxxxxxx"
 )
 
-func suite_newConfig() appctx.AuthenticationService {
-	return appctx.AuthenticationService{
+func suite_newConfig() Config {
+	return Config{
 		TokenTTL: time.Minute,
 	}
 }
@@ -28,7 +26,6 @@ func suite_NewService(
 	appProvider AppProvider,
 ) *Authentication {
 	return NewService(
-		context.TODO(),
 		slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo})),
 		suite_newConfig(),
 		userSaver,

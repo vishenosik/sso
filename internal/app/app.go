@@ -2,29 +2,26 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
-	embed "github.com/blacksmith-vish/sso"
 	grpcApp "github.com/blacksmith-vish/sso/internal/app/grpc"
 	restApp "github.com/blacksmith-vish/sso/internal/app/rest"
 	authenticationService "github.com/blacksmith-vish/sso/internal/services/authentication"
 	"github.com/blacksmith-vish/sso/internal/store/combined"
-	"github.com/blacksmith-vish/sso/internal/store/dgraph"
-	sqlstore "github.com/blacksmith-vish/sso/internal/store/sql"
 
 	appctx "github.com/blacksmith-vish/sso/internal/app/context"
-	"github.com/blacksmith-vish/sso/internal/store/sql/providers/sqlite"
 	"github.com/blacksmith-vish/sso/pkg/helpers/config"
-	"github.com/blacksmith-vish/sso/pkg/logger/handlers/std"
-	"github.com/blacksmith-vish/sso/pkg/migrate"
 )
 
 type App struct {
-	grpcServer *grpcApp.App
-	restServer *restApp.App
-	log        *slog.Logger
+	log     *slog.Logger
+	servers []Server
+}
+
+type Server interface {
+	MustRun()
+	Stop(ctx context.Context)
 }
 
 func MustInitApp() *App {
@@ -39,10 +36,7 @@ func NewApp() (*App, error) {
 
 	ctx := appctx.SetupAppCtx()
 
-	appContext, ok := appctx.AppCtx(ctx)
-	if !ok {
-		return nil, errors.New("failed to get app context")
-	}
+	appContext := appctx.AppCtx(ctx)
 
 	// logger setup
 	// TODO: implement env logic
@@ -53,49 +47,33 @@ func NewApp() (*App, error) {
 	cache := loadCache(ctx)
 
 	// Stores init
-	sqliteStore := sqlite.MustInitSqlite(conf.StorePath)
-	store := sqlstore.NewStore(sqliteStore)
-
-	_, err := dgraph.NewClient(
-		ctx,
-		dgraph.Config{
-			Credentials: config.Credentials{
-				User:     conf.Dgraph.User,
-				Password: conf.Dgraph.Password,
-			},
-			GrpcServer: config.Server{
-				Host: conf.Dgraph.GrpcHost,
-				Port: conf.Dgraph.GrpcPort,
-			},
-		},
-	)
-
+	store, err := loadSqlStore(ctx)
 	if err != nil {
-		// return nil, err
+		return nil, err
 	}
-
-	// Stores migration
-	migrate.NewMigrator(
-		std.NewStdLogger(log),
-		embed.SQLiteMigrations,
-	).MustMigrate(sqliteStore)
 
 	// Data schemas init
 	cachedStore := combined.NewCachedStore(store, cache)
 
+	_, err = loadDgraph(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Services init
 	authenticationService := authenticationService.NewService(
-		ctx,
 		log,
-		conf.AuthenticationService,
+		authenticationService.Config{
+			TokenTTL: conf.AuthenticationService.TokenTTL,
+		},
 		store,
 		store,
 		cachedStore,
 	)
 
-	return &App{
-		log: log,
-		grpcServer: grpcApp.NewGrpcApp(
+	return newApp(
+		log,
+		grpcApp.NewGrpcApp(
 			log,
 			grpcApp.Config{
 				Server: config.Server{
@@ -104,7 +82,7 @@ func NewApp() (*App, error) {
 			},
 			authenticationService,
 		),
-		restServer: restApp.NewRestApp(
+		restApp.NewRestApp(
 			ctx,
 			restApp.Config{
 				Server: config.Server{
@@ -113,17 +91,28 @@ func NewApp() (*App, error) {
 			},
 			authenticationService,
 		),
-	}, nil
+	), nil
+}
+
+func newApp(
+	logger *slog.Logger,
+	apps ...Server,
+) *App {
+
+	return &App{
+		log:     logger,
+		servers: apps,
+	}
+
 }
 
 func (app *App) MustRun() {
 
 	app.log.Info("start app")
 
-	// Инициализация gRPC-сервер
-	go app.grpcServer.MustRun()
-
-	go app.restServer.MustRun()
+	for _, server := range app.servers {
+		go server.MustRun()
+	}
 }
 
 func (app *App) Stop(ctx context.Context) {
@@ -137,9 +126,9 @@ func (app *App) Stop(ctx context.Context) {
 		app.log.Info(msg)
 	}
 
-	app.grpcServer.Stop()
-
-	app.restServer.Stop(ctx)
+	for _, server := range app.servers {
+		server.Stop(ctx)
+	}
 
 	app.log.Info("app stopped")
 }
