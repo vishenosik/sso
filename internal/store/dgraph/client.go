@@ -6,14 +6,17 @@ import (
 
 	"github.com/dgraph-io/dgo/v210"
 	"github.com/dgraph-io/dgo/v210/protos/api"
+	"github.com/vishenosik/sso/internal/store/dgraph/components/users"
+	"github.com/vishenosik/sso/internal/store/models"
 	"github.com/vishenosik/sso/pkg/helpers/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/encoding/gzip"
 )
 
-type dgraphClient struct {
-	Client *dgo.Dgraph
+type Client struct {
+	client *dgo.Dgraph
+	users  *users.Users
 }
 
 type Config struct {
@@ -21,7 +24,20 @@ type Config struct {
 	GrpcServer  config.Server
 }
 
-func NewClient(
+func NewClientCtx(ctx context.Context, config Config) (*Client, error) {
+
+	client, err := connect(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		client: client,
+		users:  users.NewUsersStore(client),
+	}, nil
+}
+
+func connect(
 	ctx context.Context,
 	config Config,
 ) (*dgo.Dgraph, error) {
@@ -48,4 +64,16 @@ func NewClient(
 	}
 
 	return client, nil
+}
+
+func (cli *Client) SaveUser(ctx context.Context, id string, nickname string, email string, passHash []byte) error {
+	return cli.users.SaveUser(ctx, id, nickname, email, passHash)
+}
+
+func (cli *Client) UserByEmail(ctx context.Context, email string) (models.User, error) {
+	return cli.users.UserByEmail(ctx, email)
+}
+
+func (cli *Client) IsAdmin(ctx context.Context, userID string) (bool, error) {
+	return false, nil
 }

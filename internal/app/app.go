@@ -52,7 +52,7 @@ func NewApp() (*App, error) {
 	// Data schemas init
 	cachedStore := combined.NewCachedStore(store, cache)
 
-	_, err = loadDgraph(ctx)
+	dgraphStore, err := loadDgraph(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +63,8 @@ func NewApp() (*App, error) {
 		authenticationService.Config{
 			TokenTTL: conf.AuthenticationService.TokenTTL,
 		},
-		store,
-		store,
+		dgraphStore,
+		dgraphStore,
 		cachedStore,
 	)
 
