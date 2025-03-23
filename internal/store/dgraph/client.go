@@ -3,6 +3,10 @@ package dgraph
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/fs"
+	"log/slog"
+	"path"
 
 	"github.com/dgraph-io/dgo/v210"
 	"github.com/dgraph-io/dgo/v210/protos/api"
@@ -35,6 +39,32 @@ func NewClientCtx(ctx context.Context, config Config) (*Client, error) {
 		client: client,
 		users:  users.NewUsersStore(client),
 	}, nil
+}
+
+func (cli *Client) Migrate(log *slog.Logger, migrations fs.FS) error {
+
+	schemaFile, err := migrations.Open(path.Join("migrations", "dgraph", "schema.gql"))
+	if err != nil {
+		return err
+	}
+	defer schemaFile.Close()
+
+	schema, err := io.ReadAll(schemaFile)
+	if err != nil {
+		return err
+	}
+
+	log.Debug("Migrating schema", slog.String("schema", string(schema)))
+
+	op := &api.Operation{
+		Schema: string(schema),
+	}
+
+	if err := cli.client.Alter(context.Background(), op); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func connect(

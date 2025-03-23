@@ -24,7 +24,7 @@ func loadSqlStore(ctx context.Context) (*sqlstore.Store, error) {
 	// Stores migration
 	migrate.NewMigrator(
 		std.NewStdLogger(appContext.Logger),
-		embed.SQLiteMigrations,
+		embed.Migrations,
 	).MustMigrate(sqliteStore)
 
 	return store, nil
@@ -49,6 +49,11 @@ func loadDgraph(ctx context.Context) (*dgraph.Client, error) {
 		},
 	)
 
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Migrate(appContext.Logger, embed.Migrations)
 	if err != nil {
 		return nil, err
 	}
