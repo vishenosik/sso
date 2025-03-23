@@ -112,3 +112,14 @@ tasks:
       - $SWAG -o ./sso-sdk/swagger --ot json,yaml --instanceName sso_swagger
       # make env example
       - go run ./cmd/sso/main.go --config.doc=./docs/.env.example
+
+  # SECURITY
+  security:
+    desc: Run security checks
+    cmds:
+      - gosec ./...
+
+  generate_hmac_key:
+    desc: Generate hmac_secret_file used to configure dgraph secrets so far
+    aliases: [gen-hmac]
+    cmd: tr -dc 'a-zA-Z0-9' < /dev/urandom | dd bs=1 count=32 of=./deploy/compose/dgraph/acl/hmac_secret

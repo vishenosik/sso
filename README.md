@@ -17,6 +17,7 @@ Create `.env` file in root dir of the project or assign in your OS env. Lookup [
 
 ```bash
 go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
+go install github.com/securego/gosec/v2/cmd/gosec@latest
 ```
 
 * Swagger:

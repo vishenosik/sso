@@ -50,4 +50,6 @@ go.work.sum
 *.log
 log/
 
+deploy/compose/dgraph/acl/**
+
 !**/.gitkeep
