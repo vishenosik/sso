@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 
-	"github.com/dgraph-io/dgo/v210"
 	embed "github.com/vishenosik/sso"
 	appctx "github.com/vishenosik/sso/internal/app/context"
 	"github.com/vishenosik/sso/internal/store/dgraph"
@@ -25,18 +24,18 @@ func loadSqlStore(ctx context.Context) (*sqlstore.Store, error) {
 	// Stores migration
 	migrate.NewMigrator(
 		std.NewStdLogger(appContext.Logger),
-		embed.SQLiteMigrations,
+		embed.Migrations,
 	).MustMigrate(sqliteStore)
 
 	return store, nil
 }
 
-func loadDgraph(ctx context.Context) (*dgo.Dgraph, error) {
+func loadDgraph(ctx context.Context) (*dgraph.Client, error) {
 
 	appContext := appctx.AppCtx(ctx)
 	conf := appContext.Config.Dgraph
 
-	client, err := dgraph.NewClient(
+	client, err := dgraph.NewClientCtx(
 		ctx,
 		dgraph.Config{
 			Credentials: config.Credentials{
@@ -51,7 +50,12 @@ func loadDgraph(ctx context.Context) (*dgo.Dgraph, error) {
 	)
 
 	if err != nil {
-		// return nil, err
+		return nil, err
+	}
+
+	err = client.Migrate(appContext.Logger, embed.Migrations)
+	if err != nil {
+		return nil, err
 	}
 
 	return client, nil
