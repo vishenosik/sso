@@ -33,7 +33,7 @@ services:
       - REDIS_USER=${REDIS_USER}
       - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
     volumes:
-      - ../../data/redis:/data
+      - ./data/redis:/data
     deploy:
       resources:
         limits:
@@ -61,37 +61,40 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
-
     networks:
       - redis
 
   zero:
-    container_name: zero
+    container_name: zero1
     image: dgraph/dgraph:latest
     volumes:
-      - ../../data/dgraph:/dgraph
+      - ./data/dgraph:/dgraph
     ports:
       - 5080:5080
       - 6080:6080
     restart: on-failure
-    command: dgraph zero --my=zero:5080
+    command: dgraph zero --my=zero1:5080
     networks:
       - dgraph
 
   alpha:
     container_name: alpha
     image: dgraph/dgraph:latest
+    environment:
+      DGRAPH_ALPHA_ACL: secret-file=/acl/hmac_secret
+      DGRAPH_ALPHA_SECURITY: whitelist=localhost,10.0.0.0/8,172.0.0.0/8,192.168.0.0/16
     volumes:
-      - ../../data/dgraph:/dgraph
+      - ./data/dgraph:/dgraph
+      - ./dgraph/acl:/acl
     ports:
       - 8080:8080
       - ${DGRAPH_GRPC_PORT}:${DGRAPH_GRPC_PORT}
     restart: on-failure
-    command: dgraph alpha --my=alpha:7080 --zero=zero:5080 --security whitelist=localhost
+    command: dgraph alpha --my=alpha:7080 --zero=zero:5080
     networks:
       - dgraph
+
   ratel:
-  # A simple web interface for exploring Dgraph data.
     container_name: ratel
     image: dgraph/ratel:latest
     ports:
