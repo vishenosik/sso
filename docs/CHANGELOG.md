@@ -89,6 +89,9 @@ All notable changes to this project will be documented in this file.
 - *(server context)* Add server context. Setup clean main func.
 - *(namings)* Rearrange mod naming.
 - *(request context)* Add request context value to gRPC api.
+- *(deploy)* Add hmac secret generation to taskfile. Rebind compose volumes accordingly. Update Readme.
+- *(dgraph)* Apply dgraph user store implementation.
+- *(dgraph)* Add schema migration to dgraph.
 
 ### 🐛 Bug Fixes
 
@@ -171,6 +174,7 @@ All notable changes to this project will be documented in this file.
 ### 🧪 Testing
 
 - *(test settings)* Improve testing by correcting testing script.
+- *(sql)* Add test app migration.
 
 ### ⚙️ Miscellaneous Tasks
 
