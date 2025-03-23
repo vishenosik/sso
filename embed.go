@@ -4,7 +4,7 @@ import "embed"
 
 var (
 	//go:embed migrations
-	SQLiteMigrations embed.FS
+	Migrations embed.FS
 
 	//go:embed static
 	StaticFiles embed.FS
