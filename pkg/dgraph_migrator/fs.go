@@ -1,11 +1,13 @@
 package migrate
 
 import (
+	"io"
 	"io/fs"
 	"iter"
 	"path"
 
 	"github.com/pkg/errors"
+	"github.com/vishenosik/sso/pkg/collections"
 )
 
 func collectFilenames(fsys fs.FS, dirpath string) (iter.Seq[string], error) {
@@ -22,15 +24,20 @@ func collectFilenames(fsys fs.FS, dirpath string) (iter.Seq[string], error) {
 		return nil, errors.Wrap(err, "migrations not found")
 	}
 
-	_iter := func() iter.Seq[string] {
-		return func(yield func(string) bool) {
-			for _, filename := range filenames {
-				if !yield(filename) {
-					return
-				}
-			}
-		}
+	return collections.Iter(filenames), nil
+}
+
+func readUpMigration(fsys fs.FS, filepath string) ([]byte, error) {
+	schemaFile, err := fsys.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+	defer schemaFile.Close()
+
+	schema, err := io.ReadAll(schemaFile)
+	if err != nil {
+		return nil, err
 	}
 
-	return _iter(), nil
+	return schema, nil
 }
