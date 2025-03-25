@@ -66,7 +66,7 @@ type Vault struct {
 }
 
 type service struct {
-	vault Vault
+	Vault Vault
 }
 
 func init() {
