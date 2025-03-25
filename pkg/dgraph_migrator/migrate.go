@@ -3,8 +3,6 @@ package migrate
 import (
 	"context"
 	"io/fs"
-	"iter"
-	"path"
 
 	"github.com/pkg/errors"
 
@@ -15,23 +13,43 @@ const (
 	gqlExt = ".gql"
 )
 
+var (
+	ErrVersionFetch = errors.New("no version fetched")
+)
+
 type dgraphMigrator struct {
-	dg   *dgo.Dgraph
-	fsys fs.FS
+	dg             *dgo.Dgraph
+	fsys           fs.FS
+	currentVersion int64
 }
 
-func NewDgraphMigrator(
-	dg *dgo.Dgraph,
+func NewDgraphMigrator(client *dgo.Dgraph, fsys fs.FS) (*dgraphMigrator, error) {
+	return NewDgraphMigratorContext(context.Background(), client, fsys)
+}
+
+func NewDgraphMigratorContext(
+	ctx context.Context,
+	client *dgo.Dgraph,
 	fsys fs.FS,
 ) (*dgraphMigrator, error) {
 
-	if dg == nil {
+	if client == nil {
 		return nil, errors.New("dgraph client not initialized")
 	}
 
+	if err := applySchema(client, ctx); err != nil {
+		return nil, err
+	}
+
+	version, err := fetchVersion(client, ctx)
+	if err != nil && !errors.Is(err, ErrVersionFetch) {
+		return nil, err
+	}
+
 	return &dgraphMigrator{
-		dg:   dg,
-		fsys: fsys,
+		dg:             client,
+		fsys:           fsys,
+		currentVersion: version.CurrentVersion,
 	}, nil
 }
 
@@ -51,76 +69,4 @@ func (dmr *dgraphMigrator) UpContext(ctx context.Context, path string) error {
 	defer txn.Discard(ctx)
 
 	return nil
-}
-
-func (dmr *dgraphMigrator) FetchVersion(ctx context.Context) error {
-
-	txn := dmr.dg.NewTxn()
-	defer txn.Discard(ctx)
-
-	return nil
-}
-
-func (dmr *dgraphMigrator) UpsertVersion(ctx context.Context) error {
-
-	txn := dmr.dg.NewTxn()
-	defer txn.Discard(ctx)
-
-	return nil
-}
-
-func (dmr *dgraphMigrator) AddVersionSchema(ctx context.Context) error {
-
-	txn := dmr.dg.NewTxn()
-	defer txn.Discard(ctx)
-
-	_ = `
-		index_name: string @index(exact) .
-		version_timestamp: datetime .
-		current_version: int .
-		type SchemaVersion {
-			index_name: string
-			version_timestamp: datetime
-			current_version: int
-		}`
-	return nil
-}
-
-func collectMigrations(fsys fs.FS, dirpath string) (iter.Seq[migration], error) {
-
-	if _, err := fs.Stat(fsys, dirpath); err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil, errors.Wrap(err, "migrations directory not found")
-		}
-
-		return nil, errors.Wrap(err, "migrations directory unexpected "+dirpath)
-	}
-
-	filenames, err := fs.Glob(fsys, path.Join(dirpath, "*"+gqlExt))
-	if err != nil {
-		return nil, errors.Wrap(err, "migrations not found")
-	}
-
-	_iter := func() iter.Seq[migration] {
-		return func(yield func(migration) bool) {
-			for _, filename := range filenames {
-				version, ok := parseVersion(filename)
-				if !ok {
-					continue
-				}
-
-				_migration := migration{
-					version:  version,
-					filename: filename,
-				}
-
-				if !yield(_migration) {
-					return
-				}
-
-			}
-
-		}
-	}
-	return _iter(), nil
 }

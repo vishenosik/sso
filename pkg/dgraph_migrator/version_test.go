@@ -1,10 +1,28 @@
 package migrate
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/vishenosik/sso/pkg/collections"
 )
+
+func Test_collectMigrations(t *testing.T) {
+
+	suite := NewSuite()
+
+	expected := migrations{
+		{version: 1, filename: suite.validFilenames[0]},
+		{version: 2, filename: suite.validFilenames[1]},
+		{version: 3, filename: suite.validFilenames[2]},
+	}
+
+	filenamesIter := collections.Iter(suite.validFilenames)
+	actual := slices.Collect(collectMigrations(filenamesIter))
+	assert.Equal(t, expected, actual)
+
+}
 
 func Test_sortVersions(t *testing.T) {
 	t.Parallel()
