@@ -58,7 +58,7 @@ func fetchVersion(client *dgo.Dgraph, ctx context.Context) (Version, error) {
 
 func (dmr *dgraphMigrator) upsertVersion(ctx context.Context) error {
 
-	txn := dmr.dg.NewTxn()
+	txn := dmr.client.NewTxn()
 	defer txn.Discard(ctx)
 
 	/*
