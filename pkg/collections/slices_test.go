@@ -15,7 +15,7 @@ func TestFilter(t *testing.T) {
 
 	numbers := intSlice(100_000_000)
 
-	filtered := filter(Iter(numbers), func(i int) bool {
+	filtered := Filter(Iter(numbers), func(i int) bool {
 		return i%2 == 0
 	})
 
@@ -29,7 +29,7 @@ func TestFilter1(t *testing.T) {
 
 	numbers := intSlice(100_000_000)
 
-	filtered, cnt := Filter(Iter(numbers), func(i int) bool {
+	filtered, cnt := FilterCount(Iter(numbers), func(i int) bool {
 		return i%2 == 0
 	})
 

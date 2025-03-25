@@ -14,21 +14,22 @@ func Iter[S ~[]T, T any](slice S) iter.Seq[T] {
 	}
 }
 
-func Filter[T any](seq iter.Seq[T], by func(T) bool) (it iter.Seq[T], cnt int) {
-	it = filter(seq, by)
+func FilterCount[T any](seq iter.Seq[T], by func(T) bool) (it iter.Seq[T], cnt int) {
+	it = Filter(seq, by)
 	for range it {
 		cnt++
 	}
 	return it, cnt
 }
 
-func filter[T any](seq iter.Seq[T], by func(T) bool) iter.Seq[T] {
+func Filter[T any](seq iter.Seq[T], by func(T) bool) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for i := range seq {
-			if by(i) {
-				if !yield(i) {
-					return
-				}
+			if !by(i) {
+				return
+			}
+			if !yield(i) {
+				return
 			}
 		}
 	}
