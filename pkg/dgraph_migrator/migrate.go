@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/dgraph-io/dgo/v210"
+	"github.com/dgraph-io/dgo/v210/protos/api"
 )
 
 const (
@@ -18,7 +19,7 @@ var (
 )
 
 type dgraphMigrator struct {
-	dg             *dgo.Dgraph
+	client         *dgo.Dgraph
 	fsys           fs.FS
 	currentVersion int64
 }
@@ -47,7 +48,7 @@ func NewDgraphMigratorContext(
 	}
 
 	return &dgraphMigrator{
-		dg:             client,
+		client:         client,
 		fsys:           fsys,
 		currentVersion: version.CurrentVersion,
 	}, nil
@@ -65,8 +66,32 @@ func (dmr *dgraphMigrator) Up(path string) error {
 // 6. If failure - Rollback
 func (dmr *dgraphMigrator) UpContext(ctx context.Context, path string) error {
 
-	txn := dmr.dg.NewTxn()
-	defer txn.Discard(ctx)
+	filenamesIter, err := collectFilenames(dmr.fsys, path)
+	if err != nil {
+		return err
+	}
+
+	migrations := migrationsToApply(filenamesIter, dmr.currentVersion)
+
+	for migration := range migrations {
+
+		schemaUp, err := readUpMigration(dmr.fsys, migration.filename)
+		if err != nil {
+			return err
+		}
+
+		op := &api.Operation{
+			Schema: string(schemaUp),
+		}
+
+		if err := dmr.client.Alter(ctx, op); err != nil {
+			return err
+		}
+
+		if err := dmr.upsertVersion(ctx); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

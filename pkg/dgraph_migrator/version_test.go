@@ -8,7 +8,7 @@ import (
 	"github.com/vishenosik/sso/pkg/collections"
 )
 
-func Test_collectMigrations(t *testing.T) {
+func Test_collectMigrationsAll(t *testing.T) {
 
 	suite := NewSuite()
 
@@ -19,25 +19,9 @@ func Test_collectMigrations(t *testing.T) {
 	}
 
 	filenamesIter := collections.Iter(suite.validFilenames)
-	actual := slices.Collect(collectMigrations(filenamesIter))
+	actual := slices.Collect(collectMigrationsAll(filenamesIter))
 	assert.Equal(t, expected, actual)
 
-}
-
-func Test_sortVersions(t *testing.T) {
-	t.Parallel()
-
-	mgs := migrations{
-		{version: 1, filename: "0001_create_initial_schema.gql"},
-		{version: 3, filename: "0003_add_post_table.gql"},
-		{version: 2, filename: "0002_add_user_table.gql"},
-	}
-
-	sortVersions(mgs)
-
-	assert.Equal(t, int64(1), mgs[0].version)
-	assert.Equal(t, int64(2), mgs[1].version)
-	assert.Equal(t, int64(3), mgs[2].version)
 }
 
 func Test_parseVersion(t *testing.T) {
