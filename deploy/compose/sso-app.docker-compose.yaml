@@ -4,7 +4,6 @@ name: sso
 
 networks:
   redis:
-  sso:
   dgraph:
 
 services:
@@ -21,8 +20,9 @@ services:
       - ../../storage/:/app/storage/
     depends_on:
       - redis
+      - alpha
     networks:
-      - sso
+      - dgraph
       - redis
 
   redis:
