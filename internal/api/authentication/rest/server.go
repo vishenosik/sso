@@ -89,8 +89,8 @@ func (srv server) InitRouters(router *chi.Mux) {
 
 	apiRouter.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(time.Millisecond * 10)
-		http.Error(w, "ping failed", http.StatusNotAcceptable)
-		// w.Write([]byte("PONG"))
+		// http.Error(w, "ping failed", http.StatusNotAcceptable)
+		w.Write([]byte("PONG"))
 	})
 
 	// Mounting the new Sub Router on the main router

@@ -1,4 +1,3 @@
-//go:generate go run github.com/vektra/mockery/v2v2.45.0:-all:-case=camel
 package authentication
 
 import (
