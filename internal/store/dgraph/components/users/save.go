@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/dgraph-io/dgo/v210/protos/api"
+	"github.com/dgraph-io/dgo/v240/protos/api"
 	"github.com/pkg/errors"
 	dmodels "github.com/vishenosik/sso/internal/store/dgraph/models"
 	"github.com/vishenosik/sso/internal/store/models"

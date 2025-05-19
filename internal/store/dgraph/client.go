@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"path"
 
-	"github.com/dgraph-io/dgo/v210"
-	"github.com/dgraph-io/dgo/v210/protos/api"
+	"github.com/dgraph-io/dgo/v240"
+	"github.com/dgraph-io/dgo/v240/protos/api"
 	"github.com/vishenosik/sso/internal/store/dgraph/components/users"
 	"github.com/vishenosik/sso/internal/store/models"
 	"github.com/vishenosik/sso/pkg/helpers/config"

@@ -1,7 +1,7 @@
 package users
 
 import (
-	"github.com/dgraph-io/dgo/v210"
+	"github.com/dgraph-io/dgo/v240"
 )
 
 type Users struct {
