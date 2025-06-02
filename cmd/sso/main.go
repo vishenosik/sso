@@ -8,8 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/vishenosik/gocherry"
 	"github.com/vishenosik/sso/internal/app"
-	appctx "github.com/vishenosik/sso/internal/app/context"
+	"github.com/vishenosik/sso/internal/services"
+
+	_ctx "github.com/vishenosik/web/context"
 )
 
 // @title           sso
@@ -32,24 +35,30 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+
+	gocherry.ConfigFlags(
+		services.AuthenticationConfigEnv{},
+	)
+
 	flag.Parse()
-	runServer()
-}
-
-func runServer() {
-
 	ctx := context.Background()
 
-	// Инициализация приложения
-	application := app.MustInitApp()
+	// App init
+	application, err := app.NewApp()
+	if err != nil {
+		panic(err)
+	}
 
-	application.MustRun()
+	application.Start(ctx)
 
 	// Graceful shut down
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	stopctx, cancel := context.WithTimeout(appctx.WithSignalCtx(ctx, <-stop), time.Second*5)
+	stopctx, cancel := context.WithTimeout(
+		_ctx.WithStopCtx(ctx, <-stop),
+		time.Second*5,
+	)
 	defer cancel()
 
 	application.Stop(stopctx)

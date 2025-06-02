@@ -1,129 +1,152 @@
 package app
 
 import (
+	// std
 	"context"
-	"fmt"
-	"log/slog"
+	"net/http"
+	"path"
 
-	grpcApp "github.com/vishenosik/sso/internal/app/grpc"
-	restApp "github.com/vishenosik/sso/internal/app/rest"
-	authenticationService "github.com/vishenosik/sso/internal/services/authentication"
-	"github.com/vishenosik/sso/internal/store/combined"
+	// pkg
+	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	appctx "github.com/vishenosik/sso/internal/app/context"
-	"github.com/vishenosik/sso/pkg/helpers/config"
+	// internal pkg
+	"github.com/vishenosik/gocherry"
+	"github.com/vishenosik/gocherry/pkg/cache"
+	_http "github.com/vishenosik/gocherry/pkg/http"
+	"github.com/vishenosik/gocherry/pkg/sql"
+	"github.com/vishenosik/sso/internal/api"
+	"github.com/vishenosik/sso/internal/services"
+	"github.com/vishenosik/sso/internal/store/sql/sqlite"
+
+	// internal
+	embed "github.com/vishenosik/sso"
 )
 
-type App struct {
-	log     *slog.Logger
-	servers []Server
-}
-
 type Server interface {
-	MustRun()
-	Stop(ctx context.Context)
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
 }
 
-func MustInitApp() *App {
-	app, err := NewApp()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create app %s", err))
-	}
-	return app
+type App struct {
+	Server
 }
 
 func NewApp() (*App, error) {
 
-	ctx := appctx.SetupAppCtx()
-	appContext := appctx.AppCtx(ctx)
-
-	log := appContext.Logger
-	conf := appContext.Config
-
 	// Cache init
-	cache := loadCache(ctx)
+
+	cacheStore, err := cache.NewRedisCache()
+	if err != nil {
+		cacheStore = cache.NewNoopCache()
+	}
 
 	// Stores init
-	store, err := loadSqlStore(ctx)
+
+	sqlStore, err := sql.NewSqliteStore(
+		sql.WithMigration(
+			embed.Migrations,
+			path.Join(embed.MigrationsPath, "sqlite"),
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	// Data schemas init
-	cachedStore := combined.NewCachedStore(store, cache)
-
-	dgraphStore, err := loadDgraph(ctx)
+	db, err := sqlStore.Open(context.TODO())
 	if err != nil {
 		return nil, err
 	}
+
+	usersStore := sqlite.NewUsersStore(db)
+
+	appsStore := sqlite.NewAppsStore(db)
+
+	// Usecases init
+	authService, err := services.NewAuthenticationService(usersStore, usersStore, appsStore)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apis init
 
 	// Services init
-	authenticationService := authenticationService.NewService(
-		log,
-		authenticationService.Config{
-			TokenTTL: conf.AuthenticationService.TokenTTL,
-		},
-		dgraphStore,
-		dgraphStore,
-		cachedStore,
-	)
+	handler, err := _http.NewHttpServer(newHandler(
+		api.NewAuthenticationHttpApi(authService),
+	))
+	if err != nil {
+		return nil, err
+	}
 
-	grpcServer := grpcApp.NewGrpcApp(
-		log,
-		grpcApp.Config{
-			Server: config.Server{
-				Port: conf.GrpcConfig.Port,
-			},
-		},
-		authenticationService,
-	)
+	app, err := gocherry.NewApp()
+	if err != nil {
+		return nil, err
+	}
 
-	restServer := restApp.NewRestApp(
-		ctx,
-		restApp.Config{
-			Server: config.Server{
-				Port: conf.RestConfig.Port,
-			},
-		},
-		authenticationService,
-	)
+	app.AddServices(handler, cacheStore, sqlStore)
 
-	return newApp(log, grpcServer, restServer), nil
-}
+	// // Data schemas init
+	// cachedStore := combined.NewCachedStore(store, cache)
 
-func newApp(
-	logger *slog.Logger,
-	apps ...Server,
-) *App {
+	// dgraphStore, err := loadDgraph(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// // Services init
+	// authenticationService := authenticationService.NewService(
+	// 	log,
+	// 	authenticationService.Config{
+	// 		TokenTTL: conf.AuthenticationService.TokenTTL,
+	// 	},
+	// 	dgraphStore,
+	// 	dgraphStore,
+	// 	cachedStore,
+	// )
+
+	// grpcServer := grpcApp.NewGrpcApp(
+	// 	log,
+	// 	grpcApp.Config{
+	// 		Server: config.Server{
+	// 			Port: conf.GrpcConfig.Port,
+	// 		},
+	// 	},
+	// 	authenticationService,
+	// )
+
+	// restServer := restApp.NewRestApp(
+	// 	ctx,
+	// 	restApp.Config{
+	// 		Server: config.Server{
+	// 			Port: conf.RestConfig.Port,
+	// 		},
+	// 	},
+	// 	authenticationService,
+	// )
+
 	return &App{
-		log:     logger,
-		servers: apps,
-	}
+		Server: app,
+	}, nil
 }
 
-func (app *App) MustRun() {
-
-	app.log.Info("start app")
-
-	for _, server := range app.servers {
-		go server.MustRun()
-	}
+type Service interface {
+	Routers(r chi.Router)
 }
 
-func (app *App) Stop(ctx context.Context) {
+func newHandler(services ...Service) http.Handler {
 
-	const msg = "app stopping"
+	router := chi.NewRouter()
+	router.Use(
+		_http.SetHeaders(),
+		_http.RequestLogger(),
+	)
 
-	signal, ok := appctx.SignalCtx(ctx)
-	if !ok {
-		app.log.Info(msg, slog.String("signal", signal.Signal.String()))
-	} else {
-		app.log.Info(msg)
-	}
+	router.Get("/swagger/*", httpSwagger.Handler())
 
-	for _, server := range app.servers {
-		server.Stop(ctx)
-	}
-
-	app.log.Info("app stopped")
+	router.Route("/api", func(r chi.Router) {
+		for i := range services {
+			services[i].Routers(r)
+		}
+	})
+	return router
 }

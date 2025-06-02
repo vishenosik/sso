@@ -17,7 +17,6 @@ import (
 )
 
 var (
-	conf *Config
 	//
 	ErrServerPortMustBeUnique = errors.New("port numbers must be unique")
 )

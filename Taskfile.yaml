@@ -71,7 +71,7 @@ tasks:
 
   mock:
     desc: Generates all mocks
-    cmd: go generate $INTERNAL_WILDCARD
+    cmd: mockery --config=./tools/testing/.mockery.yml
 
   # TOOLS
 
