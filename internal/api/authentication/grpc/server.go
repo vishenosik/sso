@@ -7,9 +7,9 @@ import (
 	"time"
 
 	// internal
+	reqctx "github.com/vishenosik/gocherry/pkg/context"
 	"github.com/vishenosik/sso/internal/entities"
 	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
-	reqctx "github.com/vishenosik/sso/pkg/context"
 	"google.golang.org/grpc"
 )
 

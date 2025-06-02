@@ -2,7 +2,7 @@ package entities
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vishenosik/sso/pkg/helpers/errorHelper"
+	errs "github.com/vishenosik/gocherry/pkg/errors"
 	"google.golang.org/grpc/codes"
 )
 
@@ -69,10 +69,10 @@ var (
 	ErrAlreadyExists = errors.New("exists already")
 )
 
-var ServiceErrorsToGrpcCodes *errorHelper.ErrorsMap[codes.Code]
+var ServiceErrorsToGrpcCodes *errs.ErrorsMap[codes.Code]
 
 func init() {
-	ServiceErrorsToGrpcCodes = errorHelper.NewErrorsMap(
+	ServiceErrorsToGrpcCodes = errs.NewErrorsMap(
 		map[error]codes.Code{
 			ErrInvalidRequest:     codes.InvalidArgument,
 			ErrAppNotFound:        codes.NotFound,

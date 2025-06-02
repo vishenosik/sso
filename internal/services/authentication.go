@@ -19,10 +19,10 @@ import (
 	"github.com/vishenosik/gocherry/pkg/validator"
 
 	// internal
+	"github.com/vishenosik/gocherry/pkg/operation"
 	"github.com/vishenosik/sso/internal/entities"
 	"github.com/vishenosik/sso/internal/lib/jwt"
 	store_models "github.com/vishenosik/sso/internal/store/models"
-	"github.com/vishenosik/sso/pkg/helpers/operation"
 )
 
 type UserSaver interface {

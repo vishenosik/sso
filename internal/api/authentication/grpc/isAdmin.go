@@ -7,9 +7,9 @@ import (
 	// pkg
 
 	// internal
+	"github.com/vishenosik/gocherry/pkg/operation"
 	"github.com/vishenosik/sso/internal/entities"
 	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
-	"github.com/vishenosik/sso/pkg/helpers/operation"
 )
 
 // compileIsAdmin compiles the isAdmin function, which checks if a user is an admin.
