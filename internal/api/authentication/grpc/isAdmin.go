@@ -3,15 +3,13 @@ package authentication
 import (
 	// std
 	"context"
-	"log/slog"
 
 	// pkg
 
 	// internal
+	"github.com/vishenosik/sso/internal/entities"
 	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
-	"github.com/vishenosik/sso/internal/services/authentication/models"
 	"github.com/vishenosik/sso/pkg/helpers/operation"
-	"github.com/vishenosik/sso/pkg/logger/attrs"
 )
 
 // compileIsAdmin compiles the isAdmin function, which checks if a user is an admin.
@@ -26,7 +24,6 @@ import (
 //
 //	isAdminFunc: A function that takes a context and an IsAdminRequest as parameters and returns an IsAdminResponse and an error.
 func compileIsAdmin(
-	logger *slog.Logger,
 	srv *server,
 ) isAdminFunc {
 
@@ -35,15 +32,15 @@ func compileIsAdmin(
 
 	return func(ctx context.Context, request *authentication_v1.IsAdminRequest) (*authentication_v1.IsAdminResponse, error) {
 
-		log := logger.With(
-			attrs.Operation(authentication_v1.Authentication_IsAdmin_FullMethodName),
-			attrs.UserID(request.GetUserId()),
-		)
+		// log := logger.With(
+		// 	attrs.Operation(authentication_v1.Authentication_IsAdmin_FullMethodName),
+		// 	attrs.UserID(request.GetUserId()),
+		// )
 
 		isAdmin, err := srv.auth.IsAdmin(ctx, request.GetUserId())
 		if err != nil {
-			log.Error(message, attrs.Error(err))
-			return fail(models.ServiceErrorsToGrpcCodes.Get(err))
+			// log.Error(message, attrs.Error(err))
+			return fail(entities.ServiceErrorsToGrpcCodes.Get(err))
 		}
 
 		return &authentication_v1.IsAdminResponse{

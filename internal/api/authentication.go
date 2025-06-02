@@ -43,14 +43,10 @@ type AuthenticationHttpApi struct {
 	auth Authentication
 }
 
-func NewAuthenticationHttpApi(
-	auth Authentication,
-) *AuthenticationHttpApi {
-
+func NewAuthenticationHttpApi(auth Authentication) *AuthenticationHttpApi {
 	return &AuthenticationHttpApi{
 		auth: auth,
 	}
-
 }
 
 // ping godoc
@@ -61,10 +57,10 @@ func NewAuthenticationHttpApi(
 //	@Produce 	html
 //	@Success 	200 {string}  string    "ok"
 //	@Failure 	406 {string}  string    "not ok"
-func (auth *AuthenticationHttpApi) Routers(r chi.Router) {
+func (a *AuthenticationHttpApi) Routers(r chi.Router) {
 
 	r.Group(func(r chi.Router) {
-		r.Route(auth.registerUser())
+		r.Route(a.registerUser())
 		r.Route(routeUsers("get"), func(r chi.Router) {
 			r.Get(_http.BlankRoute, func(w http.ResponseWriter, r *http.Request) {
 
@@ -85,7 +81,7 @@ func (auth *AuthenticationHttpApi) Routers(r chi.Router) {
 	})
 }
 
-func (auth *AuthenticationHttpApi) registerUser() (string, func(chi.Router)) {
+func (a *AuthenticationHttpApi) registerUser() (string, func(chi.Router)) {
 
 	versionMiddleware, versionHandler := _http.DotVersionMiddlewareHandler("1.0")
 
@@ -94,12 +90,12 @@ func (auth *AuthenticationHttpApi) registerUser() (string, func(chi.Router)) {
 			versionMiddleware,
 		)
 		r.Post(_http.BlankRoute, versionHandler(_http.HandlersMap{
-			"1.0": auth.registerUser_1_0(),
+			"1.0": a.registerUser_1_0(),
 		}))
 	}
 }
 
-func (auth *AuthenticationHttpApi) registerUser_1_0() http.HandlerFunc {
+func (a *AuthenticationHttpApi) registerUser_1_0() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 	}

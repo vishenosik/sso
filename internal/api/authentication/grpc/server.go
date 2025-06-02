@@ -3,32 +3,34 @@ package authentication
 import (
 	// std
 	"context"
-	"log/slog"
 	"strconv"
 	"time"
 
 	// internal
+	"github.com/vishenosik/sso/internal/entities"
 	authentication_v1 "github.com/vishenosik/sso/internal/gen/grpc/v1/authentication"
-	"github.com/vishenosik/sso/internal/services/authentication/models"
 	reqctx "github.com/vishenosik/sso/pkg/context"
+	"google.golang.org/grpc"
 )
 
 type Authentication interface {
-	Login(
+	//
+	LoginByEmail(
 		ctx context.Context,
-		request models.LoginRequest,
+		email,
+		password,
 		appID string,
-	) (token string, err error)
-
-	RegisterNewUser(
+	) (string, error)
+	//
+	RegisterUser(
 		ctx context.Context,
-		request models.RegisterRequest,
-	) (userID string, err error)
-
+		user *entities.UserCreds,
+	) (string, error)
+	//
 	IsAdmin(
 		ctx context.Context,
 		userID string,
-	) (isAdmin bool, err error)
+	) (bool, error)
 }
 
 type isAdminFunc = func(
@@ -70,7 +72,6 @@ type server = authenticationAPI
 //
 //	srv: A new instance of the AuthenticationServer that can be used to handle authentication requests.
 func NewAuthenticationServer(
-	log *slog.Logger,
 	auth Authentication,
 ) *authenticationAPI {
 
@@ -78,11 +79,20 @@ func NewAuthenticationServer(
 		auth: auth,
 	}
 
-	isAdmin = compileIsAdmin(log, srv)
-	login = compileLoginFunc(log, srv)
-	registerNewUser = compileRegisterNewUserFunc(log, srv)
+	isAdmin = compileIsAdmin(srv)
+	login = compileLoginFunc(srv)
+	registerNewUser = compileRegisterNewUserFunc(srv)
 
 	return srv
+}
+
+func (srv *server) RegisterService(server *grpc.Server) {
+
+	authentication_v1.RegisterAuthenticationServer(
+		server,
+		srv,
+	)
+
 }
 
 // IsAdmin Checks if the user with the given ID is an admin.

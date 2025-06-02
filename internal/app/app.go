@@ -9,6 +9,7 @@ import (
 	// pkg
 	"github.com/go-chi/chi/v5"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
+	"github.com/vishenosik/gocherry/pkg/grpc"
 
 	// internal pkg
 	"github.com/vishenosik/gocherry"
@@ -16,6 +17,7 @@ import (
 	_http "github.com/vishenosik/gocherry/pkg/http"
 	"github.com/vishenosik/gocherry/pkg/sql"
 	"github.com/vishenosik/sso/internal/api"
+	authentication "github.com/vishenosik/sso/internal/api/authentication/grpc"
 	"github.com/vishenosik/sso/internal/services"
 	"github.com/vishenosik/sso/internal/store/sql/sqlite"
 
@@ -78,12 +80,21 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
+	grpcServer := authentication.NewAuthenticationServer(authService)
+
+	rpc, err := grpc.NewGrpcServer([]grpc.GrpcService{
+		grpcServer,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	app, err := gocherry.NewApp()
 	if err != nil {
 		return nil, err
 	}
 
-	app.AddServices(handler, cacheStore, sqlStore)
+	app.AddServices(handler, cacheStore, sqlStore, rpc)
 
 	// // Data schemas init
 	// cachedStore := combined.NewCachedStore(store, cache)
