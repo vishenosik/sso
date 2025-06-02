@@ -12,7 +12,7 @@ import (
 	"github.com/vishenosik/sso/internal/app"
 	"github.com/vishenosik/sso/internal/services"
 
-	_ctx "github.com/vishenosik/web/context"
+	_ctx "github.com/vishenosik/gocherry/pkg/context"
 )
 
 // @title           sso

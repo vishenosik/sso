@@ -18,7 +18,6 @@ require (
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.4
 	github.com/vishenosik/gocherry v0.0.2
-	github.com/vishenosik/web v0.0.2
 	golang.org/x/crypto v0.38.0
 	google.golang.org/grpc v1.72.1
 	google.golang.org/protobuf v1.36.6
@@ -57,6 +56,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/vishenosik/concurrency v0.0.2 // indirect
+	github.com/vishenosik/web v0.0.2 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
