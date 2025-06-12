@@ -10,8 +10,8 @@ import (
 	// pkg
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/vishenosik/gocherry/pkg/config"
+	"github.com/vishenosik/gocherry/pkg/errors"
 	"github.com/vishenosik/gocherry/pkg/logs"
 	"golang.org/x/crypto/bcrypt"
 
@@ -107,6 +107,8 @@ func NewAuthenticationService(
 		config:       config,
 	}
 
+	auth.log = log
+
 	for _, opt := range opts {
 		opt(auth)
 	}
@@ -154,7 +156,7 @@ func (auth *AuthenticationService) RegisterUser(
 ) (string, error) {
 
 	method := authenticationOP("RegisterNewUser")
-	fail := operation.FailWrapError("", method)
+	fail := errors.FailWrapError("", method)
 
 	log := auth.log.With(
 		logs.Operation(method),
@@ -216,7 +218,7 @@ func (auth *AuthenticationService) IsAdmin(
 ) (bool, error) {
 
 	method := authenticationOP("IsAdmin")
-	fail := operation.FailWrapError(false, method)
+	fail := errors.FailWrapError(false, method)
 
 	log := auth.log.With(
 		logs.Operation(method),
@@ -274,7 +276,7 @@ func (auth *AuthenticationService) LoginByEmail(
 ) (string, error) {
 
 	method := authenticationOP("LoginByEmail")
-	fail := operation.FailWrapError("", method)
+	fail := errors.FailWrapError("", method)
 
 	log := auth.log.With(
 		logs.Operation(method),

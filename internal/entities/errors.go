@@ -73,6 +73,7 @@ var ServiceErrorsToGrpcCodes *errs.ErrorsMap[codes.Code]
 
 func init() {
 	ServiceErrorsToGrpcCodes = errs.NewErrorsMap(
+		codes.Internal,
 		map[error]codes.Code{
 			ErrInvalidRequest:     codes.InvalidArgument,
 			ErrAppNotFound:        codes.NotFound,
@@ -86,6 +87,5 @@ func init() {
 			ErrGenerateHash:       codes.Internal,
 			ErrPasswordTooLong:    codes.InvalidArgument,
 		},
-		codes.Internal,
 	)
 }

@@ -16,8 +16,8 @@ import (
 	"github.com/vishenosik/gocherry/pkg/cache"
 	_http "github.com/vishenosik/gocherry/pkg/http"
 	"github.com/vishenosik/gocherry/pkg/sql"
-	"github.com/vishenosik/sso/internal/api"
-	authentication "github.com/vishenosik/sso/internal/api/authentication/grpc"
+	"github.com/vishenosik/sso-sdk/api"
+	"github.com/vishenosik/sso/internal/dto"
 	"github.com/vishenosik/sso/internal/services"
 	"github.com/vishenosik/sso/internal/store/sql/sqlite"
 
@@ -70,20 +70,25 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
+	authDTO := dto.NewAuthenticationDTO(authService)
+
+	sys := services.NewSystem(100, false, 322)
+	systemDTO := dto.NewSystemDTO(sys)
 	// Apis init
+
+	authApi := api.NewAuthenticationApi(authDTO)
 
 	// Services init
 	handler, err := _http.NewHttpServer(newHandler(
-		api.NewAuthenticationHttpApi(authService),
+		authApi,
+		api.NewSystemApi(systemDTO),
 	))
 	if err != nil {
 		return nil, err
 	}
 
-	grpcServer := authentication.NewAuthenticationServer(authService)
-
 	rpc, err := grpc.NewGrpcServer([]grpc.GrpcService{
-		grpcServer,
+		authApi,
 	})
 	if err != nil {
 		return nil, err
