@@ -283,12 +283,12 @@ func (_m *MockAppProvider) EXPECT() *MockAppProvider_Expecter {
 	return &MockAppProvider_Expecter{mock: &_m.Mock}
 }
 
-// App provides a mock function for the type MockAppProvider
-func (_mock *MockAppProvider) App(ctx context.Context, appID string) (*entities.App, error) {
+// AppByID provides a mock function for the type MockAppProvider
+func (_mock *MockAppProvider) AppByID(ctx context.Context, appID string) (*entities.App, error) {
 	ret := _mock.Called(ctx, appID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for App")
+		panic("no return value specified for AppByID")
 	}
 
 	var r0 *entities.App
@@ -311,19 +311,19 @@ func (_mock *MockAppProvider) App(ctx context.Context, appID string) (*entities.
 	return r0, r1
 }
 
-// MockAppProvider_App_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'App'
-type MockAppProvider_App_Call struct {
+// MockAppProvider_AppByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AppByID'
+type MockAppProvider_AppByID_Call struct {
 	*mock.Call
 }
 
-// App is a helper method to define mock.On call
+// AppByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - appID string
-func (_e *MockAppProvider_Expecter) App(ctx interface{}, appID interface{}) *MockAppProvider_App_Call {
-	return &MockAppProvider_App_Call{Call: _e.mock.On("App", ctx, appID)}
+func (_e *MockAppProvider_Expecter) AppByID(ctx interface{}, appID interface{}) *MockAppProvider_AppByID_Call {
+	return &MockAppProvider_AppByID_Call{Call: _e.mock.On("AppByID", ctx, appID)}
 }
 
-func (_c *MockAppProvider_App_Call) Run(run func(ctx context.Context, appID string)) *MockAppProvider_App_Call {
+func (_c *MockAppProvider_AppByID_Call) Run(run func(ctx context.Context, appID string)) *MockAppProvider_AppByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -341,12 +341,12 @@ func (_c *MockAppProvider_App_Call) Run(run func(ctx context.Context, appID stri
 	return _c
 }
 
-func (_c *MockAppProvider_App_Call) Return(app *entities.App, err error) *MockAppProvider_App_Call {
+func (_c *MockAppProvider_AppByID_Call) Return(app *entities.App, err error) *MockAppProvider_AppByID_Call {
 	_c.Call.Return(app, err)
 	return _c
 }
 
-func (_c *MockAppProvider_App_Call) RunAndReturn(run func(ctx context.Context, appID string) (*entities.App, error)) *MockAppProvider_App_Call {
+func (_c *MockAppProvider_AppByID_Call) RunAndReturn(run func(ctx context.Context, appID string) (*entities.App, error)) *MockAppProvider_AppByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

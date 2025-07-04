@@ -13,11 +13,10 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/swag v1.16.4
 	github.com/vishenosik/gocherry v0.0.2
-	github.com/vishenosik/sso-sdk v0.0.1
 	golang.org/x/crypto v0.38.0
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0
-	google.golang.org/grpc v1.72.2
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/grpc v1.72.1
+	google.golang.org/protobuf v1.36.5
 )
 
 require (
@@ -50,11 +49,12 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.28 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/pressly/goose/v3 v3.24.2 // indirect
+	github.com/pressly/goose/v3 v3.24.1 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
+	github.com/swaggo/files/v2 v2.0.0 // indirect
+	github.com/swaggo/http-swagger/v2 v2.0.2 // indirect
 	github.com/vishenosik/concurrency v0.0.2 // indirect
-	github.com/vishenosik/web v0.0.2 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
@@ -62,7 +62,7 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

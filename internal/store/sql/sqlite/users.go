@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/vishenosik/sso/internal/entities"
+	"github.com/vishenosik/sso/internal/store"
 	"github.com/vishenosik/sso/internal/store/sql/models"
 )
 
@@ -21,15 +22,20 @@ func NewUsersStore(db *sqlx.DB) *UsersStore {
 }
 
 // SaveUser saves user to db.
-func (store *UsersStore) SaveUser(ctx context.Context, user *entities.UserCreds) error {
+func (us *UsersStore) SaveUser(ctx context.Context, user *entities.UserCreds) error {
+	return us.save(ctx, models.UserFromEntities(user))
+}
+
+// SaveUser saves user to db.
+func (us *UsersStore) save(ctx context.Context, user *models.User) error {
 	const op = "Store.sqlite.SaveUser"
 
-	stmt, err := store.db.Prepare("INSERT INTO UsersStore(id, nickname, email, pass_hash) VALUES(?, ?, ?, ?)")
+	stmt, err := us.db.Prepare("INSERT INTO UsersStore(id, nickname, email, pass_hash) VALUES(?, ?, ?, ?)")
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
 
-	_, err = stmt.ExecContext(ctx, user.ID, user.Nickname, user.Email, user.PasswordHash)
+	_, err = stmt.ExecContext(ctx, user.ID, user.Nickname, user.Email, user.Password)
 	if err != nil {
 		return errors.Wrap(err, op)
 	}
@@ -38,10 +44,19 @@ func (store *UsersStore) SaveUser(ctx context.Context, user *entities.UserCreds)
 }
 
 // User returns user by email.
-func (store *UsersStore) UserByEmail(ctx context.Context, email string) (*entities.UserCreds, error) {
+func (us *UsersStore) UserByEmail(ctx context.Context, email string) (*entities.UserCreds, error) {
+	user, err := us.userByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return models.UserToEntities(user), nil
+}
+
+func (us *UsersStore) userByEmail(ctx context.Context, email string) (*models.User, error) {
 	const op = "Store.sqlite.User"
 
-	stmt, err := store.db.Prepare("SELECT id, email, pass_hash FROM UsersStore WHERE email = ?")
+	stmt, err := us.db.Prepare("SELECT id, email, pass_hash FROM UsersStore WHERE email = ?")
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -52,18 +67,16 @@ func (store *UsersStore) UserByEmail(ctx context.Context, email string) (*entiti
 	err = row.Scan(&user.ID, &user.Email, &user.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.Wrap(entities.ErrNotFound, op)
+			return nil, errors.Wrap(store.ErrNotFound, op)
 		}
 
 		return nil, errors.Wrap(err, op)
 	}
 
-	return &entities.UserCreds{
-		User: entities.User{
-			ID:    user.ID,
-			Email: user.Email,
-		},
-		Password: string(user.Password),
+	return &models.User{
+		ID:       user.ID,
+		Email:    user.Email,
+		Password: user.Password,
 	}, nil
 }
 

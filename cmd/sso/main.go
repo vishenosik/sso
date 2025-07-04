@@ -4,6 +4,8 @@ import (
 	// std
 	"context"
 	"flag"
+	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path"
@@ -26,7 +28,21 @@ import (
 	"github.com/vishenosik/sso/internal/store/sql/sqlite"
 )
 
+var (
+	BuildDate string
+	GitBranch string
+	GitCommit string
+	GoVersion string
+	GitTag    string
+)
+
 func main() {
+
+	flag.BoolFunc("v", "Show build info", func(s string) error {
+		defer os.Exit(0)
+		printBuildInfo(os.Stdout)
+		return nil
+	})
 
 	gocherry.ConfigFlags(
 		services.AuthenticationConfigEnv{},
@@ -36,12 +52,12 @@ func main() {
 	ctx := context.Background()
 
 	// App init
-	application, err := NewApp()
+	app, err := NewApp()
 	if err != nil {
 		panic(err)
 	}
 
-	err = application.Start(ctx)
+	err = app.Start(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +72,9 @@ func main() {
 	)
 	defer cancel()
 
-	application.Stop(stopctx)
+	if err := app.Stop(stopctx); err != nil {
+		panic(err)
+	}
 }
 
 type Server interface {
@@ -80,10 +98,7 @@ func NewApp() (*App, error) {
 	// Stores init
 
 	sqlStore, err := sql.NewSqliteStore(
-		sql.WithMigration(
-			embed.Migrations,
-			path.Join(embed.MigrationsPath, "sqlite"),
-		),
+		sql.WithMigration(embed.Migrations, path.Join(embed.MigrationsPath, "sqlite")),
 	)
 	if err != nil {
 		return nil, err
@@ -94,8 +109,18 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	usersStore := sqlite.NewUsersStore(db)
+	// client, err := graph.NewClientCtx(context.TODO(), graph.DgraphConfig{})
+	// if err != nil {
+	// 	return nil, err
+	// }
 
+	// if err := client.Migrate(embed.Migrations); err != nil {
+	// 	return nil, err
+	// }
+
+	// graphUsers := dgraph.NewUsersStore(client.Cli)
+
+	usersStore := sqlite.NewUsersStore(db)
 	appsStore := sqlite.NewAppsStore(db)
 
 	// Usecases init
@@ -105,23 +130,22 @@ func NewApp() (*App, error) {
 	}
 
 	authDTO := dto.NewAuthenticationDTO(authService)
+	authApi := api.NewAuthenticationApi(authDTO)
 
 	sys := services.NewSystem(100, false, 322)
 	systemDTO := dto.NewSystemDTO(sys)
-	// Apis init
-
-	authApi := api.NewAuthenticationApi(authDTO)
+	systemApi := api.NewSystemApi(systemDTO)
 
 	// Services init
 	httpServer, err := _http.NewHttpServer(api.NewHttpHandler(
 		authApi,
-		api.NewSystemApi(systemDTO),
+		systemApi,
 	))
 	if err != nil {
 		return nil, err
 	}
 
-	grpcServer, err := grpc.NewGrpcServer([]grpc.GrpcService{
+	grpcServer, err := grpc.NewGrpcServer(grpc.GrpcServices{
 		authApi,
 	})
 	if err != nil {
@@ -133,48 +157,24 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	app.AddServices(httpServer, cacheStore, sqlStore, grpcServer)
-
-	// // Data schemas init
-	// cachedStore := combined.NewCachedStore(store, cache)
-
-	// dgraphStore, err := loadDgraph(ctx)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// // Services init
-	// authenticationService := authenticationService.NewService(
-	// 	log,
-	// 	authenticationService.Config{
-	// 		TokenTTL: conf.AuthenticationService.TokenTTL,
-	// 	},
-	// 	dgraphStore,
-	// 	dgraphStore,
-	// 	cachedStore,
-	// )
-
-	// grpcServer := grpcApp.NewGrpcApp(
-	// 	log,
-	// 	grpcApp.Config{
-	// 		Server: config.Server{
-	// 			Port: conf.GrpcConfig.Port,
-	// 		},
-	// 	},
-	// 	authenticationService,
-	// )
-
-	// restServer := restApp.NewRestApp(
-	// 	ctx,
-	// 	restApp.Config{
-	// 		Server: config.Server{
-	// 			Port: conf.RestConfig.Port,
-	// 		},
-	// 	},
-	// 	authenticationService,
-	// )
+	app.AddServices(
+		httpServer,
+		cacheStore,
+		sqlStore,
+		grpcServer,
+		// client,
+	)
 
 	return &App{
 		Server: app,
 	}, nil
+}
+
+func printBuildInfo(writer io.Writer) {
+	writer.Write([]byte("Build Info:\n"))
+	writer.Write([]byte(fmt.Sprintf("Build Date: %s\n", BuildDate)))
+	writer.Write([]byte(fmt.Sprintf("Git Branch: %s\n", GitBranch)))
+	writer.Write([]byte(fmt.Sprintf("Git Commit: %s\n", GitCommit)))
+	writer.Write([]byte(fmt.Sprintf("Go Version: %s\n", GoVersion)))
+	writer.Write([]byte(fmt.Sprintf("Git Tag: %s\n", GitTag)))
 }

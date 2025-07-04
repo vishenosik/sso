@@ -22,7 +22,7 @@ import (
 	"github.com/vishenosik/gocherry/pkg/operation"
 	"github.com/vishenosik/sso/internal/entities"
 	"github.com/vishenosik/sso/internal/lib/jwt"
-	store_models "github.com/vishenosik/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store"
 )
 
 type UserSaver interface {
@@ -41,7 +41,7 @@ type UserProvider interface {
 
 type AppProvider interface {
 	//
-	App(ctx context.Context, appID string) (app *entities.App, err error)
+	AppByID(ctx context.Context, appID string) (app *entities.App, err error)
 }
 
 type AuthenticationService struct {
@@ -184,13 +184,13 @@ func (auth *AuthenticationService) RegisterUser(
 
 	log.Debug("generated password hash")
 
-	user.PasswordHash = passHash
+	user.Password = string(passHash)
 
 	if err := auth.userSaver.SaveUser(ctx, user); err != nil {
 
 		log.Error("failed to save user", logs.Error(err))
 
-		if errors.Is(err, store_models.ErrAlreadyExists) {
+		if errors.Is(err, store.ErrAlreadyExists) {
 			return fail(entities.ErrUserExists)
 		}
 		return fail(entities.ErrUsersStore)
@@ -237,7 +237,7 @@ func (auth *AuthenticationService) IsAdmin(
 
 		log.Error("error occured", logs.Error(err))
 
-		if errors.Is(err, store_models.ErrNotFound) {
+		if errors.Is(err, store.ErrNotFound) {
 			return fail(entities.ErrUserNotFound)
 		}
 
@@ -300,12 +300,12 @@ func (auth *AuthenticationService) LoginByEmail(
 
 	log.Debug("attempting to get app")
 
-	app, err := auth.appProvider.App(ctx, appID)
+	app, err := auth.appProvider.AppByID(ctx, appID)
 	if err != nil {
 
 		log.Error("failed to get app", logs.Error(err))
 
-		if errors.Is(err, store_models.ErrNotFound) {
+		if errors.Is(err, store.ErrNotFound) {
 			return fail(entities.ErrAppNotFound)
 		}
 
@@ -318,7 +318,7 @@ func (auth *AuthenticationService) LoginByEmail(
 	if err != nil {
 		log.Error("failed to get user", logs.Error(err))
 
-		if errors.Is(err, store_models.ErrNotFound) {
+		if errors.Is(err, store.ErrNotFound) {
 			return fail(entities.ErrUserNotFound)
 		}
 		return fail(entities.ErrUsersStore)
@@ -326,7 +326,7 @@ func (auth *AuthenticationService) LoginByEmail(
 
 	userIDAttr := logs.UserID(user.ID)
 
-	if err := bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		log.Error("invalid password", logs.Error(err), userIDAttr)
 		return fail(entities.ErrInvalidCredentials)
 	}

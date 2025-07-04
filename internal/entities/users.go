@@ -19,6 +19,5 @@ func (user *User) GetEmail() string {
 type UserCreds struct {
 	User
 	//
-	Password     string `validate:"required"`
-	PasswordHash []byte
+	Password string `validate:"required"`
 }

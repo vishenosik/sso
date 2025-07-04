@@ -7,7 +7,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/vishenosik/sso/internal/entities"
-	"github.com/vishenosik/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store"
+	"github.com/vishenosik/sso/internal/store/sql/models"
 )
 
 type AppsStore struct {
@@ -20,11 +21,19 @@ func NewAppsStore(db *sqlx.DB) *AppsStore {
 	}
 }
 
-// App returns app by id.
-func (store *AppsStore) App(ctx context.Context, id string) (*entities.App, error) {
+// AppByID returns app by id.
+func (as *AppsStore) AppByID(ctx context.Context, id string) (*entities.App, error) {
+	app, err := as.appByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return models.AppToEntities(app), nil
+}
+
+func (as *AppsStore) appByID(ctx context.Context, id string) (*models.App, error) {
 	const op = "Store.sqlite.App"
 
-	stmt, err := store.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")
+	stmt, err := as.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")
 	if err != nil {
 		return nil, errors.Wrap(err, op)
 	}
@@ -35,13 +44,13 @@ func (store *AppsStore) App(ctx context.Context, id string) (*entities.App, erro
 	err = row.Scan(&app.ID, &app.Name, &app.Secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.Wrap(models.ErrNotFound, op)
+			return nil, errors.Wrap(store.ErrNotFound, op)
 		}
 
 		return nil, errors.Wrap(err, op)
 	}
 
-	return &entities.App{
+	return &models.App{
 		ID:     app.ID,
 		Name:   app.Name,
 		Secret: app.Secret,

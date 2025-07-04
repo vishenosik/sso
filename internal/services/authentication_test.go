@@ -25,7 +25,7 @@ import (
 	// internal
 
 	"github.com/vishenosik/sso/internal/entities"
-	store_models "github.com/vishenosik/sso/internal/store/models"
+	"github.com/vishenosik/sso/internal/store"
 )
 
 const (
@@ -35,7 +35,7 @@ const (
 
 	userProvider_IsAdmin     = "IsAdmin"
 	userProvider_UserByEmail = "UserByEmail"
-	appProvider_App          = "App"
+	appProvider_AppByID      = "AppByID"
 	userSaver_SaveUser       = "SaveUser"
 )
 
@@ -143,7 +143,7 @@ func Test_IsAdmin(t *testing.T) {
 	userProvider.
 		On(userProvider_IsAdmin, mock.Anything, ID1).Return(false, nil).
 		On(userProvider_IsAdmin, mock.Anything, ID2).Return(true, nil).
-		On(userProvider_IsAdmin, mock.Anything, ID3).Return(false, store_models.ErrNotFound).
+		On(userProvider_IsAdmin, mock.Anything, ID3).Return(false, store.ErrNotFound).
 		On(userProvider_IsAdmin, mock.Anything, ID4).Return(false, errors.New("test"))
 
 	service := suite_NewService(t, nil, userProvider, nil)
@@ -174,7 +174,7 @@ func Test_Login_Success(t *testing.T) {
 			ID:    userID,
 			Email: email,
 		},
-		PasswordHash: passHash,
+		Password: string(passHash),
 	}
 
 	storeApp := &entities.App{
@@ -186,7 +186,7 @@ func Test_Login_Success(t *testing.T) {
 	userProvider.On(userProvider_UserByEmail, mock.Anything, email).Return(storeUser, nil)
 
 	appProvider := NewMockAppProvider(t)
-	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
+	appProvider.On(appProvider_AppByID, mock.Anything, appID).Return(storeApp, nil)
 
 	service := suite_NewService(t, nil, userProvider, appProvider)
 
@@ -228,7 +228,7 @@ func Test_Login_Fail_InvalidPassword(t *testing.T) {
 			ID:    userID,
 			Email: email,
 		},
-		PasswordHash: passHash,
+		Password: string(passHash),
 	}
 
 	storeApp := &entities.App{
@@ -240,7 +240,7 @@ func Test_Login_Fail_InvalidPassword(t *testing.T) {
 	userProvider.On(userProvider_UserByEmail, mock.Anything, email).Return(storeUser, nil)
 
 	appProvider := NewMockAppProvider(t)
-	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
+	appProvider.On(appProvider_AppByID, mock.Anything, appID).Return(storeApp, nil)
 
 	service := suite_NewService(t, nil, userProvider, appProvider)
 
@@ -262,8 +262,8 @@ func Test_Login_Fail_App(t *testing.T) {
 	appID2 := uuid.New().String()
 
 	appProvider := NewMockAppProvider(t)
-	appProvider.On(appProvider_App, mock.Anything, appID1).Return(nil, store_models.ErrNotFound)
-	appProvider.On(appProvider_App, mock.Anything, appID2).Return(nil, errors.New("test error"))
+	appProvider.On(appProvider_AppByID, mock.Anything, appID1).Return(nil, store.ErrNotFound)
+	appProvider.On(appProvider_AppByID, mock.Anything, appID2).Return(nil, errors.New("test error"))
 
 	service := suite_NewService(t, nil, nil, appProvider)
 
@@ -302,11 +302,11 @@ func Test_Login_Fail_User(t *testing.T) {
 	}
 
 	userProvider := NewMockUserProvider(t)
-	userProvider.On(userProvider_UserByEmail, mock.Anything, email1).Return(nil, store_models.ErrNotFound)
+	userProvider.On(userProvider_UserByEmail, mock.Anything, email1).Return(nil, store.ErrNotFound)
 	userProvider.On(userProvider_UserByEmail, mock.Anything, email2).Return(nil, errors.New("test error"))
 
 	appProvider := NewMockAppProvider(t)
-	appProvider.On(appProvider_App, mock.Anything, appID).Return(storeApp, nil)
+	appProvider.On(appProvider_AppByID, mock.Anything, appID).Return(storeApp, nil)
 
 	service := suite_NewService(t, nil, userProvider, appProvider)
 
@@ -499,7 +499,7 @@ func Test_Register_Fail_Store(t *testing.T) {
 	}
 
 	userSaver := NewMockUserSaver(t)
-	userSaver.On(userSaver_SaveUser, mock.Anything, &request1).Return(store_models.ErrAlreadyExists)
+	userSaver.On(userSaver_SaveUser, mock.Anything, &request1).Return(store.ErrAlreadyExists)
 	userSaver.On(userSaver_SaveUser, mock.Anything, &request2).Return(errors.New("test"))
 
 	service := suite_NewService(t, userSaver, nil, nil)

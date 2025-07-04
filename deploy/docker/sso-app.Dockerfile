@@ -10,12 +10,6 @@ RUN go mod download
 
 COPY . .
 
-# COPY ./cmd/sso/main.go ./cmd/sso/main.go
-# COPY ./internal ./internal
-# COPY ./pkg ./pkg
-# COPY ./migrations ./migrations
-# COPY ./static ./static
-
 # Build
 RUN CGO_ENABLED=1 GOOS=linux go build -o bin/ cmd/sso/main.go
 

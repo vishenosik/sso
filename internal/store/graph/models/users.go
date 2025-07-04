@@ -3,10 +3,11 @@ package models
 import "github.com/vishenosik/sso/internal/entities"
 
 type User struct {
-	Nickname string `db:"nickname"`
-	Email    string `db:"email"`
-	ID       string `db:"id"`
-	Password []byte `db:"password"`
+	Nickname     string   `json:"nickname,omitempty"`
+	Email        string   `json:"email,omitempty"`
+	ID           string   `json:"uuid,omitempty"`
+	PasswordHash []byte   `json:"pass_hash,omitempty"`
+	DType        []string `json:"dgraph.type,omitempty"`
 }
 
 func UserToEntities(user *User) *entities.UserCreds {
@@ -18,7 +19,7 @@ func UserToEntities(user *User) *entities.UserCreds {
 			ID:    user.ID,
 			Email: user.Email,
 		},
-		Password: string(user.Password),
+		Password: string(user.PasswordHash),
 	}
 }
 
@@ -27,9 +28,9 @@ func UserFromEntities(user *entities.UserCreds) *User {
 		return new(User)
 	}
 	return &User{
-		Nickname: user.Nickname,
-		Email:    user.Email,
-		ID:       user.ID,
-		Password: []byte(user.Password),
+		Nickname:     user.Nickname,
+		Email:        user.Email,
+		ID:           user.ID,
+		PasswordHash: []byte(user.Password),
 	}
 }
