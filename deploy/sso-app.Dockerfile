@@ -20,7 +20,9 @@ WORKDIR /
 
 COPY --from=build-stage /app/bin/main /app/main
 
-EXPOSE ${REST_PORT}
-EXPOSE ${GRPC_PORT}
+# HTTP port
+EXPOSE 4080
+# gRPC port
+EXPOSE 4090
 
 ENTRYPOINT [ "./app/main" ] 

@@ -12,8 +12,8 @@ services:
     container_name: app-1
     image: sso-app
     ports:
-      - ${REST_PORT}:${REST_PORT}
-      - ${GRPC_PORT}:${GRPC_PORT}
+      - ${REST_PORT}:4080
+      - ${GRPC_PORT}:4090
     env_file:
       - ../../.env
     volumes:
