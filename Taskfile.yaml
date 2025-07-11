@@ -36,7 +36,7 @@ tasks:
 
   build-container:
     desc: Build Docker image
-    cmd: '$CONTAINER_ENGINE build -t sso-app . -f ./deploy/sso-app.Dockerfile'
+    cmd: '$CONTAINER_ENGINE build -t sso-app . -f ./deploy/sso-app.Dockerfile --force-rm --no-cache'
 
   copy-bin:
     desc: copy binary from sso-app image to local storage

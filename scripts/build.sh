@@ -3,7 +3,9 @@
 set -e
 
 # Build sso binary
-go build -o bin/ -ldflags "\
+go build \
+    -o bin/ \
+    -ldflags "\
     -X 'main.BuildDate=$(date -u +'%Y-%m-%d-%H:%M:%S')' \
     -X 'main.GitBranch=$(git branch --show-current)' \
     -X 'main.GitCommit=$(git rev-parse HEAD)' \

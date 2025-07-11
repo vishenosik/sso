@@ -1,13 +1,33 @@
-### Exclude catalog
-bin/
-docs/
-deploy/
-sso-sdk/
-storage/
-tests/
-tools/
+# Should leave only build-dependable files
+
+# === COMMON === #
+
+.github
 .gitignore
 .vscode
 .idea
 .task
-.obsidian
+.obsidian*
+.dockerignore
+*.env
+
+tools/
+bin/
+docs/
+deploy/
+storage/
+tools/
+dist/
+
+# === TASKFILE SETTINGS === #
+
+[Tt]askfile.y*
+
+# === TESTING === #
+
+*.out
+
+# === GOLANG FILES === #
+
+go.work*
+

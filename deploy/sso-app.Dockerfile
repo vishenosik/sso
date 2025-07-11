@@ -5,10 +5,9 @@ FROM golang:1.24.2 AS build-stage
 # Set destination for COPY
 WORKDIR /app
 
-COPY go.mod go.sum embed.go ./
-RUN go mod download
-
 COPY . .
+
+RUN go mod download
 
 # Build
 RUN CGO_ENABLED=1 GOOS=linux go build -o bin/ cmd/sso/main.go

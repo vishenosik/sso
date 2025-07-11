@@ -2,6 +2,7 @@ package main
 
 import (
 	// std
+
 	"context"
 	"flag"
 	"fmt"
@@ -171,10 +172,10 @@ func NewApp() (*App, error) {
 }
 
 func printBuildInfo(writer io.Writer) {
-	writer.Write([]byte("Build Info:\n"))
-	writer.Write([]byte(fmt.Sprintf("Build Date: %s\n", BuildDate)))
-	writer.Write([]byte(fmt.Sprintf("Git Branch: %s\n", GitBranch)))
-	writer.Write([]byte(fmt.Sprintf("Git Commit: %s\n", GitCommit)))
-	writer.Write([]byte(fmt.Sprintf("Go Version: %s\n", GoVersion)))
-	writer.Write([]byte(fmt.Sprintf("Git Tag: %s\n", GitTag)))
+	buf := fmt.Appendf([]byte{}, "Build Date: %s\n", BuildDate)
+	buf = fmt.Appendf(buf, "Git Branch: %s\n", GitBranch)
+	buf = fmt.Appendf(buf, "Git Commit: %s\n", GitCommit)
+	buf = fmt.Appendf(buf, "Go Version: %s\n", GoVersion)
+	buf = fmt.Appendf(buf, "Git Tag: %s\n", GitTag)
+	writer.Write(buf)
 }
