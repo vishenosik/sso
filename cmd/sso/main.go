@@ -5,8 +5,6 @@ import (
 
 	"context"
 	"flag"
-	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"path"
@@ -29,21 +27,9 @@ import (
 	"github.com/vishenosik/sso/internal/store/sql/sqlite"
 )
 
-var (
-	BuildDate string
-	GitBranch string
-	GitCommit string
-	GoVersion string
-	GitTag    string
-)
-
 func main() {
 
-	flag.BoolFunc("v", "Show build info", func(s string) error {
-		defer os.Exit(0)
-		printBuildInfo(os.Stdout)
-		return nil
-	})
+	gocherry.AppFlags()
 
 	gocherry.ConfigFlags(
 		services.AuthenticationConfigEnv{},
@@ -169,13 +155,4 @@ func NewApp() (*App, error) {
 	return &App{
 		Server: app,
 	}, nil
-}
-
-func printBuildInfo(writer io.Writer) {
-	buf := fmt.Appendf([]byte{}, "Build Date: %s\n", BuildDate)
-	buf = fmt.Appendf(buf, "Git Branch: %s\n", GitBranch)
-	buf = fmt.Appendf(buf, "Git Commit: %s\n", GitCommit)
-	buf = fmt.Appendf(buf, "Go Version: %s\n", GoVersion)
-	buf = fmt.Appendf(buf, "Git Tag: %s\n", GitTag)
-	writer.Write(buf)
 }
