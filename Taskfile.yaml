@@ -19,7 +19,7 @@ tasks:
     deps: [build-local]
     silent: true
     watch: true
-    cmd: ./bin/main {{.FLAG_CONFIG}}
+    cmd: ./bin/main
     sources: 
       - ./*.go,
       - ./**/*.go
@@ -83,7 +83,7 @@ tasks:
       
   graph:
     desc: Generate dependency graph in pdf
-    cmd: go mod graph | modgraphviz | dot -Tpdf -o graph.pdf
+    cmd: go mod graph | modgraphviz | dot -Grankdir=TB -Tpdf -o graph.pdf
 
   security:
     desc: Run security checks
@@ -92,22 +92,16 @@ tasks:
 
   # DOCS
 
-  docs:
-    desc: Generate docs
-    env:
-      SWAG: swag init -g ./cmd/sso/main.go
-    cmds:
-      # make internal docs (go-based)
-      - $SWAG -o ./internal/gen/swagger --ot go
-      # make sdk docs (json,yaml)
-      - $SWAG -o ./sso-sdk/swagger --ot json,yaml --instanceName sso_swagger
+  gen-configs:
+    desc: Generate sso configs
+    aliases: [configs]
+    cmds: 
       # make env example
-      - go run ./cmd/sso/main.go --config.doc=./docs/example.env
-
+      - go run ./cmd/sso/main.go --config.gen=./docs/example.env
+      
   # SECURITY
-
 
   generate_hmac_key:
     desc: Generate hmac_secret_file used to configure dgraph secrets so far
     aliases: [gen-hmac]
-    cmd: tr -dc 'a-zA-Z0-9' < /dev/urandom | dd bs=1 count=32 of=./deploy/compose/dgraph/acl/hmac_secret
+    cmd: tr -dc 'a-zA-Z0-9' < /dev/urandom | dd bs=1 count=32 of=./deploy/dgraph/acl/hmac_secret
