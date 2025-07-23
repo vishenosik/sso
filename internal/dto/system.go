@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/vishenosik/sso-sdk/api"
-	"github.com/vishenosik/sso-sdk/errors"
 	"github.com/vishenosik/sso/internal/entities"
 	"github.com/vishenosik/sso/internal/services"
 	"golang.org/x/exp/constraints"
@@ -46,7 +45,7 @@ func metricsApiToEntities(metrics api.Metrics) entities.Metrics {
 }
 
 func (s *SystemDTO) GetMetrics() (api.Metrics, error) {
-	return nil, errors.ErrAlreadyExists
+	return nil, api.ErrAlreadyExists
 	// return metricsEntitiesToApi(s.service.FetchMetrics()), nil
 }
 
