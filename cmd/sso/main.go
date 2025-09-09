@@ -1,56 +1,157 @@
 package main
 
 import (
+	// std
+
 	"context"
 	"flag"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 
-	"github.com/vishenosik/sso/internal/app"
-	appctx "github.com/vishenosik/sso/internal/app/context"
+	// internal pkg
+	"github.com/vishenosik/gocherry"
+	"github.com/vishenosik/gocherry/pkg/cache"
+	_ctx "github.com/vishenosik/gocherry/pkg/context"
+	"github.com/vishenosik/gocherry/pkg/grpc"
+	_http "github.com/vishenosik/gocherry/pkg/http"
+	"github.com/vishenosik/gocherry/pkg/sql"
+	"github.com/vishenosik/sso-sdk/api"
+
+	// internal
+	embed "github.com/vishenosik/sso"
+	"github.com/vishenosik/sso/internal/dto"
+	"github.com/vishenosik/sso/internal/services"
+	"github.com/vishenosik/sso/internal/store/sql/sqlite"
 )
 
-// @title           sso
-// @version         0.0.1
-// @description     This is a sample server celler server.
-// @termsOfService  http://swagger.io/terms/
-//
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
-//
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-//
-// @host      localhost:8080
-// @BasePath  /
-//
-// @securityDefinitions.basic  BasicAuth
-//
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+
+	gocherry.Flags(os.Stdout, os.Args[1:],
+		gocherry.AppFlags(os.Stdout),
+		gocherry.ConfigFlags(os.Stdout),
+	)
+
 	flag.Parse()
-	runServer()
-}
-
-func runServer() {
-
 	ctx := context.Background()
 
-	// Инициализация приложения
-	application := app.MustInitApp()
+	// App init
+	app, err := NewApp()
+	if err != nil {
+		panic(err)
+	}
 
-	application.MustRun()
+	err = app.Start(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	// Graceful shut down
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	stopctx, cancel := context.WithTimeout(appctx.WithSignalCtx(ctx, <-stop), time.Second*5)
+	stopctx, cancel := context.WithTimeout(
+		_ctx.WithStopCtx(ctx, <-stop),
+		time.Second*5,
+	)
 	defer cancel()
 
-	application.Stop(stopctx)
+	if err := app.Stop(stopctx); err != nil {
+		panic(err)
+	}
+}
+
+type Server interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type App struct {
+	Server
+}
+
+func NewApp() (*App, error) {
+
+	// Cache init
+
+	cacheStore, err := cache.NewRedisCache()
+	if err != nil {
+		cacheStore = cache.NewNoopCache()
+	}
+
+	// Stores init
+
+	sqlStore, err := sql.NewSqliteStore(
+		sql.WithMigration(embed.Migrations, path.Join(embed.MigrationsPath, "sqlite")),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := sqlStore.Open(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	// client, err := graph.NewClientCtx(context.TODO(), graph.DgraphConfig{})
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// if err := client.Migrate(embed.Migrations); err != nil {
+	// 	return nil, err
+	// }
+
+	// graphUsers := dgraph.NewUsersStore(client.Cli)
+
+	usersStore := sqlite.NewUsersStore(db)
+	appsStore := sqlite.NewAppsStore(db)
+
+	// Usecases init
+	authService, err := services.NewAuthenticationService(usersStore, usersStore, appsStore)
+	if err != nil {
+		return nil, err
+	}
+
+	authDTO := dto.NewAuthenticationDTO(authService)
+	authApi := api.NewAuthenticationApi(authDTO)
+
+	sys := services.NewSystem(100, false, 322)
+	systemDTO := dto.NewSystemDTO(sys)
+	systemApi := api.NewSystemApi(systemDTO)
+
+	// Services init
+	httpServer, err := _http.NewHttpServer(api.NewHttpHandler(
+		authApi,
+		systemApi,
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	grpcServer, err := grpc.NewGrpcServer(grpc.GrpcServices{
+		authApi,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	app, err := gocherry.NewApp()
+	if err != nil {
+		return nil, err
+	}
+
+	app.AddServices(
+		httpServer,
+		cacheStore,
+		sqlStore,
+		grpcServer,
+		// client,
+	)
+
+	return &App{
+		Server: app,
+	}, nil
 }
