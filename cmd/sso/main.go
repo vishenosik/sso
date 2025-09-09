@@ -29,10 +29,9 @@ import (
 
 func main() {
 
-	gocherry.AppFlags()
-
-	gocherry.ConfigFlags(
-		services.AuthenticationConfigEnv{},
+	gocherry.Flags(os.Stdout, os.Args[1:],
+		gocherry.AppFlags(os.Stdout),
+		gocherry.ConfigFlags(os.Stdout),
 	)
 
 	flag.Parse()

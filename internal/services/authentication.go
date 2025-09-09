@@ -63,6 +63,10 @@ type AuthenticationConfigEnv struct {
 
 type AuthenticationServiceOption func(*AuthenticationService)
 
+func init() {
+	config.AddStructs(AuthenticationConfigEnv{})
+}
+
 func (c AuthenticationConfig) validate() error {
 	return nil
 }
@@ -92,7 +96,7 @@ func NewAuthenticationService(
 	)
 
 	var envConf AuthenticationConfigEnv
-	if err := config.ReadConfig(&envConf); err != nil {
+	if err := config.ReadConfigEnv(&envConf); err != nil {
 		log.Warn("failed to read env config", logs.Error(err))
 	}
 
