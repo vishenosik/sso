@@ -229,6 +229,7 @@ All notable changes to this project will be documented in this file.
 - *(gen)* Remove old generated files. Update deps.
 - *(mod)* Upgrade deps.
 - *(actions)* Upgrade github actions.
+- *(dgraph)* Delete old dgraph implementation.
 
 ### ◀️ Revert
 
